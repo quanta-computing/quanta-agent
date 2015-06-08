@@ -20,4 +20,4 @@ clean:
 fclean: clean
 	$(RM) $(NAME)
 
-# re: fclean all
+re: fclean all
