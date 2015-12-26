@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <yaml.h>
+
 #include "config.h"
+#include "strl.h"
+
 
 int config_parse_key(yaml_parser_t *parser, const char *key, monikor_config_dict_t *dict) {
   yaml_event_t ev;
@@ -15,6 +18,18 @@ int config_parse_key(yaml_parser_t *parser, const char *key, monikor_config_dict
       dict->type = SCALAR;
       dict->value.value = strdup((char *)ev.data.scalar.value);
       break;
+
+    case YAML_SEQUENCE_START_EVENT:
+      printf("Got list for %s\n", key);
+      dict->type = LIST;
+      if (!(dict->value.list = strl_new())
+      || config_parse_list(parser, dict->value.list)) {
+        printf("bad return from parse_list\n");
+        yaml_event_delete(&ev);
+        return 1;
+      }
+      break;
+
 
     case YAML_MAPPING_START_EVENT:
       printf("Got mapping for %s\n", key);

@@ -17,12 +17,12 @@ static const char *priority_message[] = {
     "DEBUG"
 };
 
-int monikor_log_level = LOG_INFO;
+static int _monikor_log_level = LOG_INFO;
 
 
 void monikor_logger_init(int prio) {
   if (prio != MONIKOR_LOG_DEFAULT)
-    monikor_log_level = prio;
+    _monikor_log_level = prio;
 }
 
 
@@ -32,15 +32,17 @@ void monikor_logger_cleanup(void) {
 
 int monikor_vlog(int prio, const char *message, va_list ap) {
   char *full_msg;
+  size_t full_msg_len;
   int ret;
 
   if (prio == MONIKOR_LOG_DEFAULT)
-    prio = monikor_log_level;
+    prio = _monikor_log_level;
   if (prio < MONIKOR_LOG_MIN_PRIO || prio > MONIKOR_LOG_MAX_PRIO)
     return -1;
-  if (prio > monikor_log_level)
+  if (prio > _monikor_log_level)
     return 0;
-  if (!(full_msg = malloc(strlen(priority_message[prio]) + strlen(MONIKOR_LOG_SEP) + strlen(message) + 1)))
+  full_msg_len = strlen(priority_message[prio]) + strlen(MONIKOR_LOG_SEP) + strlen(message);
+  if (!(full_msg = malloc(full_msg_len + 1)))
     return -1;
   strcpy(full_msg, priority_message[prio]);
   strcat(full_msg, MONIKOR_LOG_SEP);

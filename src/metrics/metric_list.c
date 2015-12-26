@@ -79,8 +79,9 @@ void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(moniko
 
 /*
 ** This function appends 2 lists
-** Please note that tail contents may be invalidated by any operation on head, and head contents will
-** be invalidated by any push/delete operation on tail. It is then safer to free tail.
+** Please note that tail contents are definitely moved to head, so tail is an empty list after
+** the call to monikor_metric_list_concat and can be safely freed with a call to
+** monikor_metric_list_delete
 */
 void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list_t *tail) {
   if (head->size && tail->size) {
@@ -91,4 +92,7 @@ void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list
     head->last = tail->last;
   }
   head->size += tail->size;
+  tail->size = 0;
+  tail->first = NULL;
+  tail->last = NULL;
 }

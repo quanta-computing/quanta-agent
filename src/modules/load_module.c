@@ -37,18 +37,19 @@ static char *_get_sopath(const char *name, const char *mod_path) {
 ** It will search for the required (<mod_name>_init, <mod_name>_poll) and optional (<mod_name>_cleanup)
 ** symbols in an dynamic library file.
 */
-monikor_mod_t *load_module(const char *name, const char *mod_path) {
+monikor_mod_t *monikor_load_module(const char *name, const char *mod_path) {
   char *sopath = NULL;
   monikor_mod_t *mod = NULL;
 
   monikor_log(LOG_INFO, "loading module %s\n", name);
   if (!(mod = monikor_mod_new(name))
     || !(sopath = _get_sopath(name, mod_path))) {
-    monikor_log(LOG_ERR, "cannot allocate memory\n");
+    monikor_log(LOG_ERR, "cannot load module %s: cannot allocate memory\n", name);
     goto err;
   }
   if (!(mod->dhandle = dlopen(sopath, RTLD_LAZY|RTLD_LOCAL|RTLD_FIRST))) {
-    monikor_log(LOG_ERR, "cannot load dynamic library %s: %s\n", sopath, dlerror());
+    monikor_log(LOG_ERR, "cannot_load_module %s: cannot load dynamic library %s: %s\n",
+      name, sopath, dlerror());
     goto err;
   }
   if (!(mod->init = _load_mod_function(name, MONIKOR_MOD_INIT_TAG, mod->dhandle))) {

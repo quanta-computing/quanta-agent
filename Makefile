@@ -4,17 +4,27 @@ NAME=monikor
 
 SRCD=src/
 SRCF=	config/config.c \
+			config/setup_config.c \
 			config/config_dict.c \
 			config/config_parser.c \
 			config/config_parse_key.c \
 			config/config_parse_mapping.c \
-			debug.c \
-			load_module.c \
-			logger.c \
+			config/config_parse_list.c \
+			utils/strl.c \
+			utils/logger.c \
+			modules/load_module.c \
+			modules/load_all_modules.c \
+			modules/module.c \
+			metrics/metric.c \
+			metrics/metric_list.c \
+			core/init.c \
+			core/run.c \
+			core/cleanup.c \
+			core/usage.c \
 			main.c \
-			metric.c \
-			metric_list.c \
-			module.c
+			debug.c
+
+
 SRC=$(addprefix $(SRCD), $(SRCF))
 OBJ=$(SRC:.c=.o)
 

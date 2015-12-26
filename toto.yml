@@ -1,0 +1,12 @@
+interval: 5
+
+log_level: debug
+
+server:
+  host: localhost
+  port: 4242
+
+modules_path: ./lib/modules
+modules:
+  - dummy
+  - dummy

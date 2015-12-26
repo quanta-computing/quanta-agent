@@ -1,7 +1,7 @@
 #ifndef MONIKOR_MODULE_H_
 # define MONIKOR_MODULE_H_
 
-# include "monikor.h"
+# include "metric.h"
 
 # define MONIKOR_MOD_INIT_TAG "_init"
 # define MONIKOR_MOD_POLL_TAG "_poll"
@@ -22,8 +22,7 @@ typedef struct {
 
 } monikor_mod_t;
 
-
-monikor_mod_t       *load_module(const char *name, const char *mod_path);
+monikor_mod_t       *monikor_load_module(const char *name, const char *mod_path);
 
 monikor_mod_t       *monikor_mod_new(const char *name);
 void                monikor_mod_free(monikor_mod_t *mod);

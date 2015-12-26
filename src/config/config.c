@@ -12,11 +12,12 @@
 monikor_config_t *monikor_config_new(void) {
   monikor_config_t *cfg;
 
-  if (!(cfg = malloc(sizeof(cfg))))
+  if (!(cfg = malloc(sizeof(*cfg))))
     return NULL;
   cfg->full_config = monikor_config_dict_new();
   cfg->config_path = strdup(MONIKOR_DEFAULT_CONFIG_PATH);
-  cfg->sock_path = NULL;
+  cfg->server.host = NULL;
+  cfg->modules.path = NULL;
   cfg->log_level = LOG_NOTICE;
   return cfg;
 }
@@ -25,11 +26,11 @@ monikor_config_t *monikor_config_new(void) {
 void monikor_config_free(monikor_config_t *config) {
   monikor_config_dict_free(config->full_config);
   free(config->config_path);
-  free(config->modules_path);
-  free(config->sock_path);
+  free(config->modules.path);
+  strl_delete(config->modules.modules);
+  free(config->server.host);
   free(config);
 }
-
 
 monikor_config_t *monikor_load_config(const char *config_path) {
   monikor_config_t *cfg;
@@ -54,6 +55,7 @@ monikor_config_t *monikor_load_config(const char *config_path) {
     fclose(config_fh);
     return NULL;
   }
+  monikor_setup_config(cfg);
   fclose(config_fh);
   return cfg;
 }
