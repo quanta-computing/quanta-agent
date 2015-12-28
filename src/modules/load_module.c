@@ -32,6 +32,14 @@ static char *_get_sopath(const char *name, const char *mod_path) {
 }
 
 
+
+#ifdef RTLD_FIRST
+# define MONIKOR_DLOPEN_FLAGS RTLD_LAZY|RTLD_LOCAL|RTLD_FIRST
+#else
+# define MONIKOR_DLOPEN_FLAGS RTLD_LAZY|RTLD_LOCAL
+#endif
+
+
 /*
 ** This function will try to dynamically load a Monikor module
 ** It will search for the required (<mod_name>_init, <mod_name>_poll) and optional (<mod_name>_cleanup)
@@ -47,7 +55,7 @@ monikor_mod_t *monikor_load_module(const char *name, const char *mod_path) {
     monikor_log(LOG_ERR, "cannot load module %s: cannot allocate memory\n", name);
     goto err;
   }
-  if (!(mod->dhandle = dlopen(sopath, RTLD_LAZY|RTLD_LOCAL|RTLD_FIRST))) {
+  if (!(mod->dhandle = dlopen(sopath, MONIKOR_DLOPEN_FLAGS))) {
     monikor_log(LOG_ERR, "cannot_load_module %s: cannot load dynamic library %s: %s\n",
       name, sopath, dlerror());
     goto err;

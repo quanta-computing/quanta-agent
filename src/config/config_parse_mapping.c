@@ -22,7 +22,6 @@ int config_parse_mapping(yaml_parser_t *parser, monikor_config_dict_t *dict) {
         } else {
           elm = dict;
         }
-        printf("Got key %s\n", ev.data.scalar.value);
         if (config_parse_key(parser, (char *)ev.data.scalar.value, elm)) {
           printf("bad return from parse_key\n");
           return 1;

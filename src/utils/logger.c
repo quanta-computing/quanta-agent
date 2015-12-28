@@ -48,6 +48,7 @@ int monikor_vlog(int prio, const char *message, va_list ap) {
   strcat(full_msg, MONIKOR_LOG_SEP);
   strcat(full_msg, message);
   ret = vprintf(full_msg, ap);
+  fflush(stdout);
   free(full_msg);
   return ret;
 }

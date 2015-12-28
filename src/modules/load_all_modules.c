@@ -3,9 +3,7 @@
 #include "monikor.h"
 
 static void _monikor_load_one_module(char *name, monikor_t *mon) {
-  printf("Loading module %zu %s\n", mon->modules.count, name);
   mon->modules.modules[mon->modules.count] = monikor_load_module(name, mon->config->modules.path);
-  printf("Init module %s\n", name);
   mon->modules.modules[mon->modules.count]->init();
   mon->modules.count++;
 }

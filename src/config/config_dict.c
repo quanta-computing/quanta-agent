@@ -63,7 +63,6 @@ monikor_config_dict_t *monikor_config_dict_get_dict(monikor_config_dict_t *dict,
   monikor_config_dict_t *d;
 
   if (!(keys = strl_from_separated_string(key, "."))) {
-    printf("error in get_subdict\n");
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);
@@ -77,7 +76,6 @@ strl_t *monikor_config_dict_get_list(monikor_config_dict_t *dict, const char *ke
   monikor_config_dict_t *d;
 
   if (!(keys = strl_from_separated_string(key, "."))) {
-    printf("error in get_subdict\n");
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);
@@ -91,7 +89,6 @@ char *monikor_config_dict_get_scalar(monikor_config_dict_t *dict, const char *ke
   monikor_config_dict_t *d;
 
   if (!(keys = strl_from_separated_string(key, "."))) {
-    printf("error in get_subdict\n");
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);

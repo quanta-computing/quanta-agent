@@ -28,7 +28,6 @@ int monikor_parse_config_file(FILE *fh, monikor_config_t *cfg) {
         break;
 
       case YAML_MAPPING_START_EVENT:
-        printf("start mapping %s %s\n", ev.data.mapping_start.anchor, ev.data.mapping_start.tag);
         if (config_parse_mapping(&parser, cfg->full_config))
           return 1;
         break;

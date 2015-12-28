@@ -16,7 +16,6 @@ int config_parse_list(yaml_parser_t *parser, strl_t *list) {
     }
     switch(ev.type) {
       case YAML_SCALAR_EVENT:
-        printf("Got value %s\n", ev.data.scalar.value);
         if (strl_push(list, (char *)ev.data.scalar.value)) {
           printf("error in parse_list: cannot add elem to list\n");
           return 1;

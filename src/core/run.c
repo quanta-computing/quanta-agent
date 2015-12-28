@@ -22,12 +22,14 @@ static int poll_modules(monikor_t *mon) {
 }
 
 static int perform_sleep(monikor_t *mon) {
-  useconds_t sleep_amount;
+  int sleep_amount;
   struct timeval now;
 
   gettimeofday(&now, NULL);
   sleep_amount = 1000000 * (mon->last_clock.tv_sec + mon->config->poll_interval - now.tv_sec);
   sleep_amount += mon->last_clock.tv_usec - now.tv_usec;
+  if (sleep_amount < 0)
+    return 0;
   monikor_log(LOG_DEBUG, "Sleeping for %dms\n", sleep_amount / 1000);
   usleep(sleep_amount);
   return 0;

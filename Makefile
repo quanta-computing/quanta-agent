@@ -12,6 +12,7 @@ SRCF=	config/config.c \
 			config/config_parse_list.c \
 			utils/strl.c \
 			utils/logger.c \
+			utils/read_file.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
 			modules/module.c \
@@ -31,17 +32,18 @@ OBJ=$(SRC:.c=.o)
 INCD=include/
 
 CC=gcc
-CFLAGS=-W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
-LDFLAGS=
+CFLAGS=-std=c99 -D_BSD_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
+LDFLAGS=-rdynamic -ldl
 LDLIBS=-lyaml
 
 $(NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)
 
-all: $(NAME)
+all: $(NAME) modules
 
 clean:
 	$(RM) $(OBJ)
+	$(RM) fork
 
 fclean: clean
 	$(RM) $(NAME)
@@ -50,4 +52,18 @@ mrproper: fclean
 
 re: mrproper all
 
-.PHONY: all clean fclean re mrproper
+cpu:
+	make -C ./lib/modules/cpu re
+
+process:
+	make -C ./lib/modules/process re
+
+dummy:
+	make -C ./lib/modules/dummy re
+
+modules: cpu process dummy
+
+fork: ./test/fork.c
+	$(CC) $(CFLAGS) -o fork ./test/fork.c
+
+.PHONY: all clean fclean re mrproper cpu dummy modules fork
