@@ -19,7 +19,7 @@ static const struct {
   {NULL, NULL}
 };
 
-int fetch_metric(const char *meminfo, const char *name, unsigned long *value) {
+static int fetch_metric(const char *meminfo, const char *name, unsigned long *value) {
   char *line;
 
   if (!(line = strstr(meminfo, name)))

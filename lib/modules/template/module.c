@@ -1,12 +1,15 @@
 #include <stdlib.h>
 #include <time.h>
-#include "monikor.h"
 
-#define MOD_NAME "__NAME__"
+#include "monikor.h"
+#include "__NAME__.h"
+
 
 void __NAME___init(void) {
 }
 
+void __NAME___cleanup(void) {
+}
 
 monikor_metric_list_t *__NAME___poll(void) {
   monikor_metric_list_t *metrics;
@@ -15,8 +18,4 @@ monikor_metric_list_t *__NAME___poll(void) {
   if (!(metrics = monikor_metric_list_new()))
     return NULL;
   return metrics;
-}
-
-
-void __NAME___cleanup(void) {
 }
