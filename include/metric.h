@@ -15,7 +15,7 @@ typedef enum {
 
 
 typedef union {
-  long    _int:MONIKOR_INT_SIZE;
+  unsigned long _int:MONIKOR_INT_SIZE;
   float   _float;
   char    *_string;
 } monikor_metric_value_t;

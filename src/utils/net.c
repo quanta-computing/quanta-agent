@@ -1,9 +1,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <netdb.h>
 
 #include "monikor.h"
 
+#define MNK_NET_RD_SZ 4096
 
 int monikor_net_connect(const char *host, const char *port) {
   int sock = -1;
@@ -19,7 +22,7 @@ int monikor_net_connect(const char *host, const char *port) {
     return -1;
   for (ai = ai_list; ai; ai = ai->ai_next) {
     if ((sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) != -1
-    && !connect(sock, ai->ai_addr, ai_>ai_addrlen))
+    && !connect(sock, ai->ai_addr, ai->ai_addrlen))
       break;
     else
       sock = -1;
@@ -29,7 +32,7 @@ int monikor_net_connect(const char *host, const char *port) {
 }
 
 int monikor_net_send_data(int sock, const void *data, size_t len) {
-  return send(sock, data, len, 0);
+  return write(sock, data, len);
 }
 
 int monikor_net_send(int sock, const char *msg) {
@@ -37,14 +40,14 @@ int monikor_net_send(int sock, const char *msg) {
 }
 
 char *monikor_net_recv(int sock) {
-  char *response;
+  char *response = NULL;
   size_t response_size = 0;
   int read_bytes;
 
   do {
     if (!(response = realloc(response, response_size + MNK_NET_RD_SZ + 1)))
       goto err;
-    read_bytes = recv(sock, response + response_size, MNK_NET_RD_SZ, MSG_WAITALL);
+    read_bytes = read(sock, response + response_size, MNK_NET_RD_SZ);
     if (read_bytes == -1)
       goto err;
     response_size += read_bytes;
@@ -59,8 +62,10 @@ err:
 
 // Send & receive
 char *monikor_net_sr(int sock, const char *msg) {
-  if (monikor_net_send(sock, msg) == -1)
-    return NULL;
+  if (msg) {
+    if (monikor_net_send(sock, msg) == -1)
+      return NULL;
+  }
   return monikor_net_recv(sock);
 }
 

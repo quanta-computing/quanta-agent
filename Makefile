@@ -13,6 +13,7 @@ SRCF=	config/config.c \
 			utils/strl.c \
 			utils/logger.c \
 			utils/read_file.c \
+			utils/net.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
 			modules/module.c \
@@ -32,9 +33,9 @@ OBJ=$(SRC:.c=.o)
 INCD=include/
 
 CC=gcc
-CFLAGS=-std=c99 -D_BSD_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
-LDFLAGS=-rdynamic -ldl
-LDLIBS=-lyaml
+CFLAGS=-std=c99 -D_BSD_SOURCE -D_POSIX_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
+LDFLAGS=-rdynamic
+LDLIBS=-lyaml -ldl
 
 $(NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)
@@ -58,10 +59,16 @@ cpu:
 process:
 	make -C ./lib/modules/process re
 
+memory:
+	make -C ./lib/modules/memory re
+
+apache:
+	make -C ./lib/modules/apache re
+
 dummy:
 	make -C ./lib/modules/dummy re
 
-modules: cpu process dummy
+modules: dummy cpu process memory apache
 
 fork: ./test/fork.c
 	$(CC) $(CFLAGS) -o fork ./test/fork.c
