@@ -27,6 +27,12 @@
 *.i*86
 *.x86_64
 *.hex
+monikor
+fork
 
 # Debug files
 *.dSYM/
+*.log
+
+# Etags
+tags
