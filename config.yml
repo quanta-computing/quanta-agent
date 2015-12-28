@@ -8,5 +8,4 @@ server:
 
 modules_path: ./lib/modules
 modules:
-  - dummy
-  - dummy
+  - apache
