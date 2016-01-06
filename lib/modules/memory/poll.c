@@ -28,7 +28,7 @@ static int fetch_metric(const char *meminfo, const char *name, unsigned long *va
   return 0;
 }
 
-int memory_poll_metrics(monikor_metric_list_t *metrics, time_t clock) {
+int memory_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
   int n;
   char *meminfo;
   unsigned long value;
@@ -41,7 +41,7 @@ int memory_poll_metrics(monikor_metric_list_t *metrics, time_t clock) {
   for (size_t i = 0; memory_metrics[i].name; i++) {
     if (!fetch_metric(meminfo, memory_metrics[i].field_name, &value)) {
       monikor_metric_list_push(metrics, monikor_metric_integer(
-        memory_metrics[i].name, clock, value
+        memory_metrics[i].name, clock, value, 0
       ));
       n++;
     }
