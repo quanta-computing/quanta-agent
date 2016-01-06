@@ -3,14 +3,19 @@
 #include "metric.h"
 
 
+void monikor_metric_list_init(monikor_metric_list_t *list) {
+  list->first = NULL;
+  list->last = NULL;
+  list->size = 0;
+}
+
+
 monikor_metric_list_t *monikor_metric_list_new(void) {
   monikor_metric_list_t *list;
 
   if (!(list = malloc(sizeof(*list))))
     return NULL;
-  list->first = NULL;
-  list->last = NULL;
-  list->size = 0;
+  monikor_metric_list_init(list);
   return list;
 }
 
@@ -26,7 +31,7 @@ monikor_metric_list_node_t *monikor_metric_list_node_new(monikor_metric_t *metri
 }
 
 
-void monikor_metric_list_free(monikor_metric_list_t *list) {
+void monikor_metric_list_empty(monikor_metric_list_t *list) {
   monikor_metric_list_node_t *cur;
   monikor_metric_list_node_t *next;
 
@@ -38,6 +43,14 @@ void monikor_metric_list_free(monikor_metric_list_t *list) {
     monikor_metric_list_node_free(cur);
     cur = next;
   }
+  list->size = 0;
+}
+
+void monikor_metric_list_free(monikor_metric_list_t *list) {
+  if (!list)
+    return;
+  monikor_metric_list_empty(list);
+  free(list);
 }
 
 
@@ -68,14 +81,26 @@ int monikor_metric_list_push_node(monikor_metric_list_t *list, monikor_metric_li
   return 0;
 }
 
+monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list) {
+  monikor_metric_list_node_t *node;
+  monikor_metric_t *metric;
 
-void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *)) {
-  monikor_metric_list_node_t *cur;
-
-  for (cur = list->first; cur; cur = cur->next)
-    apply(cur->metric);
+  if (!list->first)
+    return NULL;
+  node = list->first;
+  metric = node->metric;
+  list->first = node->next;
+  if (node == list->last)
+    list->last = NULL;
+  list->size--;
+  free(node);
+  return metric;
 }
 
+void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *)) {
+  for (monikor_metric_list_node_t *cur = list->first; cur; cur = cur->next)
+    apply(cur->metric);
+}
 
 /*
 ** This function appends 2 lists
@@ -92,7 +117,5 @@ void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list
     head->last = tail->last;
   }
   head->size += tail->size;
-  tail->size = 0;
-  tail->first = NULL;
-  tail->last = NULL;
+  monikor_metric_list_init(tail);
 }

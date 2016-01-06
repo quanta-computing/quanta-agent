@@ -12,12 +12,11 @@
 
 typedef struct {
   monikor_config_t *config;
-
   struct {
     monikor_mod_t **modules;
     size_t count;
   } modules;
-
+  monikor_metric_store_t *metrics;
   struct timeval last_clock;
 } monikor_t;
 
