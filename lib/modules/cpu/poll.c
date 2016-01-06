@@ -49,26 +49,15 @@ unsigned cpu_fetch_metrics(float *values, size_t n_metrics) {
   return i;
 }
 
-int cpu_poll_metrics(monikor_metric_list_t *metrics, time_t clock) {
-  float values_0[NB_CPU_METRICS];
-  float values_1[NB_CPU_METRICS];
-  unsigned n;
-  float timedelta = 0.0;
-  // float sum = 0.0;
-  // float value;
+int cpu_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+  float values[NB_CPU_METRICS];
+  size_t n;
 
-  n = cpu_fetch_metrics(values_0, NB_CPU_METRICS);
-  usleep(MNK_CPU_USEC_BETWEEN_MEASURES);
-  if (cpu_fetch_metrics(values_1, NB_CPU_METRICS) != n)
+  if (!(n = cpu_fetch_metrics(values, NB_CPU_METRICS)))
     return 0;
   for (size_t i = 0; i < n; i++)
-    timedelta += values_1[i] - values_0[i];
-  for (size_t i = 0; i < n; i++) {
-    // value = 100.0 * ((values_1[i] - values_0[i]) / timedelta);
-    // sum += value;
-    monikor_metric_list_push(metrics, monikor_metric_float(metric_names[i], clock,
-      100.0 * ((values_1[i] - values_0[i]) / timedelta)
+    monikor_metric_list_push(metrics, monikor_metric_integer(
+      metric_names[i], clock, values[i], MONIKOR_METRIC_TIMEDELTA
     ));
-  }
   return n;
 }
