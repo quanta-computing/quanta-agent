@@ -8,4 +8,6 @@ static void _cleanup_modules(monikor_t *mon) {
 
 void monikor_cleanup(monikor_t *mon) {
   _cleanup_modules(mon);
+  monikor_metric_store_free(mon->metrics);
+  monikor_logger_cleanup();
 }

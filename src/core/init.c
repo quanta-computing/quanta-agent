@@ -10,7 +10,8 @@ int monikor_init(monikor_t *mon, const char *config_path) {
   monikor_logger_init(mon->config->log_level);
   mod_size = mon->config->modules.modules->size * sizeof(*mon->modules.modules);
   mon->modules.count = 0;
-  if (!(mon->modules.modules = malloc(mod_size))) {
+  if (!(mon->modules.modules = malloc(mod_size))
+  || !(mon->metrics = monikor_metric_store_new())) {
     monikor_log(LOG_CRIT, "Cannot allocate memory\n");
     return 1;
   }

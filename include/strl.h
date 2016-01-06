@@ -17,6 +17,7 @@ typedef struct {
 
 strl_t *strl_new(void);
 void strl_delete(strl_t *l);
+#define strl_free(l) strl_delete(l)
 
 strl_node_t *strl_node_new(char *s);
 void strl_node_delete(strl_node_t *n);

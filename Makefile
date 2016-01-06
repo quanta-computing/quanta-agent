@@ -19,6 +19,8 @@ SRCF=	config/config.c \
 			modules/module.c \
 			metrics/metric.c \
 			metrics/metric_list.c \
+			metrics/metric_store.c \
+			metrics/metric_compute.c \
 			core/init.c \
 			core/run.c \
 			core/cleanup.c \

@@ -4,15 +4,18 @@
 
 void dump_metric(monikor_metric_t *metric) {
   switch (metric->type) {
-    case MONIKOR_INTEGER:
-      printf("METRIC %s@%ld: %ld\n", metric->name, metric->clock, metric->value._int);
-      break;
-    case MONIKOR_FLOAT:
-      printf("METRIC %s@%ld: %f\n", metric->name, metric->clock, metric->value._float);
-      break;
-    case MONIKOR_STRING:
-      printf("METRIC %s@%ld: %s\n", metric->name, metric->clock, metric->value._string);
-      break;
+  case MONIKOR_INTEGER:
+    printf("METRIC INT %s@%ld: %ld\n", metric->name, metric->clock.tv_sec, metric->value._int);
+    break;
+  case MONIKOR_FLOAT:
+    printf("METRIC FLOAT %s@%ld: %f\n", metric->name, metric->clock.tv_sec, metric->value._float);
+    break;
+  case MONIKOR_STRING:
+    printf("METRIC STRING %s@%ld: %s\n", metric->name, metric->clock.tv_sec, metric->value._string);
+    break;
+  default:
+    printf("UNKNOWN METRIC %s@%ld\n", metric->name, metric->clock.tv_sec);
+    break;
   }
 }
 
