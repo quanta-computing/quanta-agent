@@ -3,19 +3,16 @@
 #include "monikor.h"
 #include "apache.h"
 
-static struct {
-  time_t last_clock;
-  unsigned total_accesses;
-  unsigned total_bytes;
-} delta_metrics = {0, 0, 0};
-
 static const struct {
   char *name;
   char *field_name;
+  uint8_t flags;
 } apache_metrics[] = {
-  {"apache.workers.busy", "BusyWorkers:"},
-  {"apache.workers.idle", "IdleWorkers:"},
-  {NULL, NULL}
+  {"apache.workers.busy", "BusyWorkers:", 0},
+  {"apache.workers.idle", "IdleWorkers:", 0},
+  {"apache.workers.requests_per_second", "Total Accesses:", MONIKOR_METRIC_TIMEDELTA},
+  {"apache.workers.bytes_per_second", "Total kBytes:", MONIKOR_METRIC_TIMEDELTA},
+  {NULL, NULL, 0}
 };
 
 static char *get_apache_status(void) {
@@ -40,34 +37,7 @@ static int fetch_metric(const char *apache_status, const char *name, unsigned *v
   return 0;
 }
 
-static int poll_delta_metrics(monikor_metric_list_t *metrics, const char *status, time_t clock) {
-  int n = 0;
-  unsigned value;
-
-  if (!fetch_metric(status, "Total Accesses:", &value)) {
-    if (delta_metrics.last_clock) {
-      monikor_metric_list_push(metrics, monikor_metric_float("apache.queries_per_second", clock,
-          (float)(value - delta_metrics.total_accesses) / (float)(clock - delta_metrics.last_clock)
-      ));
-      n++;
-    }
-    delta_metrics.total_accesses = value;
-  }
-  if (!fetch_metric(status, "Total kBytes:", &value)) {
-    value *= 1024;
-    if (delta_metrics.last_clock) {
-      monikor_metric_list_push(metrics, monikor_metric_float("apache.bytes_per_second", clock,
-          (float)(value - delta_metrics.total_bytes) / (float)(clock - delta_metrics.last_clock)
-      ));
-      n++;
-    }
-    delta_metrics.total_bytes = value;
-  }
-  delta_metrics.last_clock = clock;
-  return n;
-}
-
-int apache_poll_metrics(monikor_metric_list_t *metrics, time_t clock) {
+int apache_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
   int n = 0;
   char *status;
   unsigned value;
@@ -76,13 +46,14 @@ int apache_poll_metrics(monikor_metric_list_t *metrics, time_t clock) {
     return 0;
   for (size_t i = 0; apache_metrics[i].name; i++) {
     if (!fetch_metric(status, apache_metrics[i].field_name, &value)) {
+      if (!strcmp(apache_metrics[i].name, "apache.workers.bytes_per_second"))
+        value *= 1024;
       monikor_metric_list_push(metrics, monikor_metric_integer(
-        apache_metrics[i].name, clock, value
+        apache_metrics[i].name, clock, value, apache_metrics[i].flags
       ));
       n++;
     }
   }
-  n += poll_delta_metrics(metrics, status, clock);
   free(status);
   return n;
 }

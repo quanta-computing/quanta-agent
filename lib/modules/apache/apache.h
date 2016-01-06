@@ -8,7 +8,7 @@
 #define APACHE_PORT "80"
 #define APACHE_SERVER_URL "/server-status?auto"
 
-int apache_poll_metrics(monikor_metric_list_t *metrics, time_t clock);
+int apache_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock);
 
 
 #endif /* end of include guard: APACHE_H_ */
