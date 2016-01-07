@@ -1,75 +1,102 @@
 #include <unistd.h>
-#include <sys/time.h>
+#include <dirent.h>
+#include <ctype.h>
 
 #include "monikor.h"
 #include "process.h"
 
-static void parse_process_metrics(char *proc_info, process_metrics_t *metrics) {
-  unsigned idx = 0;
+static int fetch_one_process_metrics(monikor_metric_list_t *metrics, struct timeval *clock,
+pid_t pid, char *name, char *proc_info) {
+  int n;
+  size_t idx = 0;
   char *value;
   char *save;
+  char metric_name[512];
+  char *metric_base_end;
 
+  metric_base_end = metric_name + sprintf(metric_name, "process.%s.", name);
+  strcpy(metric_base_end, "count");
+  monikor_metric_list_push(metrics, monikor_metric_integer(
+    metric_name, clock, 1, MONIKOR_METRIC_AGGREGATE
+  ));
+  n = 1;
   for (value = strtok_r(proc_info, " ", &save); value; value = strtok_r(NULL, " ", &save)) {
+    n++;
     switch (idx) {
-    case 13:
-      metrics->cpu_user_usage = strtol(value, NULL, 10);
+    case 11:
+      strcpy(metric_base_end, "cpu.user");
+      monikor_metric_list_push(metrics, monikor_metric_float_id(
+        metric_name, clock, strtof(value, NULL) / sysconf(_SC_CLK_TCK),
+        MONIKOR_METRIC_TIMEDELTA | MONIKOR_METRIC_AGGREGATE, pid
+      ));
       break;
-    case 14:
-      metrics->cpu_kernel_usage = strtol(value, NULL, 10);
+    case 12:
+      strcpy(metric_base_end, "cpu.kernel");
+      monikor_metric_list_push(metrics, monikor_metric_integer_id(
+        metric_name, clock, strtof(value, NULL) / sysconf(_SC_CLK_TCK),
+        MONIKOR_METRIC_TIMEDELTA | MONIKOR_METRIC_AGGREGATE, pid
+      ));
       break;
-    case 22:
-      metrics->mem_vsize = strtol(value, NULL, 10);
+    case 20:
+      strcpy(metric_base_end, "mem.vsize");
+      monikor_metric_list_push(metrics, monikor_metric_integer(
+        metric_name, clock, strtol(value, NULL, 10), MONIKOR_METRIC_AGGREGATE
+      ));
       break;
-    case 23:
-      metrics->mem_rss = strtol(value, NULL, 10) * getpagesize();
+    case 21:
+      strcpy(metric_base_end, "mem.rss");
+      monikor_metric_list_push(metrics, monikor_metric_integer(
+        metric_name, clock, strtol(value, NULL, 10) * getpagesize(), MONIKOR_METRIC_AGGREGATE
+      ));
       break;
+    default:
+      n--;
     }
     idx++;
   }
+  return n;
 }
 
-static int read_process_metrics(pid_t pid, process_metrics_t *metrics) {
+static int poll_one_process(monikor_metric_list_t *metrics, struct timeval *clock, pid_t pid) {
+  char *proc_stat;
+  char *name;
+  char *info;
   char filepath[256];
-  char *proc_info;
+  int n;
 
   sprintf(filepath, "/proc/%d/stat", pid);
-  gettimeofday(&metrics->interval, NULL);
-  if (!(proc_info = monikor_read_file(filepath))) {
-    monikor_log_mod(LOG_WARNING, MOD_NAME, "Cannot read file %s\n", filepath);
-    return 1;
+  if (!(proc_stat = monikor_read_file(filepath))
+  || !(name = strchr(proc_stat, '('))
+  || !(info = strchr(name, ')'))) {
+    free(proc_stat);
+    return 0;
   }
-  parse_process_metrics(proc_info, metrics);
-  free(proc_info);
-  return 0;
+  *info = 0;
+  n = fetch_one_process_metrics(metrics, clock, pid, name + 1, info + 1);
+  free(proc_stat);
+  return n;
 }
 
-static void update_process_metrics(process_metrics_t *first, process_metrics_t *second) {
-  first->interval.tv_sec = second->interval.tv_sec - first->interval.tv_sec;
-  first->interval.tv_usec = second->interval.tv_usec - first->interval.tv_usec;
-  first->cpu_user_usage = second->cpu_user_usage - first->cpu_user_usage;
-  first->cpu_kernel_usage = second->cpu_kernel_usage - first->cpu_kernel_usage;
+static int looks_like_pid_dir(const struct dirent *entry) {
+  if (entry->d_type != DT_DIR)
+    return 0;
+  for (size_t i = 0; entry->d_name[i]; i++)
+    if (!isdigit(entry->d_name[i]))
+      return 0;
+  return 1;
 }
 
-/*
-** On firt pass, we just fetch the metrics, on the second time we substract the already fetched
-** metrics to the new ones to keep only the difference
-*/
-int fetch_process_metrics(process_t *process) {
-  process_metrics_t metrics;
+int poll_processes_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+  int n = 0;
+  DIR *dir;
+  struct dirent entry;
+  struct dirent *res;
 
-  if (!process->metrics.interval.tv_sec)
-    return read_process_metrics(process->pid, &process->metrics);
-  else if (read_process_metrics(process->pid, &metrics))
-    return 1;
-  update_process_metrics(&process->metrics, &metrics);
-  return 0;
-}
-
-void poll_all_processes(process_list_t *list) {
-  for (process_t *p = list->first; p; p = p->next) {
-    if (p->dirty)
-      continue;
-    if (fetch_process_metrics(p))
-      p->dirty = 1;
-  }
+  if (!(dir = opendir("/proc")))
+    return 0;
+  while (!readdir_r(dir, &entry, &res) && res)
+    if (looks_like_pid_dir(&entry))
+      n += poll_one_process(metrics, clock, atoi(entry.d_name));
+  closedir(dir);
+  return n;
 }

@@ -9,10 +9,7 @@ endif
 
 NAME=../process.$(DYLIB_SUFFIX)
 SRC=process.c \
-	process_list.c \
-	fetch_processes.c \
-	poll.c \
-	aggregate_metrics.c
+	poll.c
 OBJ=$(SRC:.c=.o)
 
 CC=gcc
