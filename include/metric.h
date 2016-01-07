@@ -28,6 +28,7 @@ typedef union {
 
 typedef struct {
   char                    *name;
+  uint16_t                id;
   struct timeval          clock;
   monikor_metric_type_t   type;
   monikor_metric_value_t  value;
@@ -62,6 +63,10 @@ monikor_metric_t *monikor_metric_integer(const char *name, const struct timeval 
   uint64_t value, uint8_t flags);
 monikor_metric_t *monikor_metric_float(const char *name, const struct timeval *clock,
   float value, uint8_t flags);
+monikor_metric_t *monikor_metric_integer_id(const char *name, const struct timeval *clock,
+  uint64_t value, uint8_t flags, uint16_t id);
+monikor_metric_t *monikor_metric_float_id(const char *name, const struct timeval *clock,
+  float value, uint8_t flags, uint16_t id);
 monikor_metric_t *monikor_metric_string(const char *name, const struct timeval *clock,
   const char *value);
 

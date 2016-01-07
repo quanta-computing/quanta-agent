@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "metric.h"
+#include "monikor.h"
 #include "logger.h"
 
 monikor_metric_store_t *monikor_metric_store_new(void) {
@@ -32,9 +33,9 @@ void monikor_metric_store_free(monikor_metric_store_t *store) {
 }
 
 static inline int is_cached_metric(monikor_metric_t *metric, monikor_metric_t *cached) {
-  return !strcmp(cached->name, metric->name)
-    && (metric->clock.tv_sec != cached->clock.tv_sec
-        || metric->clock.tv_usec != cached->clock.tv_usec);
+  return (metric->id == cached->id)
+    && !strcmp(cached->name, metric->name)
+    && timecmp(&metric->clock, &cached->clock);
 }
 
 /* Push a delta metric to the metric store.
