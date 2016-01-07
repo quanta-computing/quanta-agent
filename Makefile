@@ -14,6 +14,7 @@ SRCF=	config/config.c \
 			utils/logger.c \
 			utils/read_file.c \
 			utils/net.c \
+			utils/time.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
 			modules/module.c \

@@ -36,6 +36,7 @@ char      *monikor_net_recv(int sock);
 char      *monikor_net_sr(int sock, const char *msg);
 char      *monikor_net_csr(const char *host, const char *port, const char *msg);
 
+int timecmp(const struct timeval *a, const struct timeval *b);
 
 // DEBUG stuff
 void dump_metric_list(monikor_metric_list_t *list);
