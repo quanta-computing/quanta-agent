@@ -21,8 +21,6 @@ static int poll_modules(monikor_t *mon) {
   }
   printf("CURRENT (%lu):\n", mon->metrics->current->size);
   dump_metric_list(mon->metrics->current);
-  // printf("DELTA (%u):\n", mon->metrics->delta->size);
-  // dump_metric_list(mon->metrics->delta);
   monikor_metric_store_flush(mon->metrics);
   return err;
 }

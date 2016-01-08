@@ -18,6 +18,17 @@ monikor_metric_t *monikor_metric_new(const char *name, const struct timeval *clo
   return metric;
 }
 
+monikor_metric_t *monikor_metric_clone(const monikor_metric_t *src) {
+  monikor_metric_t *metric;
+
+  if (!(metric = monikor_metric_new(src->name, &src->clock)))
+    return NULL;
+  metric->id = src->id;
+  metric->flags = src->flags;
+  metric->type = src->type;
+  return metric;
+}
+
 void monikor_metric_free(monikor_metric_t *metric) {
   if (metric->type == MONIKOR_STRING)
     free(metric->value._string);

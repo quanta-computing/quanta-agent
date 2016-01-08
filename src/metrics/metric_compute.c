@@ -32,8 +32,9 @@ static void _compute_int_delta(monikor_metric_t *a, monikor_metric_t *b, monikor
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b) {
   monikor_metric_t *result;
 
-  if (!(result = monikor_metric_new(a->name, &a->clock)))
+  if (!(result = monikor_metric_clone(a)))
     return NULL;
+  result->flags &= ~(MONIKOR_METRIC_DELTA | MONIKOR_METRIC_TIMEDELTA);
   switch (a->type) {
   case MONIKOR_INTEGER:
     _compute_int_delta(a, b, result);
@@ -46,4 +47,16 @@ monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metr
     return NULL;
   }
   return result;
+}
+
+int monikor_metric_add(monikor_metric_t *dst, const monikor_metric_t *src) {
+  if (dst->type != src->type)
+    return 1;
+  if (dst->type == MONIKOR_INTEGER)
+    dst->value._int += src->value._int;
+  else if (dst->type == MONIKOR_FLOAT)
+    dst->value._float += src->value._float;
+  else
+    return 1;
+  return 0;
 }

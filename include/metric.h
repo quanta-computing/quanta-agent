@@ -57,6 +57,7 @@ typedef struct {
 
 // Metrics
 monikor_metric_t *monikor_metric_new(const char *name, const struct timeval *clock);
+monikor_metric_t *monikor_metric_clone(const monikor_metric_t *src);
 void monikor_metric_free(monikor_metric_t *metric);
 
 monikor_metric_t *monikor_metric_integer(const char *name, const struct timeval *clock,
@@ -71,6 +72,7 @@ monikor_metric_t *monikor_metric_string(const char *name, const struct timeval *
   const char *value);
 
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b);
+int monikor_metric_add(monikor_metric_t *dst, const monikor_metric_t *src);
 
 // Metric list
 void monikor_metric_list_init(monikor_metric_list_t *list);

@@ -44,6 +44,8 @@ void monikor_metric_list_empty(monikor_metric_list_t *list) {
     cur = next;
   }
   list->size = 0;
+  list->first = NULL;
+  list->last = NULL;
 }
 
 void monikor_metric_list_free(monikor_metric_list_t *list) {
