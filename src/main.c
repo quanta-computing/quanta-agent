@@ -12,16 +12,5 @@ int main(int argc, char **argv) {
     return 1;
   monikor_run(&mon);
   monikor_logger_cleanup();
-  // if (!(mod = load_module(argv[1], "./lib/modules")))
-  //   return 1;
-  // mod->init();
-  // for (i = 0; i < 3; i++) {
-  //   metrics = mod->poll();
-  //   if (metrics)
-  //     dump_metric_list(metrics);
-  //   monikor_metric_list_free(metrics);
-  //   sleep(1);
-  // }
-  // monikor_mod_destroy(mod);
   return 0;
 }

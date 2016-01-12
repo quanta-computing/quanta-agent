@@ -2,6 +2,7 @@
 # define MONIKOR_H_
 
 # include <stddef.h>
+# include <stdint.h>
 # include <sys/time.h>
 
 # include "strl.h"
@@ -37,6 +38,14 @@ char      *monikor_net_sr(int sock, const char *msg);
 char      *monikor_net_csr(const char *host, const char *port, const char *msg);
 
 int timecmp(const struct timeval *a, const struct timeval *b);
+
+#ifndef htonll
+uint64_t htonll(uint64_t hostlong);
+uint64_t ntohll(uint64_t netlong);
+#endif
+
+float ntohf(uint32_t netfloat);
+uint32_t htonf(float hostfloat);
 
 // DEBUG stuff
 void dump_metric_list(monikor_metric_list_t *list);

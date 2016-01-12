@@ -15,6 +15,7 @@ SRCF=	config/config.c \
 			utils/read_file.c \
 			utils/net.c \
 			utils/time.c \
+			utils/serialize.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
 			modules/module.c \
@@ -22,6 +23,8 @@ SRCF=	config/config.c \
 			metrics/metric_list.c \
 			metrics/metric_store.c \
 			metrics/metric_compute.c \
+			metrics/metric_list_serialize.c \
+			metrics/metric_list_from_serialized.c \
 			core/init.c \
 			core/run.c \
 			core/cleanup.c \
@@ -36,7 +39,8 @@ OBJ=$(SRC:.c=.o)
 INCD=include/
 
 CC=gcc
-CFLAGS=-std=c99 -D_BSD_SOURCE -D_POSIX_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
+# CFLAGS=-std=c99 -D_BSD_SOURCE -D_POSIX_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
+CFLAGS=-std=c99 -D_GNU_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
 LDFLAGS=-rdynamic
 LDLIBS=-lyaml -ldl
 

@@ -90,3 +90,16 @@ const char *value) {
   metric->value._string = strdup(value);
   return metric;
 }
+
+size_t monikor_metric_data_size(const monikor_metric_t *metric) {
+  switch (metric->type) {
+  case MONIKOR_INTEGER:
+    return sizeof(uint64_t);
+  case MONIKOR_FLOAT:
+    return sizeof(float);
+  case MONIKOR_STRING:
+    return strlen(metric->value._string);
+  default:
+    return 0;
+  }
+}

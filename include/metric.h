@@ -14,7 +14,6 @@ typedef enum {
   MONIKOR_STRING,
 } monikor_metric_type_t;
 
-
 # define MONIKOR_METRIC_DELTA       (1 << 0)
 # define MONIKOR_METRIC_TIMEDELTA   (MONIKOR_METRIC_DELTA | (1 << 1))
 # define MONIKOR_METRIC_AGGREGATE   (1 << 2)
@@ -55,6 +54,30 @@ typedef struct {
 } monikor_metric_store_t;
 
 
+/*
+** These 2 strucs are here for reference and/or internal usage but should not be read/write directly
+** in the serialized binary data because of padding and endianess stuff. You must properly encode or
+** decode the fields in the same order with the correct endianess.
+*/
+typedef struct {
+  uint64_t clock_sec;
+  uint64_t clock_usec;
+  uint16_t name_size;
+  uint16_t data_size;
+  uint8_t type;
+  uint8_t flags;
+} monikor_serialized_metric_hdr_t;
+
+#define SERIALIZED_METRIC_HDR_SIZE (2 * sizeof(uint64_t) + 2 * sizeof(uint16_t) + 2 * sizeof(uint8_t))
+
+typedef struct {
+  uint16_t count;
+  uint16_t data_size;
+} monikor_serialized_metric_list_hdr_t;
+
+#define SERIALIZED_METRIC_LIST_HDR_SIZE (2 * sizeof(uint16_t))
+
+
 // Metrics
 monikor_metric_t *monikor_metric_new(const char *name, const struct timeval *clock);
 monikor_metric_t *monikor_metric_clone(const monikor_metric_t *src);
@@ -74,6 +97,8 @@ monikor_metric_t *monikor_metric_string(const char *name, const struct timeval *
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b);
 int monikor_metric_add(monikor_metric_t *dst, const monikor_metric_t *src);
 
+size_t monikor_metric_data_size(const monikor_metric_t *metric);
+
 // Metric list
 void monikor_metric_list_init(monikor_metric_list_t *list);
 monikor_metric_list_t *monikor_metric_list_new(void);
@@ -89,6 +114,9 @@ monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list);
 void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *));
 
 void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list_t *tail);
+
+int monikor_metric_list_serialize(const monikor_metric_list_t *metrics, void **data, size_t *size);
+size_t monikor_metric_list_from_serialized(void *data, size_t size, monikor_metric_list_t **metrics);
 
 
 // Metric store
