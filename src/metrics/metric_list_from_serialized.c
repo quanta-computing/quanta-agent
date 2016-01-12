@@ -30,12 +30,12 @@ static monikor_metric_t *metric_from_serialized(uint8_t *data) {
 
   if (!(metric = malloc(sizeof(*metric))))
     return NULL;
-  hdr.clock_sec = ntohll(*((uint64_t *)data));
-  hdr.clock_usec = ntohll(*((uint64_t *)(data + sizeof(uint64_t))));
-  hdr.name_size = ntohs(*((uint16_t *)(data + 2 * sizeof(uint64_t))));
-  hdr.data_size = ntohs(*((uint16_t *)(data + 2 * sizeof(uint64_t) + sizeof(uint16_t))));
-  hdr.type = data[2 * sizeof(uint64_t) + 2 * sizeof(uint16_t)];
-  hdr.flags = data[2 * sizeof(uint64_t) + 2 * sizeof(uint16_t) + sizeof(uint8_t)];
+  hdr.clock_sec = ntohll(*((uint64_t *)(data + METRIC_HDR_CLOCK_SEC_OFF)));
+  hdr.clock_usec = ntohll(*((uint64_t *)(data + METRIC_HDR_CLOCK_USEC_OFF)));
+  hdr.name_size = ntohs(*((uint16_t *)(data + METRIC_HDR_NAME_SIZE_OFF)));
+  hdr.data_size = ntohs(*((uint16_t *)(data + METRIC_HDR_DATA_SIZE_OFF)));
+  hdr.type = data[METRIC_HDR_TYPE_OFF];
+  hdr.flags = data[METRIC_HDR_FLAGS_OFF];
   metric->clock.tv_sec = (time_t)hdr.clock_sec;
   metric->clock.tv_usec = (suseconds_t)hdr.clock_usec;
   metric->flags = hdr.flags;
@@ -53,18 +53,23 @@ static monikor_metric_t *metric_from_serialized(uint8_t *data) {
   return metric;
 }
 
-size_t monikor_metric_list_from_serialized(void *data, size_t size,
+void monikor_metric_list_header_unserialize(void *data, monikor_serialized_metric_list_hdr_t *hdr) {
+  uint8_t *serialized = data;
+
+  hdr->version = serialized[METRIC_LIST_HDR_VERSION_OFF];
+  hdr->count = ntohs(*((uint16_t *)(serialized + METRIC_LIST_HDR_COUNT_OFF)));
+  hdr->data_size = ntohs(*((uint16_t *)(serialized + METRIC_LIST_HDR_DATA_SIZE_OFF)));
+}
+
+size_t monikor_metric_list_unserialize(void *data, monikor_serialized_metric_list_hdr_t *hdr,
 monikor_metric_list_t **metrics) {
   size_t i;
-  uint16_t n_metrics;
   monikor_metric_t *metric;
   uint8_t *serialized = (uint8_t *)data;
 
   if (!(*metrics = monikor_metric_list_new()))
     return 0;
-  n_metrics = ntohs(*((uint16_t *)serialized));
-  serialized += SERIALIZED_METRIC_LIST_HDR_SIZE;
-  for (i = 0; i < n_metrics && serialized < (uint8_t *)data + size; i++) {
+  for (i = 0; i < hdr->count && serialized < (uint8_t *)data + hdr->data_size; i++) {
     if (!(metric = metric_from_serialized(serialized)))
       return i;
     monikor_metric_list_push(*metrics, metric);
