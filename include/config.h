@@ -44,6 +44,8 @@ typedef struct {
     int port;
   } server;
 
+  char *unix_sock_path;
+
   int log_level;
   int poll_interval;
 

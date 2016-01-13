@@ -8,4 +8,6 @@ server:
 
 modules_path: ./lib/modules
 modules:
-  - apache
+  - dummy
+
+unix_socket_path: /tmp/monikor.sock

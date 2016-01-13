@@ -76,10 +76,19 @@ static int monikor_setup_config_server(monikor_config_t *cfg) {
   return 0;
 }
 
+static int monikor_setup_config_unix_sock_path(monikor_config_t *cfg) {
+  char *unix_sock_path;
+
+  unix_sock_path = monikor_config_dict_get_scalar(cfg->full_config, "unix_socket_path");
+  cfg->unix_sock_path = (unix_sock_path ? strdup(unix_sock_path) : NULL);
+  return 0;
+}
+
 int monikor_setup_config(monikor_config_t *cfg) {
   monikor_setup_config_modules(cfg);
   monikor_setup_config_server(cfg);
   monikor_setup_config_log_level(cfg);
   monikor_setup_config_interval(cfg);
+  monikor_setup_config_unix_sock_path(cfg);
   return 0;
 }
