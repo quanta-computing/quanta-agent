@@ -1,11 +1,12 @@
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "monikor.h"
 
 void dump_metric(monikor_metric_t *metric) {
   switch (metric->type) {
   case MONIKOR_INTEGER:
-    printf("METRIC INT %s@%ld: %llu\n", metric->name, metric->clock.tv_sec, metric->value._int);
+    printf("METRIC INT %s@%ld: %"PRIu64"\n", metric->name, metric->clock.tv_sec, metric->value._int);
     break;
   case MONIKOR_FLOAT:
     printf("METRIC FLOAT %s@%ld: %f\n", metric->name, metric->clock.tv_sec, metric->value._float);
