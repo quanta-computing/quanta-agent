@@ -1,10 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <sys/time.h>
 
 #include "metric.h"
-#include "monikor.h"
-#include "logger.h"
 
 monikor_metric_store_t *monikor_metric_store_new(void) {
   monikor_metric_store_t *store;
@@ -32,10 +30,17 @@ void monikor_metric_store_free(monikor_metric_store_t *store) {
   free(store);
 }
 
+static inline int _timecmp(const struct timeval *a, const struct timeval *b) {
+  if (a->tv_sec != b->tv_usec)
+    return a->tv_sec - b->tv_sec;
+  else
+   return a->tv_usec - b->tv_usec;
+}
+
 static inline int is_cached_metric(monikor_metric_t *metric, monikor_metric_t *cached) {
   return (metric->id == cached->id)
     && !strcmp(cached->name, metric->name)
-    && timecmp(&metric->clock, &cached->clock);
+    && _timecmp(&metric->clock, &cached->clock);
 }
 
 /* Push a delta metric to the metric store.
@@ -46,10 +51,8 @@ int monikor_metric_store_push_delta(monikor_metric_store_t *store, monikor_metri
   for (monikor_metric_list_node_t *node = store->delta->first; node; node = node->next) {
     if (is_cached_metric(metric, node->metric)) {
       monikor_metric_t *new = monikor_metric_compute_delta(node->metric, metric);
-      if (!new) {
-        monikor_log(LOG_WARNING, "Cannot compute metric %s\n", metric->name);
+      if (!new)
         return -1;
-      }
       monikor_metric_free(node->metric);
       node->metric = metric;
       return monikor_metric_store_push(store, new);
@@ -61,7 +64,7 @@ int monikor_metric_store_push_delta(monikor_metric_store_t *store, monikor_metri
 int monikor_metric_store_push_aggregate(monikor_metric_store_t *store, monikor_metric_t *metric) {
   for (monikor_metric_list_node_t *node = store->current->first; node; node = node->next) {
     if (!strcmp(node->metric->name, metric->name)
-    && !timecmp(&node->metric->clock, &metric->clock)
+    && !_timecmp(&node->metric->clock, &metric->clock)
     && !monikor_metric_add(node->metric, metric)) {
       monikor_metric_free(metric);
       return 0;

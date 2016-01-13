@@ -1,10 +1,9 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <arpa/inet.h>
 
-#include "monikor.h"
 #include "metric.h"
-
 
 static int metric_data_from_serialized(uint8_t *data, size_t data_size, monikor_metric_t *metric) {
   switch (metric->type) {

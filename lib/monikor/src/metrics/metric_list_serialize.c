@@ -1,7 +1,8 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
+#include <arpa/inet.h>
 
-#include "monikor.h"
 #include "metric.h"
 
 static size_t serialized_list_size(const monikor_metric_list_t *metrics) {

@@ -27,11 +27,21 @@ uint64_t ntohll(uint64_t netlong) {
 #endif
 
 float ntohf(uint32_t netfloat) {
-  uint32_t val = ntohl(netfloat);
+  union {
+    float _float;
+    uint32_t _int;
+  } val;
 
-  return *((float *)&val);
+  val._int = ntohl(netfloat);
+  return val._float;
 }
 
 uint32_t htonf(float hostfloat) {
-  return htonl(*((uint32_t *)&hostfloat));
+  union {
+    float _float;
+    uint32_t _int;
+  } val;
+
+  val._float = hostfloat;
+  return htonl(val._int);
 }
