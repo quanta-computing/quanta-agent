@@ -5,49 +5,45 @@
 # include <stdint.h>
 # include <sys/time.h>
 
+
+#ifndef MONIKOR_STRUCT_TYPEDEF_DECL
+#define MONIKOR_STRUCT_TYPEDEF_DECL
+typedef struct monikor_s monikor_t;
+#endif
+
+# include "server.h"
 # include "strl.h"
 # include "metric.h"
 # include "module.h"
 # include "logger.h"
 # include "config.h"
+# include "utils.h"
+# include "io_handler.h"
 
-typedef struct {
+struct monikor_s {
   monikor_config_t *config;
   struct {
     monikor_mod_t **modules;
     size_t count;
   } modules;
   monikor_metric_store_t *metrics;
+  monikor_server_t server;
+  monikor_io_handler_list_t io_handlers;
   struct timeval last_clock;
-} monikor_t;
+};
 
+// misc
 void usage(void);
 
+// core
 int       monikor_init(monikor_t *mon, const char *config_path);
 void      monikor_cleanup(monikor_t *mon);
 int       monikor_run(monikor_t *mon);
 int       monikor_load_all_modules(monikor_t *mon);
 
-// Utils
-char      *monikor_read_file(const char *filepath);
-int       monikor_net_connect(const char *host, const char *port);
-int       monikor_net_send_data(int sock, const void *data, size_t len);
-int       monikor_net_send(int sock, const char *msg);
-char      *monikor_net_recv(int sock);
-char      *monikor_net_sr(int sock, const char *msg);
-char      *monikor_net_csr(const char *host, const char *port, const char *msg);
 
-int timecmp(const struct timeval *a, const struct timeval *b);
-
-#ifndef htonll
-uint64_t htonll(uint64_t hostlong);
-uint64_t ntohll(uint64_t netlong);
-#endif
-
-float ntohf(uint32_t netfloat);
-uint32_t htonf(float hostfloat);
-
-// DEBUG stuff
-void dump_metric_list(monikor_metric_list_t *list);
+// IO handling
+void monikor_register_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
+void monikor_unregister_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
 
 #endif /* end of include guard: MONIKOR_H_ */
