@@ -13,7 +13,7 @@ SRC=__NAME__.c
 OBJ=$(SRC:.c=.o)
 
 CC=gcc
-CFLAGS=-std=c99 -D_BSD_SOURCE -I ../../../include/ -fPIC -fno-common -W -Wall
+CFLAGS=-std=c99 -D_BSD_SOURCE -I ../../../include/ -I ../../monikor/include -fPIC -fno-common -W -Wall
 
 RM=@rm -vf
 
