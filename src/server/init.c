@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 
 #include "server.h"
@@ -11,12 +12,14 @@ static int monikor_server_bind(monikor_server_t *server) {
   struct sockaddr_un addr;
 
   addr.sun_family = AF_UNIX;
-  if (strlen(server->mon->config->unix_sock_path) >= sizeof(addr.sun_path))
+  if (!server->mon->config->unix_sock_path
+  || strlen(server->mon->config->unix_sock_path) >= sizeof(addr.sun_path))
     return -1;
   strcpy(addr.sun_path, server->mon->config->unix_sock_path);
   unlink(server->mon->config->unix_sock_path);
   if ((server->socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1
   || bind(server->socket, (struct sockaddr *)&addr, sizeof(addr))
+  || chmod(server->mon->config->unix_sock_path, 0666)
   || listen(server->socket, MONIKOR_SRV_MAX_CLIENTS))
     return -1;
   monikor_log(LOG_INFO, "Monikor agent listening on socket %s\n",
