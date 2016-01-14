@@ -8,8 +8,11 @@
 
 #define MONIKOR_DEFAULT_CONFIG_PATH "/etc/monikor/monikor.yml"
 #define MONIKOR_DEFAULT_MODULES_PATH "/usr/lib/monikor/modules"
-#define MONIKOR_SERVER_DEFAULT_PORT 4242
 #define MONIKOR_DEFAULT_POLL_INTERVAL 60
+#define MONIKOR_DEFAULT_SERVER_TIMEOUT 5
+#define MONIKOR_QUANTA_TOKEN_MAX_LENGTH 42
+#define MONIKOR_HOSTID_MAX_LENGTH 42
+
 
 typedef enum {
   DICT,
@@ -39,10 +42,11 @@ typedef struct {
     strl_t *modules;
   } modules;
 
-  struct {
-    char *host;
-    int port;
-  } server;
+  char *hostid;
+  char *quanta_token;
+
+  char *server_url;
+  int server_timeout;
 
   char *unix_sock_path;
 

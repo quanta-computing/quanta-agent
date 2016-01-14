@@ -16,8 +16,10 @@ monikor_config_t *monikor_config_new(void) {
     return NULL;
   cfg->full_config = monikor_config_dict_new();
   cfg->config_path = strdup(MONIKOR_DEFAULT_CONFIG_PATH);
-  cfg->server.host = NULL;
+  cfg->server_url = NULL;
   cfg->modules.path = NULL;
+  cfg->quanta_token = NULL;
+  cfg->hostid = NULL;
   cfg->log_level = LOG_NOTICE;
   return cfg;
 }
@@ -28,7 +30,9 @@ void monikor_config_free(monikor_config_t *config) {
   free(config->config_path);
   free(config->modules.path);
   strl_delete(config->modules.modules);
-  free(config->server.host);
+  free(config->server_url);
+  free(config->hostid);
+  free(config->quanta_token);
   free(config);
 }
 

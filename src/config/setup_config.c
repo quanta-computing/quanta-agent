@@ -34,23 +34,23 @@ static int monikor_setup_config_log_level(monikor_config_t *cfg) {
 }
 
 
-static int _check_interval(const char *interval) {
-  if (!interval)
+static int _is_number(const char *str) {
+  if (!str)
     return 0;
-  while (*interval) {
-    if (*interval < '0' || *interval > '9')
-      return 1;
-    interval++;
+  while (*str) {
+    if (*str < '0' || *str > '9')
+      return 0;
+    str++;
   }
-  return 0;
+  return 1;
 }
 
 static int monikor_setup_config_interval(monikor_config_t *cfg) {
   char *interval;
 
   interval = monikor_config_dict_get_scalar(cfg->full_config, "interval");
-  if (!_check_interval(interval))
-    cfg->poll_interval = interval ? atoi(interval) : MONIKOR_DEFAULT_POLL_INTERVAL;
+  if (_is_number(interval))
+    cfg->poll_interval = atoi(interval);
   else {
     monikor_log(LOG_WARNING, "Wrong value '%s' for poll_interval, using default.\n", interval);
     cfg->poll_interval = MONIKOR_DEFAULT_POLL_INTERVAL;
@@ -68,11 +68,18 @@ static int monikor_setup_config_modules(monikor_config_t *cfg) {
 }
 
 static int monikor_setup_config_server(monikor_config_t *cfg) {
-  char *port;
+  char *url;
+  char *timeout;
 
-  cfg->server.host = strdup(monikor_config_dict_get_scalar(cfg->full_config, "server.host"));
-  port = monikor_config_dict_get_scalar(cfg->full_config, "server.port");
-  cfg->server.port = port ? atoi(port) : MONIKOR_SERVER_DEFAULT_PORT;
+  url = monikor_config_dict_get_scalar(cfg->full_config, "server_url");
+  cfg->server_url = url ? strdup(url) : NULL;
+  timeout = monikor_config_dict_get_scalar(cfg->full_config, "server_timeout");
+  if (_is_number(timeout)) {
+    cfg->server_timeout = atoi(timeout);
+  } else {
+    monikor_log(LOG_WARNING, "Wrong value '%s' for server_timeout, using default.\n", timeout);
+    cfg->server_timeout= MONIKOR_DEFAULT_SERVER_TIMEOUT;
+  }
   return 0;
 }
 
@@ -84,11 +91,32 @@ static int monikor_setup_config_unix_sock_path(monikor_config_t *cfg) {
   return 0;
 }
 
+// Check for NULL and size
+static int monikor_setup_quanta_token(monikor_config_t *cfg) {
+  char *token;
+
+  token = monikor_config_dict_get_scalar(cfg->full_config, "quanta_token");
+  cfg->quanta_token = strdup(token);
+  return 0;
+}
+
+
+// Check for NULL and size
+static int monikor_setup_hostid(monikor_config_t *cfg) {
+  char *hostid;
+
+  hostid = monikor_config_dict_get_scalar(cfg->full_config, "hostid");
+  cfg->hostid = strdup(hostid);
+  return 0;
+}
+
 int monikor_setup_config(monikor_config_t *cfg) {
   monikor_setup_config_modules(cfg);
   monikor_setup_config_server(cfg);
   monikor_setup_config_log_level(cfg);
   monikor_setup_config_interval(cfg);
   monikor_setup_config_unix_sock_path(cfg);
+  monikor_setup_quanta_token(cfg);
+  monikor_setup_hostid(cfg);
   return 0;
 }

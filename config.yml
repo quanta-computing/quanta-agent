@@ -2,9 +2,11 @@ interval: 5
 
 log_level: debug
 
-server:
-  host: localhost
-  port: 4242
+hostid: 31de9f7d766287c7565801f30babbd4f
+quanta_token: 0614f7b0fc9a6b02b893925ef599bbaa
+
+server_url: "http://localhost:4242/push"
+server_timeout: 3
 
 modules_path: ./lib/modules
 modules:
