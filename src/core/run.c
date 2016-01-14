@@ -23,24 +23,34 @@ static int poll_modules(monikor_t *mon) {
   }
   printf("CURRENT (%lu):\n", mon->metrics->current->size);
   dump_metric_list(mon->metrics->current);
-  monikor_metric_store_flush(mon->metrics);
   return err;
 }
 
+/*
+** This is the main loop, at each run we poll the modules, send the metrics (keep them in cache if
+** send failed) and perform a select(2) until we reached the next update.
+*/
 int monikor_run(monikor_t *mon) {
   struct timeval interval;
   struct timeval now;
   struct timeval next_update;
 
+  gettimeofday(&next_update, NULL);
   while (42) {
-    gettimeofday(&mon->last_clock, NULL);
-    next_update = mon->last_clock;
+    mon->last_clock = next_update;
     next_update.tv_sec += mon->config->poll_interval;
     poll_modules(mon);
+    if (!monikor_send_metrics(mon)) {
+      monikor_metric_store_flush(mon->metrics);
+      monikor_log(LOG_INFO, "Metrics sent to %s\n", mon->config->server_url);
+    } else {
+      monikor_log(LOG_ERR, "Send failed. Keeping metrics in cache.\n");
+      monikor_metric_store_cache(mon->metrics);
+    }
     for (gettimeofday(&now, NULL); now.tv_sec < next_update.tv_sec; gettimeofday(&now, NULL)) {
       interval.tv_sec = next_update.tv_sec - now.tv_sec;
-      interval.tv_usec = 0;
-      monikor_log(LOG_DEBUG, "Sleeping for %d\n", interval.tv_sec);
+      interval.tv_usec = interval.tv_sec ? 0 : 1000;
+      monikor_log(LOG_DEBUG, "Sleeping for %d seconds\n", interval.tv_sec);
       if (monikor_io_handler_poll(&mon->io_handlers, &interval) == -1)
         monikor_log(LOG_ERR, "Error in select(2): %s\n", strerror(errno));
     }

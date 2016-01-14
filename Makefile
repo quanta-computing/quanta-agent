@@ -32,9 +32,10 @@ SRCF=	config/config.c \
 			server/disconnect.c \
 			server/handle.c \
 			server/init.c \
+			core/cleanup.c \
 			core/init.c \
 			core/run.c \
-			core/cleanup.c \
+			core/send.c \
 			core/usage.c \
 			main.c \
 			debug.c
@@ -52,7 +53,7 @@ else
 	CFLAGS=-std=c99 -D_BSD_SOURCE -D_POSIX_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
 endif
 LDFLAGS=-rdynamic -Llib/monikor
-LDLIBS=-lyaml -ldl -lmonikor
+LDLIBS=-lyaml -lcurl -ldl -lmonikor
 
 $(NAME): $(OBJ) $(LIBMONIKOR)
 	$(CC) $(LDFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)

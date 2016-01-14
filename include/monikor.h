@@ -40,7 +40,7 @@ int       monikor_init(monikor_t *mon, const char *config_path);
 void      monikor_cleanup(monikor_t *mon);
 int       monikor_run(monikor_t *mon);
 int       monikor_load_all_modules(monikor_t *mon);
-
+int       monikor_send_metrics(monikor_t *mon);
 
 // IO handling
 void monikor_register_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
