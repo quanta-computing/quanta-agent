@@ -11,6 +11,5 @@ int main(int argc, char **argv) {
   if (monikor_init(&mon, argv[1]))
     return 1;
   monikor_run(&mon);
-  monikor_logger_cleanup();
   return 0;
 }
