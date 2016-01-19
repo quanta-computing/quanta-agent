@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "metric.h"
+#include "io_handler.h"
 
 #ifndef MONIKOR_STRUCT_TYPEDEF_DECL
 #define MONIKOR_STRUCT_TYPEDEF_DECL
@@ -23,6 +24,7 @@ typedef struct {
   size_t n_clients;
   monikor_client_t clients[MONIKOR_SRV_MAX_CLIENTS];
   monikor_t *mon;
+  monikor_io_handler_t *handler;
 } monikor_server_t;
 
 #include "monikor.h"
@@ -39,6 +41,7 @@ void monikor_server_handler_free(monikor_io_handler_t *handler);
 
 void monikor_client_init(monikor_client_t *client);
 int monikor_server_init(monikor_server_t *server, monikor_t *mon);
+void monikor_server_cleanup(monikor_server_t *server);
 int monikor_server_handle_connection(monikor_server_t *server);
 int monikor_server_handle_client(monikor_server_handler_t *handler);
 void monikor_server_handle_any(monikor_io_handler_t *handler, uint8_t mode);
