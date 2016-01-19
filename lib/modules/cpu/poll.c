@@ -26,12 +26,13 @@ char *get_proc_stat_cpu_info(char *proc_stat) {
   return line;
 }
 
-unsigned cpu_fetch_metrics(float *values, size_t n_metrics) {
+static size_t cpu_fetch_metrics(float *values, size_t n_metrics) {
   char *proc_stat;
   char *cpu_info;
   char *start;
   char *end;
   unsigned i;
+  long tps = sysconf (_SC_CLK_TCK);
 
   if (!(proc_stat = monikor_read_file("/proc/stat"))
   || !(cpu_info = get_proc_stat_cpu_info(proc_stat)))
@@ -42,11 +43,27 @@ unsigned cpu_fetch_metrics(float *values, size_t n_metrics) {
     end = strchr(start, ' ');
     if (end)
       *end = 0;
-    values[i] = strtof(start, NULL);
+    values[i] = strtof(start, NULL) / tps;
     start = end + 1;
   }
   free(proc_stat);
   return i;
+}
+
+static int cpu_fetch_loadavg(monikor_metric_list_t *metrics, struct timeval *clock) {
+  float value;
+  char *loadavg;
+  char *end;
+
+  if (!(loadavg = monikor_read_file("/proc/loadavg")))
+    return 1;
+  value = strtof(loadavg, &end);
+  free(loadavg);
+  if (end == loadavg)
+    return 1;
+  monikor_metric_list_push(metrics, monikor_metric_float("cpu.loadavg",
+    clock, value / sysconf(_SC_NPROCESSORS_ONLN), 0));
+  return 0;
 }
 
 int cpu_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
@@ -56,8 +73,10 @@ int cpu_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
   if (!(n = cpu_fetch_metrics(values, NB_CPU_METRICS)))
     return 0;
   for (size_t i = 0; i < n; i++)
-    monikor_metric_list_push(metrics, monikor_metric_integer(
+    monikor_metric_list_push(metrics, monikor_metric_float(
       metric_names[i], clock, values[i], MONIKOR_METRIC_TIMEDELTA
     ));
+  if (!cpu_fetch_loadavg(metrics, clock))
+    n++;
   return n;
 }
