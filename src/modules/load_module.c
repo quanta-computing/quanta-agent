@@ -8,12 +8,15 @@
 
 static void *_load_mod_function(const char *name, const char *function, void *dl_handle) {
   char *sym_name;
+  void *f;
 
   if (!(sym_name = malloc(strlen(name) + strlen(function) + 1)))
     return NULL;
   strcpy(sym_name, name);
   strcat(sym_name, function);
-  return dlsym(dl_handle, sym_name);
+  f = dlsym(dl_handle, sym_name);
+  free(sym_name);
+  return f;
 }
 
 

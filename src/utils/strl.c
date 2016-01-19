@@ -28,8 +28,10 @@ void strl_delete(strl_t *l) {
 strl_node_t *strl_node_new(char *s) {
   strl_node_t *n;
 
-  if (!(n = malloc(sizeof(*n))) || !(n->str = strdup(s)))
+  if (!(n = malloc(sizeof(*n))) || !(n->str = strdup(s))) {
+    free(n);
     return NULL;
+  }
   n->next = NULL;
   return n;
 }
@@ -109,12 +111,17 @@ strl_t *strl_from_separated_string(const char *sc, const char *sep) {
   char *last;
   char *s;
 
-  if (!(s = strdup(sc)) || !(l = strl_new()))
+  if (!(s = strdup(sc)) || !(l = strl_new())) {
+    free(s);
     return NULL;
-  for (char *str = strtok_r(s, sep, &last); str; str = strtok_r(NULL, sep, &last))
+  }
+  for (char *str = strtok_r(s, sep, &last); str; str = strtok_r(NULL, sep, &last)) {
     if (strl_push(l, str)) {
+      free(s);
       strl_delete(l);
       return NULL;
     }
+  }
+  free(s);
   return l;
 }

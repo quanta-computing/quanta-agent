@@ -96,7 +96,7 @@ static int monikor_setup_quanta_token(monikor_config_t *cfg) {
   char *token;
 
   token = monikor_config_dict_get_scalar(cfg->full_config, "quanta_token");
-  cfg->quanta_token = strdup(token);
+  cfg->quanta_token = token ? strdup(token) : NULL;
   return 0;
 }
 
@@ -106,7 +106,7 @@ static int monikor_setup_hostid(monikor_config_t *cfg) {
   char *hostid;
 
   hostid = monikor_config_dict_get_scalar(cfg->full_config, "hostid");
-  cfg->hostid = strdup(hostid);
+  cfg->hostid = hostid ? strdup(hostid) : NULL;
   return 0;
 }
 

@@ -20,6 +20,7 @@ monikor_config_t *monikor_config_new(void) {
   cfg->modules.path = NULL;
   cfg->quanta_token = NULL;
   cfg->hostid = NULL;
+  cfg->unix_sock_path = NULL;
   cfg->log_level = LOG_NOTICE;
   return cfg;
 }
@@ -29,10 +30,11 @@ void monikor_config_free(monikor_config_t *config) {
   monikor_config_dict_free(config->full_config);
   free(config->config_path);
   free(config->modules.path);
-  strl_delete(config->modules.modules);
-  free(config->server_url);
   free(config->hostid);
   free(config->quanta_token);
+  printf("Freeing server url %p\n", config->server_url);
+  free(config->server_url);
+  free(config->unix_sock_path);
   free(config);
 }
 

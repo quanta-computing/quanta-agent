@@ -46,13 +46,6 @@ monikor_io_handler_t *monikor_server_handler_new(monikor_server_t *server, monik
   return handler;
 }
 
-void monikor_server_handler_free(monikor_io_handler_t *handler) {
-  if (!handler)
-    return;
-  free(handler->data);
-  free(handler);
-}
-
 void monikor_client_init(monikor_client_t *client) {
   client->header.version = 0;
   client->header.count = 0;
@@ -62,20 +55,19 @@ void monikor_client_init(monikor_client_t *client) {
 }
 
 int monikor_server_init(monikor_server_t *server, monikor_t *mon) {
-  monikor_io_handler_t *handler = NULL;
-
+  server->handler = NULL;
   server->mon = mon;
   for (size_t i = 0; i < MONIKOR_SRV_MAX_CLIENTS; i++) {
     monikor_client_init(&server->clients[i]);
   }
   server->n_clients = 0;
   if (monikor_server_bind(server) ||
-  !(handler = monikor_server_handler_new(server, NULL))) {
-    monikor_server_handler_free(handler);
-    if (handler)
+  !(server->handler = monikor_server_handler_new(server, NULL))) {
+    monikor_server_handler_free(server->handler);
+    if (server->handler)
       close(server->socket);
     return -1;
   }
-  monikor_register_io_handler(mon, handler);
+  monikor_register_io_handler(mon, server->handler);
   return 0;
 }

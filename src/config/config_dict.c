@@ -21,16 +21,16 @@ void monikor_config_dict_free(monikor_config_dict_t *dict) {
   if (!dict)
     return;
   for (elm = dict; elm; elm = next) {
-    free(dict->key);
-    switch (dict->type) {
+    free(elm->key);
+    switch (elm->type) {
       case DICT:
-        monikor_config_dict_free(dict->value.dict);
+        monikor_config_dict_free(elm->value.dict);
         break;
       case SCALAR:
-        free(dict->value.value);
+        free(elm->value.value);
         break;
       case LIST:
-        strl_delete(dict->value.list);
+        strl_delete(elm->value.list);
         break;
       default:
         break;
@@ -66,6 +66,7 @@ monikor_config_dict_t *monikor_config_dict_get_dict(monikor_config_dict_t *dict,
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);
+  strl_delete(keys);
   if (!d || d->type != DICT)
     return NULL;
   return d;
@@ -79,6 +80,7 @@ strl_t *monikor_config_dict_get_list(monikor_config_dict_t *dict, const char *ke
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);
+  strl_delete(keys);
   if (!d || d->type != LIST)
     return NULL;
   return d->value.list;
@@ -92,6 +94,7 @@ char *monikor_config_dict_get_scalar(monikor_config_dict_t *dict, const char *ke
     return NULL;
   }
   d = monikor_config_get_subdict(dict, keys);
+  strl_delete(keys);
   if (!d || d->type != SCALAR)
     return NULL;
   return d->value.value;
