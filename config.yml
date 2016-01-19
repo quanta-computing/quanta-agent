@@ -1,15 +1,18 @@
-interval: 5
+interval: 15
 
 log_level: debug
 
 hostid: 31de9f7d766287c7565801f30babbd4f
-quanta_token: 0614f7b0fc9a6b02b893925ef599bbaa
+quanta_token: 538e664693f800954b83
 
-server_url: "http://localhost:4242/push"
+server_url: "http://192.168.99.1:3000/push"
 server_timeout: 3
 
 modules_path: ./lib/modules
 modules:
   - dummy
+  # - network
+  # - cpu
+  # - memory
 
 unix_socket_path: /tmp/monikor.sock
