@@ -10,8 +10,7 @@ endif
 
 NAME=../network.$(DYLIB_SUFFIX)
 SRC=network.c \
-	poll.c \
-	dev_list.c
+	poll.c
 OBJ=$(SRC:.c=.o)
 
 CC=gcc
