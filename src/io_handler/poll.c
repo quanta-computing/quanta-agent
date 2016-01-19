@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 
@@ -29,7 +30,9 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   ndfs = set_fd_sets(list, &rdfds, &wrfds);
   if (ndfs <= 0)
     return ndfs;
-  err = select(ndfs, &rdfds, &wrfds, NULL, timeout);
+  do {
+    err = select(ndfs, &rdfds, &wrfds, NULL, timeout);
+  } while (err == -1 && errno == EINTR);
   if (err <= 0)
     return err;
   for (monikor_io_handler_t *handler = list->first; handler; handler = handler->next) {

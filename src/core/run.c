@@ -21,8 +21,6 @@ static int poll_modules(monikor_t *mon) {
     }
     monikor_metric_list_free(metrics);
   }
-  printf("CURRENT (%lu):\n", mon->metrics->current->size);
-  dump_metric_list(mon->metrics->current);
   return err;
 }
 
@@ -40,13 +38,8 @@ int monikor_run(monikor_t *mon) {
     mon->last_clock = next_update;
     next_update.tv_sec += mon->config->poll_interval;
     poll_modules(mon);
-    if (!monikor_send_metrics(mon)) {
-      monikor_metric_store_flush(mon->metrics);
-      monikor_log(LOG_INFO, "Metrics sent to %s\n", mon->config->server_url);
-    } else {
-      monikor_log(LOG_ERR, "Send failed. Keeping metrics in cache.\n");
-      monikor_metric_store_cache(mon->metrics);
-    }
+    dump_metric_list(mon->metrics->current);
+    monikor_send_all(mon);
     for (gettimeofday(&now, NULL); now.tv_sec < next_update.tv_sec; gettimeofday(&now, NULL)) {
       interval.tv_sec = next_update.tv_sec - now.tv_sec;
       interval.tv_usec = interval.tv_sec ? 0 : 1000;

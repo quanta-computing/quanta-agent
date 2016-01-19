@@ -36,11 +36,23 @@ struct monikor_s {
 void usage(void);
 
 // core
-int       monikor_init(monikor_t *mon, const char *config_path);
-void      monikor_cleanup(monikor_t *mon);
-int       monikor_run(monikor_t *mon);
-int       monikor_load_all_modules(monikor_t *mon);
-int       monikor_send_metrics(monikor_t *mon);
+int monikor_init(monikor_t *mon, const char *config_path);
+void monikor_cleanup(monikor_t *mon);
+int monikor_run(monikor_t *mon);
+void monikor_exit(monikor_t *mon);
+
+int monikor_load_all_modules(monikor_t *mon);
+int monikor_send_metrics(monikor_t *mon);
+void monikor_send_all_metrics(monikor_t *mon);
+
+void monikor_send_all(monikor_t *mon);
+void monikor_flush_all(monikor_t *mon);
+void monikor_reload(monikor_t *mon);
+
+
+// Signal handling
+int monikor_register_signals(monikor_t *mon);
+void monikor_signal_cleanup(void);
 
 // IO handling
 void monikor_register_io_handler(monikor_t *mon, monikor_io_handler_t *handler);

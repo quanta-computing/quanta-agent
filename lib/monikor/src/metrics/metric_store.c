@@ -99,3 +99,9 @@ void monikor_metric_store_flush(monikor_metric_store_t *store) {
 void monikor_metric_store_cache(monikor_metric_store_t *store) {
   monikor_metric_list_concat(store->cache, store->current);
 }
+
+void monikor_metric_store_flush_all(monikor_metric_store_t *store) {
+  monikor_metric_list_empty(store->current);
+  monikor_metric_list_empty(store->delta);
+  monikor_metric_list_empty(store->cache);
+}
