@@ -12,6 +12,7 @@ monikor_mod_t *monikor_mod_new(const char *name) {
     return NULL;
   mod->name = strdup(name);
   mod->dhandle = NULL;
+  mod->data = NULL;
   mod->init = NULL;
   mod->cleanup = NULL;
   mod->poll = NULL;
@@ -29,8 +30,8 @@ void monikor_mod_free(monikor_mod_t *mod) {
 }
 
 
-void monikor_mod_destroy(monikor_mod_t *mod) {
+void monikor_mod_destroy(monikor_t *mon, monikor_mod_t *mod) {
   if (mod->cleanup)
-    mod->cleanup();
+    mod->cleanup(mon, mod->data);
   monikor_mod_free(mod);
 }

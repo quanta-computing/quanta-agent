@@ -16,6 +16,6 @@ int timecmp(const struct timeval *a, const struct timeval *b);
 
 // DEBUG stuff
 void dump_metric_list(monikor_metric_list_t *list);
-
+void dump_store_size(monikor_metric_store_t *store);
 
 #endif /* end of include guard: MONIKOR_UTILS_H_H */

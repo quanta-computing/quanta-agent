@@ -2,9 +2,8 @@
 
 #include "monikor.h"
 
-void monikor_reload(monikor_t *mon) {
-  (void)mon;
-  monikor_log(LOG_DEBUG, "Reloading configuration\n");
+void monikor_flag_reload(monikor_t *mon) {
+  mon->flags |= MONIKOR_FLAG_RELOAD;
 }
 
 void monikor_flush_all(monikor_t *mon) {

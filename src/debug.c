@@ -24,6 +24,14 @@ void dump_metric(monikor_metric_t *metric) {
   }
 }
 
+void dump_store_size(monikor_metric_store_t *store) {
+  monikor_log(LOG_DEBUG, "Current: %zu (%zu)\n\tDelta: %zu (%zu)\n\tCache: %zu (%zu)\n",
+    store->current->size, store->current->data_size,
+    store->delta->size, store->delta->data_size,
+    store->cache->size, store->cache->data_size
+  );
+}
+
 void dump_metric_list(monikor_metric_list_t *list) {
   monikor_metric_list_apply(list, dump_metric);
 }

@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <curl/curl.h>
 
 #include "monikor.h"
 #include "server.h"
 
 static void cleanup_modules(monikor_t *mon) {
   for (size_t i = 0; i < mon->modules.count; i++)
-    monikor_mod_destroy(mon->modules.modules[i]);
+    monikor_mod_destroy(mon, mon->modules.modules[i]);
   free(mon->modules.modules);
 }
 
@@ -29,4 +30,5 @@ void monikor_cleanup(monikor_t *mon) {
   monikor_config_free(mon->config);
   monikor_logger_cleanup();
   monikor_signal_cleanup();
+  curl_global_cleanup();
 }

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "metric.h"
 
@@ -7,6 +8,7 @@ void monikor_metric_list_init(monikor_metric_list_t *list) {
   list->first = NULL;
   list->last = NULL;
   list->size = 0;
+  list->data_size = 0;
 }
 
 
@@ -70,6 +72,14 @@ int monikor_metric_list_push(monikor_metric_list_t *list, monikor_metric_t *metr
   return monikor_metric_list_push_node(list, node);
 }
 
+static size_t monikor_metric_node_size(monikor_metric_list_node_t *node) {
+  size_t size;
+
+  size = sizeof(*node) + sizeof(*node->metric) + strlen(node->metric->name);
+  if (node->metric->type == MONIKOR_STRING)
+    size += strlen(node->metric->value._string);
+  return size;
+}
 
 int monikor_metric_list_push_node(monikor_metric_list_t *list, monikor_metric_list_node_t *node) {
   if (!list->size) {
@@ -80,6 +90,7 @@ int monikor_metric_list_push_node(monikor_metric_list_t *list, monikor_metric_li
     list->last = node;
   }
   list->size++;
+  list->data_size += monikor_metric_node_size(node);
   return 0;
 }
 
@@ -95,6 +106,7 @@ monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list) {
   if (node == list->last)
     list->last = NULL;
   list->size--;
+  list->data_size -= monikor_metric_node_size(node);
   free(node);
   return metric;
 }
@@ -102,6 +114,36 @@ monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list) {
 void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *)) {
   for (monikor_metric_list_node_t *cur = list->first; cur; cur = cur->next)
     apply(cur->metric);
+}
+
+size_t monikor_metric_list_remove_if(monikor_metric_list_t *list,
+int (*f)(monikor_metric_t *, void *), void *data) {
+  monikor_metric_list_node_t *node;
+  monikor_metric_list_node_t *next;
+  monikor_metric_list_node_t *prev;
+  size_t n = 0;
+
+
+  prev = NULL;
+  for (node = list->first; node; node = next) {
+    next = node->next;
+    if (f(node->metric, data)) {
+      if (prev)
+        prev->next = node->next;
+      if (node == list->first)
+        list->first = node->next;
+      if (node == list->last)
+        list->last = prev;
+      list->size--;
+      list->data_size -= monikor_metric_node_size(node);
+      monikor_metric_free(node->metric);
+      free(node);
+      n++;
+    } else {
+      prev = node;
+    }
+  }
+  return n;
 }
 
 /*
@@ -119,5 +161,6 @@ void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list
     head->last = tail->last;
   }
   head->size += tail->size;
+  head->data_size += tail->data_size;
   monikor_metric_list_init(tail);
 }

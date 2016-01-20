@@ -1,6 +1,8 @@
+#include <curl/curl.h>
+
 #include "monikor.h"
 
-int monikor_init(monikor_t *mon, const char *config_path) {
+int monikor_init(monikor_t *mon, char *config_path) {
   size_t mod_size;
 
   mon->modules.count = 0;
@@ -23,5 +25,6 @@ int monikor_init(monikor_t *mon, const char *config_path) {
     return 1;
   if (mon->config->unix_sock_path)
     monikor_server_init(&mon->server, mon);
+  curl_global_init(CURL_GLOBAL_ALL);
   return 0;
 }

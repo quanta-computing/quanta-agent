@@ -10,6 +10,8 @@
 #define MONIKOR_DEFAULT_MODULES_PATH "/usr/lib/monikor/modules"
 #define MONIKOR_DEFAULT_POLL_INTERVAL 60
 #define MONIKOR_DEFAULT_SERVER_TIMEOUT 5
+#define MONIKOR_DEFAULT_MAX_CACHE_SIZE 10 * 1024 * 1024
+
 #define MONIKOR_QUANTA_TOKEN_MAX_LENGTH 42
 #define MONIKOR_HOSTID_MAX_LENGTH 42
 
@@ -53,12 +55,13 @@ typedef struct {
   int log_level;
   int poll_interval;
 
+  int max_cache_size;
 } monikor_config_t;
 
 
 monikor_config_t *monikor_config_new(void);
 void monikor_config_free(monikor_config_t *config);
-monikor_config_t *monikor_load_config(const char *config_path);
+monikor_config_t *monikor_load_config(char *config_path);
 int monikor_setup_config(monikor_config_t *config);
 
 monikor_config_dict_t *monikor_config_dict_new(void);

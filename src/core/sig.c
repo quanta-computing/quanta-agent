@@ -35,7 +35,7 @@ static void handle_signal(monikor_io_handler_t *handler, uint8_t mode) {
     monikor_exit(mon);
     break;
   case SIGHUP:
-    monikor_reload(mon);
+    monikor_flag_reload(mon);
     break;
   case SIGUSR1:
     monikor_send_all(mon);

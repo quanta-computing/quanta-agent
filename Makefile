@@ -35,8 +35,12 @@ SRCF=	config/config.c \
 			server/init.c \
 			core/cleanup.c \
 			core/control.c \
+			core/evict.c \
 			core/exit.c \
 			core/init.c \
+			core/metrics.c \
+			core/poll.c \
+			core/reload.c \
 			core/run.c \
 			core/send.c \
 			core/sig.c \

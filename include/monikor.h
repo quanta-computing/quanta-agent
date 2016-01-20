@@ -17,8 +17,10 @@ typedef struct monikor_s monikor_t;
 # include "module.h"
 # include "logger.h"
 # include "config.h"
-# include "utils.h"
 # include "io_handler.h"
+# include "utils.h"
+
+# define MONIKOR_FLAG_RELOAD (1 << 0)
 
 struct monikor_s {
   monikor_config_t *config;
@@ -30,25 +32,32 @@ struct monikor_s {
   monikor_server_t server;
   monikor_io_handler_list_t io_handlers;
   struct timeval last_clock;
+  uint8_t flags;
 };
 
 // misc
 void usage(void);
 
 // core
-int monikor_init(monikor_t *mon, const char *config_path);
+int monikor_init(monikor_t *mon, char *config_path);
 void monikor_cleanup(monikor_t *mon);
 int monikor_run(monikor_t *mon);
 void monikor_exit(monikor_t *mon);
+int monikor_reload(monikor_t *mon);
 
 int monikor_load_all_modules(monikor_t *mon);
+int monikor_poll_modules(monikor_t *mon);
 int monikor_send_metrics(monikor_t *mon);
 void monikor_send_all_metrics(monikor_t *mon);
+void monikor_evict_metrics(monikor_t *mon);
 
 void monikor_send_all(monikor_t *mon);
 void monikor_flush_all(monikor_t *mon);
-void monikor_reload(monikor_t *mon);
+void monikor_flag_reload(monikor_t *mon);
 
+
+// metrics
+int monikor_metric_push(monikor_t *mon, monikor_metric_t *metric);
 
 // Signal handling
 int monikor_register_signals(monikor_t *mon);

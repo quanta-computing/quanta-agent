@@ -15,30 +15,23 @@ monikor_config_t *monikor_config_new(void) {
   if (!(cfg = malloc(sizeof(*cfg))))
     return NULL;
   cfg->full_config = monikor_config_dict_new();
-  cfg->config_path = strdup(MONIKOR_DEFAULT_CONFIG_PATH);
+  cfg->config_path = MONIKOR_DEFAULT_CONFIG_PATH;
   cfg->server_url = NULL;
   cfg->modules.path = NULL;
   cfg->quanta_token = NULL;
   cfg->hostid = NULL;
   cfg->unix_sock_path = NULL;
   cfg->log_level = LOG_NOTICE;
+  cfg->max_cache_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
   return cfg;
 }
 
-
 void monikor_config_free(monikor_config_t *config) {
   monikor_config_dict_free(config->full_config);
-  free(config->config_path);
-  free(config->modules.path);
-  free(config->hostid);
-  free(config->quanta_token);
-  printf("Freeing server url %p\n", config->server_url);
-  free(config->server_url);
-  free(config->unix_sock_path);
   free(config);
 }
 
-monikor_config_t *monikor_load_config(const char *config_path) {
+monikor_config_t *monikor_load_config(char *config_path) {
   monikor_config_t *cfg;
   FILE *config_fh;
 
@@ -47,8 +40,7 @@ monikor_config_t *monikor_load_config(const char *config_path) {
     return NULL;
   }
   if (config_path && strcmp(config_path, cfg->config_path)) {
-    free(cfg->config_path);
-    cfg->config_path = strdup(config_path);
+    cfg->config_path = config_path;
   }
   if (!(config_fh = fopen(cfg->config_path, "r"))) {
     monikor_log(LOG_ERR, "error opening configuration file %s: %s\n",

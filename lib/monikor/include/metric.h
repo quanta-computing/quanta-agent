@@ -38,6 +38,7 @@ typedef struct _monikor_metric_list_node {
 
 typedef struct {
   size_t                      size;
+  size_t                      data_size;
   monikor_metric_list_node_t  *first;
   monikor_metric_list_node_t  *last;
 } monikor_metric_list_t;
@@ -122,6 +123,9 @@ void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(moniko
 
 void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list_t *tail);
 
+size_t monikor_metric_list_remove_if(monikor_metric_list_t *list,
+  int (*f)(monikor_metric_t *, void *), void *data);
+
 int monikor_metric_list_serialize(const monikor_metric_list_t *metrics, void **data, size_t *size);
 void monikor_metric_list_header_unserialize(void *data,
   monikor_serialized_metric_list_hdr_t *hdr);
@@ -139,6 +143,8 @@ int monikor_metric_store_lpush(monikor_metric_store_t *store, monikor_metric_lis
 void monikor_metric_store_flush(monikor_metric_store_t *store);
 void monikor_metric_store_cache(monikor_metric_store_t *store);
 void monikor_metric_store_flush_all(monikor_metric_store_t *store);
+size_t monikor_metric_store_evict_cache(monikor_metric_store_t *store, size_t max_size);
+size_t monikor_metric_store_evict_delta(monikor_metric_store_t *store, struct timeval *clock);
 
 // Utils
 #ifndef htonll

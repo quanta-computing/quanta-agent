@@ -92,12 +92,37 @@ int monikor_metric_store_lpush(monikor_metric_store_t *store, monikor_metric_lis
   return err;
 }
 
+size_t monikor_metric_store_evict_cache(monikor_metric_store_t *store, size_t max_size) {
+  size_t n;
+
+  for (n = 0; store->cache->data_size > max_size; n++)
+    monikor_metric_free(monikor_metric_list_pop(store->cache));
+  return n;
+}
+
+static int evict_delta_predicate(monikor_metric_t *metric, void *data) {
+  return _timecmp(&metric->clock, (struct timeval *)data) < 0;
+}
+
+size_t monikor_metric_store_evict_delta(monikor_metric_store_t *store, struct timeval *clock) {
+  return monikor_metric_list_remove_if(store->delta, &evict_delta_predicate, (void *)clock);
+}
+
 void monikor_metric_store_flush(monikor_metric_store_t *store) {
   monikor_metric_list_empty(store->current);
 }
 
 void monikor_metric_store_cache(monikor_metric_store_t *store) {
   monikor_metric_list_concat(store->cache, store->current);
+}
+
+/*
+** We perform 2 concat operations to keep the cache data at the beginning of the list.
+** This allows older data to be evicted first when evicting the cache.
+*/
+void monikor_metric_store_uncache(monikor_metric_store_t *store) {
+  monikor_metric_list_concat(store->cache, store->current);
+  monikor_metric_list_concat(store->current, store->cache);
 }
 
 void monikor_metric_store_flush_all(monikor_metric_store_t *store) {
