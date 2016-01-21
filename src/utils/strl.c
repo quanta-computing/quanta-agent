@@ -18,6 +18,8 @@ void strl_delete(strl_t *l) {
   strl_node_t *it;
   strl_node_t *next = NULL;
 
+  if (!l)
+    return;
   for (it = l->first; it; it = next) {
     next = it->next;
     strl_node_delete(it);
@@ -37,6 +39,8 @@ strl_node_t *strl_node_new(char *s) {
 }
 
 void strl_node_delete(strl_node_t *n) {
+  if (!n)
+    return;
   free(n->str);
   free(n);
 }
