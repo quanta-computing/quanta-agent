@@ -1,12 +1,15 @@
 #ifndef MONIKOR_MODULE_H_
 # define MONIKOR_MODULE_H_
 
-# include "metric.h"
+# include <sys/time.h>
 
-#ifndef MONIKOR_STRUCT_TYPEDEF_DECL
-#define MONIKOR_STRUCT_TYPEDEF_DECL
+# include "metric.h"
+# include "config.h"
+
+# ifndef MONIKOR_STRUCT_TYPEDEF_DECL
+#  define MONIKOR_STRUCT_TYPEDEF_DECL
 typedef struct monikor_s monikor_t;
-#endif
+# endif
 
 # define MONIKOR_MOD_INIT_TAG "_init"
 # define MONIKOR_MOD_POLL_TAG "_poll"
@@ -19,12 +22,15 @@ typedef struct monikor_s monikor_t;
 # endif
 
 typedef struct {
-  char    *name;
-  void    *dhandle;
-  void    *data;
-  void    *(*init)(monikor_t *mon);
-  void    (*cleanup)(monikor_t *mon, void *data);
-  int     (*poll)(monikor_t *mon, void *data);
+  char *name;
+  void *data;
+  void *dhandle;
+  int poll_interval;
+  struct timeval last_clock;
+  monikor_config_dict_t *config;
+  void *(*init)(monikor_t *mon, monikor_config_dict_t *cfg);
+  void (*cleanup)(monikor_t *mon, void *data);
+  int (*poll)(monikor_t *mon, void *data);
 } monikor_mod_t;
 
 

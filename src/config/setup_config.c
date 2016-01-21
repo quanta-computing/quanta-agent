@@ -1,7 +1,11 @@
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "config.h"
 #include "logger.h"
+#include "strl.h"
 
 static const struct {
   char *lower;
@@ -59,12 +63,53 @@ static int monikor_setup_config_interval(monikor_config_t *cfg) {
   return 0;
 }
 
-static int monikor_setup_config_modules(monikor_config_t *cfg) {
-  char *mod_path;
+static int is_module_config(const char *name) {
+  size_t name_len = strlen(name);
+  size_t ext_len = strlen(MONIKOR_CONFIG_EXT);
 
-  mod_path = monikor_config_dict_get_scalar(cfg->full_config, "modules_path");
+  if (name_len <= ext_len)
+    return 0;
+  return !strcmp(name + name_len - strlen(MONIKOR_CONFIG_EXT), MONIKOR_CONFIG_EXT);
+}
+
+static int monikor_setup_config_modules_path(monikor_config_t *cfg) {
+  char *mod_path;
+  char *config_path;
+  size_t path_len;
+  size_t conf_path_len;
+
+  mod_path = monikor_config_dict_get_scalar(cfg->full_config, "modules.path");
+  config_path = monikor_config_dict_get_scalar(cfg->full_config, "modules.config_path");
   cfg->modules.path = mod_path ? mod_path : MONIKOR_DEFAULT_MODULES_PATH;
-  cfg->modules.modules = monikor_config_dict_get_list(cfg->full_config, "modules");
+  cfg->modules.config_path = config_path ? config_path : MONIKOR_DEFAULT_MODULES_CONFIG_PATH;
+  path_len = strlen(cfg->modules.path);
+  conf_path_len = strlen(cfg->modules.config_path);
+  if (cfg->modules.path[path_len - 1] == '/')
+    cfg->modules.path[path_len - 1] = 0;
+  if (cfg->modules.config_path[conf_path_len - 1] == '/')
+    cfg->modules.config_path[conf_path_len - 1] = 0;
+  return 0;
+}
+
+static int monikor_setup_config_modules(monikor_config_t *cfg) {
+  DIR *mod_dir;
+  struct dirent entry;
+  struct dirent *res;
+
+  monikor_setup_config_modules_path(cfg);
+  if (!(cfg->modules.modules = strl_new())
+  || !(mod_dir = opendir(cfg->modules.config_path))) {
+    monikor_log(LOG_ERR, "Cannot get modules list\n");
+    return 1;
+  }
+  while (!readdir_r(mod_dir, &entry, &res) && res) {
+    if (is_module_config(entry.d_name)) {
+      char *ext = strstr(entry.d_name, MONIKOR_CONFIG_EXT);
+      *ext = 0;
+      strl_push(cfg->modules.modules, entry.d_name);
+    }
+  }
+  closedir(mod_dir);
   return 0;
 }
 
@@ -72,9 +117,9 @@ static int monikor_setup_config_server(monikor_config_t *cfg) {
   char *url;
   char *timeout;
 
-  url = monikor_config_dict_get_scalar(cfg->full_config, "server_url");
+  url = monikor_config_dict_get_scalar(cfg->full_config, "server.url");
   cfg->server_url = url;
-  timeout = monikor_config_dict_get_scalar(cfg->full_config, "server_timeout");
+  timeout = monikor_config_dict_get_scalar(cfg->full_config, "server.timeout");
   if (_is_number(timeout)) {
     cfg->server_timeout = atoi(timeout);
   } else {

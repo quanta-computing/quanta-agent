@@ -11,8 +11,10 @@ monikor_mod_t *monikor_mod_new(const char *name) {
   if (!(mod = malloc(sizeof(*mod))))
     return NULL;
   mod->name = strdup(name);
+  mod->poll_interval = 0;
   mod->dhandle = NULL;
   mod->data = NULL;
+  mod->config = NULL;
   mod->init = NULL;
   mod->cleanup = NULL;
   mod->poll = NULL;
@@ -21,12 +23,12 @@ monikor_mod_t *monikor_mod_new(const char *name) {
 
 
 void monikor_mod_free(monikor_mod_t *mod) {
-  if (mod) {
-    free(mod->name);
-    if (mod->dhandle)
-      dlclose(mod->dhandle);
-  }
-  free(mod);
+  if (!mod)
+    return;
+  free(mod->name);
+  monikor_config_dict_free(mod->config);
+  if (mod->dhandle)
+    dlclose(mod->dhandle);
 }
 
 

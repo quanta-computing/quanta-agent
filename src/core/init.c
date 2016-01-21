@@ -1,11 +1,14 @@
+#include <sys/time.h>
 #include <curl/curl.h>
 
 #include "monikor.h"
+
 
 int monikor_init(monikor_t *mon, char *config_path) {
   size_t mod_size;
 
   mon->modules.count = 0;
+  monikor_logger_init(MONIKOR_LOG_DEFAULT);
   if (!(mon->config = monikor_load_config(config_path)))
     return 1;
   monikor_logger_init(mon->config->log_level);
@@ -26,5 +29,6 @@ int monikor_init(monikor_t *mon, char *config_path) {
   if (mon->config->unix_sock_path)
     monikor_server_init(&mon->server, mon);
   curl_global_init(CURL_GLOBAL_ALL);
+  gettimeofday(&mon->last_clock, NULL);
   return 0;
 }

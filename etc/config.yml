@@ -1,20 +1,18 @@
-interval: 5
+interval: 20
 
 log_level: debug
 
 hostid: 31de9f7d766287c7565801f30babbd4f
 quanta_token: 538e664693f800954b83
 
-server_url: "http://192.168.99.1:3000/push"
-server_timeout: 3
+server:
+  url: "http://192.168.99.1:3000/push"
+  timeout: 3
 
 max_cache_size_mb: 4
 
-modules_path: ./lib/modules
 modules:
-  - dummy
-  # - network
-  # - cpu
-  # - memory
+  path: ./lib/modules
+  config_path: ./etc/modules/
 
 unix_socket_path: /tmp/monikor.sock

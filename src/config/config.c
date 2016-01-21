@@ -18,6 +18,8 @@ monikor_config_t *monikor_config_new(void) {
   cfg->config_path = MONIKOR_DEFAULT_CONFIG_PATH;
   cfg->server_url = NULL;
   cfg->modules.path = NULL;
+  cfg->modules.config_path = NULL;
+  cfg->modules.modules = NULL;
   cfg->quanta_token = NULL;
   cfg->hostid = NULL;
   cfg->unix_sock_path = NULL;
@@ -27,33 +29,63 @@ monikor_config_t *monikor_config_new(void) {
 }
 
 void monikor_config_free(monikor_config_t *config) {
+  if (!config)
+    return;
   monikor_config_dict_free(config->full_config);
+  strl_free(config->modules.modules);
   free(config);
+}
+
+static int monikor_load_config_dict(const char *path, monikor_config_dict_t *cfg) {
+  FILE *config_fh;
+
+  if (!(config_fh = fopen(path, "r"))) {
+    monikor_log(LOG_ERR, "error opening configuration file %s: %s\n",
+      path, strerror(errno));
+    return 1;
+  }
+  monikor_log(LOG_DEBUG, "loading configuration file %s\n", path);
+  if (monikor_parse_config_file(config_fh, cfg)) {
+    monikor_log(LOG_ERR, "error parsing configuration file %s\n", path);
+    fclose(config_fh);
+    return 1;
+  }
+  fclose(config_fh);
+  return 0;
 }
 
 monikor_config_t *monikor_load_config(char *config_path) {
   monikor_config_t *cfg;
-  FILE *config_fh;
 
   if (!(cfg = monikor_config_new())) {
     monikor_log(LOG_ERR, "cannot allocate memory\n");
     return NULL;
   }
-  if (config_path && strcmp(config_path, cfg->config_path)) {
+  if (config_path)
     cfg->config_path = config_path;
-  }
-  if (!(config_fh = fopen(cfg->config_path, "r"))) {
-    monikor_log(LOG_ERR, "error opening configuration file %s: %s\n",
-      cfg->config_path, strerror(errno));
-    return NULL;
-  }
-  monikor_log(LOG_DEBUG, "loading configuration file %s\n", cfg->config_path);
-  if (monikor_parse_config_file(config_fh, cfg)) {
-    monikor_log(LOG_ERR, "error parsing configuration file %s\n", cfg->config_path);
-    fclose(config_fh);
+  if (monikor_load_config_dict(cfg->config_path, cfg->full_config)) {
+    monikor_config_free(cfg);
     return NULL;
   }
   monikor_setup_config(cfg);
-  fclose(config_fh);
+  return cfg;
+}
+
+monikor_config_dict_t *monikor_load_mod_config(char *mod_config_path, char *mod_name) {
+  monikor_config_dict_t *cfg = NULL;
+  char *config_path;
+
+  if (!(cfg = monikor_config_dict_new())
+  || asprintf(&config_path, "%s/%s"MONIKOR_CONFIG_EXT, mod_config_path, mod_name) == -1) {
+    monikor_config_dict_free(cfg);
+    monikor_log(LOG_ERR, "cannot allocate memory to load module %s config\n", mod_name);
+    return NULL;
+  }
+  if (monikor_load_config_dict(config_path, cfg)) {
+    monikor_config_dict_free(cfg);
+    free(config_path);
+    return NULL;
+  }
+  free(config_path);
   return cfg;
 }

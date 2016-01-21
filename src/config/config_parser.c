@@ -3,7 +3,7 @@
 #include "config.h"
 
 
-int monikor_parse_config_file(FILE *fh, monikor_config_t *cfg) {
+int monikor_parse_config_file(FILE *fh, monikor_config_dict_t *cfg) {
   yaml_parser_t parser;
   yaml_event_t ev;
 
@@ -28,7 +28,7 @@ int monikor_parse_config_file(FILE *fh, monikor_config_t *cfg) {
         break;
 
       case YAML_MAPPING_START_EVENT:
-        if (config_parse_mapping(&parser, cfg->full_config))
+        if (config_parse_mapping(&parser, cfg))
           return 1;
         break;
 

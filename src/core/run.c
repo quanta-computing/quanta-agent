@@ -2,9 +2,20 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/time.h>
 
 #include "monikor.h"
+
+static int get_tick_interval(monikor_t *mon) {
+  int tick = mon->config->poll_interval;
+
+  for (size_t i = 0; i < mon->modules.count; i++) {
+    if (mon->modules.modules[i]->poll_interval < tick)
+      tick = mon->modules.modules[i]->poll_interval;
+  }
+  return tick;
+}
 
 /*
 ** This is the main loop, at each run we poll the modules, send the metrics (keep them in cache if
@@ -13,24 +24,23 @@
 int monikor_run(monikor_t *mon) {
   struct timeval interval;
   struct timeval now;
-  struct timeval next_update;
+  time_t next_update;
+  int tick;
 
-  gettimeofday(&next_update, NULL);
+  next_update = time(NULL);
+  tick = get_tick_interval(mon);
   while (42) {
     if (mon->flags & MONIKOR_FLAG_RELOAD) {
       if (monikor_reload(mon))
         return 1;
     }
-    mon->last_clock = next_update;
-    next_update.tv_sec += mon->config->poll_interval;
-    monikor_poll_modules(mon);
-    monikor_send_all(mon);
-    dump_store_size(mon->metrics);
-    monikor_evict_metrics(mon);
-    dump_store_size(mon->metrics);
-    for (gettimeofday(&now, NULL); now.tv_sec < next_update.tv_sec; gettimeofday(&now, NULL)) {
-      interval.tv_sec = next_update.tv_sec - now.tv_sec;
-      interval.tv_usec = interval.tv_sec ? 0 : 1000;
+    gettimeofday(&now, NULL);
+    next_update += tick;
+    monikor_poll_modules(mon, &now);
+    monikor_update(mon, &now);
+    for (gettimeofday(&now, NULL); now.tv_sec < next_update; gettimeofday(&now, NULL)) {
+      interval.tv_sec = next_update - now.tv_sec;
+      interval.tv_usec = 0;
       monikor_log(LOG_DEBUG, "Sleeping for %d seconds\n", interval.tv_sec);
       if (monikor_io_handler_poll(&mon->io_handlers, &interval) == -1)
         monikor_log(LOG_ERR, "Error in select(2): %s\n", strerror(errno));
