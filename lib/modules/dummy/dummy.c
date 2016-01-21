@@ -5,9 +5,10 @@
 #define MOD_NAME "dummy"
 
 
-void *dummy_init(monikor_t *mon) {
+void *dummy_init(monikor_t *mon, monikor_config_dict_t *cfg) {
   (void)mon;
-  monikor_log_mod(LOG_INFO, MOD_NAME, "Dummy init\n");
+  monikor_log_mod(LOG_INFO, MOD_NAME, "Dummy init: %s\n",
+    monikor_config_dict_get_scalar(cfg, "dummy.toto"));
   return (void *)"toto";
 }
 
