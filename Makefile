@@ -44,6 +44,7 @@ SRCF=	config/config.c \
 			core/run.c \
 			core/send.c \
 			core/sig.c \
+			core/update.c \
 			core/usage.c \
 			main.c \
 			debug.c
