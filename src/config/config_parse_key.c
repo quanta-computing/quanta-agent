@@ -14,12 +14,12 @@ int config_parse_key(yaml_parser_t *parser, const char *key, monikor_config_dict
     return 1;
   switch (ev.type) {
     case YAML_SCALAR_EVENT:
-      dict->type = SCALAR;
+      dict->type = MONIKOR_CFG_SCALAR;
       dict->value.value = strdup((char *)ev.data.scalar.value);
       break;
 
     case YAML_SEQUENCE_START_EVENT:
-      dict->type = LIST;
+      dict->type = MONIKOR_CFG_LIST;
       if (!(dict->value.list = strl_new())
       || config_parse_list(parser, dict->value.list)) {
         printf("bad return from parse_list\n");
@@ -36,7 +36,7 @@ int config_parse_key(yaml_parser_t *parser, const char *key, monikor_config_dict
         yaml_event_delete(&ev);
         return 1;
       }
-      dict->type = DICT;
+      dict->type = MONIKOR_CFG_DICT;
       dict->value.dict = sub;
       break;
 

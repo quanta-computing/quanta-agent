@@ -19,9 +19,9 @@
 #define MONIKOR_CONFIG_EXT ".yml"
 
 typedef enum {
-  DICT,
-  LIST,
-  SCALAR
+  MONIKOR_CFG_DICT,
+  MONIKOR_CFG_LIST,
+  MONIKOR_CFG_SCALAR
 } monikor_config_elem_type_t;
 
 

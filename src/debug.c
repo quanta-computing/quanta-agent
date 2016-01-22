@@ -43,16 +43,16 @@ void dump_config_list_elm(char *s) {
 void dump_config(monikor_config_dict_t *dict) {
   for (; dict; dict = dict->next) {
     switch (dict->type) {
-      case DICT:
+      case MONIKOR_CFG_DICT:
         printf("dict %s\n", dict->key);
         dump_config(dict->value.dict);
         break;
-      case LIST:
+      case MONIKOR_CFG_LIST:
         printf("list %s: ", dict->key);
         strl_apply(dict->value.list, dump_config_list_elm);
         printf("\n");
         break;
-      case SCALAR:
+      case MONIKOR_CFG_SCALAR:
         printf("%s = %s\n", dict->key, dict->value.value);
         break;
       default:

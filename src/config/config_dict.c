@@ -8,7 +8,7 @@ monikor_config_dict_t *monikor_config_dict_new(void) {
   if (!(dict = malloc(sizeof(*dict))))
     return NULL;
   dict->key = NULL;
-  dict->type = DICT;
+  dict->type = MONIKOR_CFG_DICT;
   dict->value.dict = NULL;
   dict->next = NULL;
   return dict;
@@ -23,13 +23,13 @@ void monikor_config_dict_free(monikor_config_dict_t *dict) {
   for (elm = dict; elm; elm = next) {
     free(elm->key);
     switch (elm->type) {
-      case DICT:
+      case MONIKOR_CFG_DICT:
         monikor_config_dict_free(elm->value.dict);
         break;
-      case SCALAR:
+      case MONIKOR_CFG_SCALAR:
         free(elm->value.value);
         break;
-      case LIST:
+      case MONIKOR_CFG_LIST:
         strl_delete(elm->value.list);
         break;
       default:
@@ -47,11 +47,11 @@ static monikor_config_dict_t *monikor_config_get_subdict(monikor_config_dict_t *
   if (!keys || !dict)
     return NULL;
   for (k = keys->first; k; k = k->next) {
-    while (sub && strcmp(k->str, sub->key))
+    while (sub && (!sub->key || strcmp(k->str, sub->key)))
       sub = sub->next;
     if (sub && k == keys->last)
       return sub;
-    if (!sub || sub->type != DICT)
+    if (!sub || sub->type != MONIKOR_CFG_DICT)
       return NULL;
     sub = sub->value.dict;
   }
@@ -67,7 +67,7 @@ monikor_config_dict_t *monikor_config_dict_get_dict(monikor_config_dict_t *dict,
   }
   d = monikor_config_get_subdict(dict, keys);
   strl_delete(keys);
-  if (!d || d->type != DICT)
+  if (!d || d->type != MONIKOR_CFG_DICT)
     return NULL;
   return d;
 }
@@ -81,7 +81,7 @@ strl_t *monikor_config_dict_get_list(monikor_config_dict_t *dict, const char *ke
   }
   d = monikor_config_get_subdict(dict, keys);
   strl_delete(keys);
-  if (!d || d->type != LIST)
+  if (!d || d->type != MONIKOR_CFG_LIST)
     return NULL;
   return d->value.list;
 }
@@ -95,7 +95,7 @@ char *monikor_config_dict_get_scalar(monikor_config_dict_t *dict, const char *ke
   }
   d = monikor_config_get_subdict(dict, keys);
   strl_delete(keys);
-  if (!d || d->type != SCALAR)
+  if (!d || d->type != MONIKOR_CFG_SCALAR)
     return NULL;
   return d->value.value;
 }
