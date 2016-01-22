@@ -17,10 +17,11 @@ SRCF=	config/config.c \
 			config/config_parse_key.c \
 			config/config_parse_mapping.c \
 			config/config_parse_list.c \
-			utils/strl.c \
+			utils/http.c \
 			utils/logger.c \
-			utils/read_file.c \
 			utils/net.c \
+			utils/read_file.c \
+			utils/strl.c \
 			utils/time.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
