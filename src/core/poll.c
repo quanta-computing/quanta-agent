@@ -2,7 +2,7 @@
 
 #include "monikor.h"
 
-static int poll_module(monikor_t *mon, monikor_mod_t *mod, struct timeval *clock) {
+static int poll_module(monikor_t *mon, monikor_mod_t *mod) {
   int n_metrics;
 
   monikor_log(LOG_INFO, "Polling module %s\n", mod->name);
@@ -25,7 +25,7 @@ int monikor_poll_modules(monikor_t *mon, struct timeval *clock) {
     time_t next_update = mon->modules.modules[i]->last_clock.tv_sec
       + mon->modules.modules[i]->poll_interval;
     if (next_update <= clock->tv_sec) {
-      err += poll_module(mon, mon->modules.modules[i], clock);
+      err += poll_module(mon, mon->modules.modules[i]);
       mon->modules.modules[i]->last_clock.tv_sec = next_update;
     }
   }
