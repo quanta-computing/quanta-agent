@@ -64,7 +64,6 @@ int monikor_metric_store_push_delta(monikor_metric_store_t *store, monikor_metri
 int monikor_metric_store_push_aggregate(monikor_metric_store_t *store, monikor_metric_t *metric) {
   for (monikor_metric_list_node_t *node = store->current->first; node; node = node->next) {
     if (!strcmp(node->metric->name, metric->name)
-    && !_timecmp(&node->metric->clock, &metric->clock)
     && !monikor_metric_add(node->metric, metric)) {
       monikor_metric_free(metric);
       return 0;
@@ -76,8 +75,8 @@ int monikor_metric_store_push_aggregate(monikor_metric_store_t *store, monikor_m
 int monikor_metric_store_push(monikor_metric_store_t *store, monikor_metric_t *metric) {
   if (metric->flags & MONIKOR_METRIC_DELTA)
     return monikor_metric_store_push_delta(store, metric);
-    else if (metric->flags & MONIKOR_METRIC_AGGREGATE)
-      return monikor_metric_store_push_aggregate(store, metric);
+  else if (metric->flags & MONIKOR_METRIC_AGGREGATE)
+    return monikor_metric_store_push_aggregate(store, metric);
   else
     return monikor_metric_list_push(store->current, metric);
 }
