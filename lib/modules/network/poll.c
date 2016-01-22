@@ -10,7 +10,7 @@ static const char *net_metrics[] = {
 };
 #define NB_METRICS (sizeof(net_metrics) / sizeof(*net_metrics))
 
-static int poll_device_metrics(monikor_metric_list_t *metrics, struct timeval *clock,
+static int poll_device_metrics(monikor_t *mon, struct timeval *clock,
 char *name, char *info) {
   int n = 0;
   char *metric;
@@ -24,7 +24,7 @@ char *name, char *info) {
     value = strtol(metric, &metric, 10);
     if (net_metrics[i]) {
       strcpy(metric_base_end, net_metrics[i]);
-      monikor_metric_list_push(metrics, monikor_metric_integer(
+      monikor_metric_push(mon, monikor_metric_integer(
         metric_name, clock, value, MONIKOR_METRIC_TIMEDELTA
       ));
       n++;
@@ -58,7 +58,7 @@ static inline int is_valid_device(const char *name) {
 }
 
 
-int poll_network_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+int poll_network_metrics(monikor_t *mon, struct timeval *clock) {
   int n = 0;
   char *netinfo;
   char *rest;
@@ -70,7 +70,7 @@ int poll_network_metrics(monikor_metric_list_t *metrics, struct timeval *clock) 
   rest = netinfo;
   while ((rest = next_device_info(rest, &dev, &info))) {
     if (is_valid_device(dev))
-      n += poll_device_metrics(metrics, clock, dev, info);
+      n += poll_device_metrics(mon, clock, dev, info);
   }
   free(netinfo);
   return n;

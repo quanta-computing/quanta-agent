@@ -15,19 +15,6 @@ static const struct {
   {NULL, NULL, 0}
 };
 
-static char *get_apache_status(void) {
-  char http_query[1024];
-  size_t http_query_size;
-
-  http_query_size = snprintf(http_query, sizeof(http_query),
-    "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", APACHE_SERVER_URL, APACHE_HOST
-  );
-  if (http_query_size >= sizeof(http_query))
-    return NULL;
-  return monikor_net_csr(APACHE_HOST, APACHE_PORT, http_query);
-
-}
-
 static int fetch_metric(const char *apache_status, const char *name, unsigned *value) {
   char *line;
 
@@ -37,23 +24,29 @@ static int fetch_metric(const char *apache_status, const char *name, unsigned *v
   return 0;
 }
 
-int apache_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
   int n = 0;
-  char *status;
+  http_response_t *status;
   unsigned value;
 
-  if (!(status = get_apache_status()))
-    return 0;
+  if (!(status = monikor_http_get(url, APACHE_TIMEOUT)))
+    return -1;
+  if (status->code != 200) {
+    free(status->data);
+    free(status);
+    return -1;
+  }
   for (size_t i = 0; apache_metrics[i].name; i++) {
-    if (!fetch_metric(status, apache_metrics[i].field_name, &value)) {
+    if (!fetch_metric(status->data, apache_metrics[i].field_name, &value)) {
       if (!strcmp(apache_metrics[i].name, "apache.workers.bytes_per_second"))
         value *= 1024;
-      monikor_metric_list_push(metrics, monikor_metric_integer(
+      monikor_metric_push(mon, monikor_metric_integer(
         apache_metrics[i].name, clock, value, apache_metrics[i].flags
       ));
       n++;
     }
   }
+  free(status->data);
   free(status);
   return n;
 }

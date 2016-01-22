@@ -5,17 +5,18 @@
 #include "__NAME__.h"
 
 
-void __NAME___init(void) {
+void *__NAME___init(monikor_t *mon, monikor_config_dict_t *config) {
+  (void)mon;
+  (void)config;
+  return NULL;
 }
 
-void __NAME___cleanup(void) {
+void __NAME___cleanup(monikor_t *mon, void *data) {
 }
 
-monikor_metric_list_t *__NAME___poll(void) {
-  monikor_metric_list_t *metrics;
-  time_t now = time(NULL);
+int __NAME___poll(monikor_t *mon, void *data) {
+  struct timeval now;
 
-  if (!(metrics = monikor_metric_list_new()))
-    return NULL;
-  return metrics;
+  gettimeofday(&now, NULL);
+  return 0;
 }

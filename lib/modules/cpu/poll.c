@@ -15,6 +15,7 @@ static const char *metric_names[] = {
 };
 #define NB_CPU_METRICS (sizeof(metric_names) / sizeof(*metric_names))
 
+
 char *get_proc_stat_cpu_info(char *proc_stat) {
   char *line;
   char *eol;
@@ -50,7 +51,7 @@ static size_t cpu_fetch_metrics(float *values, size_t n_metrics) {
   return i;
 }
 
-static int cpu_fetch_loadavg(monikor_metric_list_t *metrics, struct timeval *clock) {
+static int cpu_fetch_loadavg(monikor_t *mon, struct timeval *clock) {
   float value;
   char *loadavg;
   char *end;
@@ -61,22 +62,22 @@ static int cpu_fetch_loadavg(monikor_metric_list_t *metrics, struct timeval *clo
   free(loadavg);
   if (end == loadavg)
     return 1;
-  monikor_metric_list_push(metrics, monikor_metric_float("cpu.loadavg",
+  monikor_metric_push(mon, monikor_metric_float("cpu.loadavg",
     clock, value / sysconf(_SC_NPROCESSORS_ONLN), 0));
   return 0;
 }
 
-int cpu_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+int cpu_poll_metrics(monikor_t *mon, struct timeval *clock) {
   float values[NB_CPU_METRICS];
-  size_t n;
+  int n;
 
-  if (!(n = cpu_fetch_metrics(values, NB_CPU_METRICS)))
-    return 0;
-  for (size_t i = 0; i < n; i++)
-    monikor_metric_list_push(metrics, monikor_metric_float(
+  n = cpu_fetch_metrics(values, NB_CPU_METRICS);
+  for (int i = 0; i < n; i++) {
+    monikor_metric_push(mon, monikor_metric_float(
       metric_names[i], clock, values[i], MONIKOR_METRIC_TIMEDELTA
     ));
-  if (!cpu_fetch_loadavg(metrics, clock))
+  }
+  if (!cpu_fetch_loadavg(mon, clock))
     n++;
   return n;
 }

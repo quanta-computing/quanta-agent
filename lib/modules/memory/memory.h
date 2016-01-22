@@ -5,6 +5,6 @@
 #define MOD_NAME "memory"
 
 
-int memory_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock);
+int memory_poll_metrics(monikor_t *mon, struct timeval *clock);
 
 #endif /* end of include guard: MEMORY_H_ */

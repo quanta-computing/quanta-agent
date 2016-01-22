@@ -5,7 +5,8 @@
 #include "monikor.h"
 #include "process.h"
 
-static int fetch_one_process_metrics(monikor_metric_list_t *metrics, struct timeval *clock,
+
+static int fetch_one_process_metrics(monikor_t *mon, struct timeval *clock,
 pid_t pid, char *name, char *proc_info) {
   int n;
   size_t idx = 0;
@@ -16,7 +17,7 @@ pid_t pid, char *name, char *proc_info) {
 
   metric_base_end = metric_name + sprintf(metric_name, "process.%s.", name);
   strcpy(metric_base_end, "count");
-  monikor_metric_list_push(metrics, monikor_metric_integer(
+  monikor_metric_push(mon, monikor_metric_integer(
     metric_name, clock, 1, MONIKOR_METRIC_AGGREGATE
   ));
   n = 1;
@@ -25,27 +26,27 @@ pid_t pid, char *name, char *proc_info) {
     switch (idx) {
     case 11:
       strcpy(metric_base_end, "cpu.user");
-      monikor_metric_list_push(metrics, monikor_metric_float_id(
+      monikor_metric_push(mon, monikor_metric_float_id(
         metric_name, clock, strtof(value, NULL) / sysconf(_SC_CLK_TCK),
         MONIKOR_METRIC_TIMEDELTA | MONIKOR_METRIC_AGGREGATE, pid
       ));
       break;
     case 12:
       strcpy(metric_base_end, "cpu.kernel");
-      monikor_metric_list_push(metrics, monikor_metric_integer_id(
+      monikor_metric_push(mon, monikor_metric_integer_id(
         metric_name, clock, strtof(value, NULL) / sysconf(_SC_CLK_TCK),
         MONIKOR_METRIC_TIMEDELTA | MONIKOR_METRIC_AGGREGATE, pid
       ));
       break;
     case 20:
       strcpy(metric_base_end, "mem.vsize");
-      monikor_metric_list_push(metrics, monikor_metric_integer(
+      monikor_metric_push(mon, monikor_metric_integer(
         metric_name, clock, strtol(value, NULL, 10), MONIKOR_METRIC_AGGREGATE
       ));
       break;
     case 21:
       strcpy(metric_base_end, "mem.rss");
-      monikor_metric_list_push(metrics, monikor_metric_integer(
+      monikor_metric_push(mon, monikor_metric_integer(
         metric_name, clock, strtol(value, NULL, 10) * getpagesize(), MONIKOR_METRIC_AGGREGATE
       ));
       break;
@@ -57,7 +58,7 @@ pid_t pid, char *name, char *proc_info) {
   return n;
 }
 
-static int poll_one_process(monikor_metric_list_t *metrics, struct timeval *clock, pid_t pid) {
+static int poll_one_process(monikor_t *mon, struct timeval *clock, pid_t pid) {
   char *proc_stat;
   char *name;
   char *info;
@@ -72,7 +73,7 @@ static int poll_one_process(monikor_metric_list_t *metrics, struct timeval *cloc
     return 0;
   }
   *info = 0;
-  n = fetch_one_process_metrics(metrics, clock, pid, name + 1, info + 1);
+  n = fetch_one_process_metrics(mon, clock, pid, name + 1, info + 1);
   free(proc_stat);
   return n;
 }
@@ -86,7 +87,7 @@ static int looks_like_pid_dir(const struct dirent *entry) {
   return 1;
 }
 
-int poll_processes_metrics(monikor_metric_list_t *metrics, struct timeval *clock) {
+int poll_processes_metrics(monikor_t *mon, struct timeval *clock) {
   int n = 0;
   DIR *dir;
   struct dirent entry;
@@ -96,7 +97,7 @@ int poll_processes_metrics(monikor_metric_list_t *metrics, struct timeval *clock
     return 0;
   while (!readdir_r(dir, &entry, &res) && res)
     if (looks_like_pid_dir(&entry))
-      n += poll_one_process(metrics, clock, atoi(entry.d_name));
+      n += poll_one_process(mon, clock, atoi(entry.d_name));
   closedir(dir);
   return n;
 }

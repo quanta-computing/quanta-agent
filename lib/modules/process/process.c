@@ -4,23 +4,21 @@
 #include "monikor.h"
 #include "process.h"
 
-void process_init(void) {
+void *process_init(monikor_t *mon, monikor_config_dict_t *config) {
+  (void)mon;
+  (void)config;
+  return NULL;
 }
 
-void process_cleanup(void) {
+void process_cleanup(monikor_t *mon, void *data) {
+  (void)mon;
+  (void)data;
 }
 
-
-monikor_metric_list_t *process_poll(void) {
-  monikor_metric_list_t *metrics;
+int process_poll(monikor_t *mon, void *data) {
   struct timeval now;
 
+  (void)data;
   gettimeofday(&now, NULL);
-  if (!(metrics = monikor_metric_list_new()))
-    return NULL;
-  if (!poll_processes_metrics(metrics, &now)) {
-    monikor_metric_list_free(metrics);
-    return NULL;
-  }
-  return metrics;
+  return poll_processes_metrics(mon, &now);
 }

@@ -54,7 +54,7 @@ monikor_mod_t *monikor_load_module(const char *name, const char *mod_path) {
 
   monikor_log(LOG_INFO, "loading module %s\n", name);
   if (!(mod = monikor_mod_new(name))
-    || !(sopath = _get_sopath(name, mod_path))) {
+  || !(sopath = _get_sopath(name, mod_path))) {
     monikor_log(LOG_ERR, "cannot load module %s: cannot allocate memory\n", name);
     goto err;
   }
@@ -65,6 +65,7 @@ monikor_mod_t *monikor_load_module(const char *name, const char *mod_path) {
   }
   if (!(mod->init = _load_mod_function(name, MONIKOR_MOD_INIT_TAG, mod->dhandle))) {
     monikor_log(LOG_ERR, "module %s does not provides function %s%s", name, name, MONIKOR_MOD_INIT_TAG);
+    goto err;
   }
   if (!(mod->poll = _load_mod_function(name, MONIKOR_MOD_POLL_TAG, mod->dhandle))) {
     monikor_log(LOG_ERR, "module %s does not provides function %s%s", name, name, MONIKOR_MOD_POLL_TAG);

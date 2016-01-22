@@ -3,21 +3,21 @@
 #include "monikor.h"
 #include "cpu.h"
 
-void cpu_init(void) {
+void *cpu_init(monikor_t *mon, monikor_config_t *config) {
+  (void)mon;
+  (void)config;
+  return NULL;
 }
 
-void cpu_cleanup(void) {
+void cpu_cleanup(monikor_t *mon, void *data) {
+  (void)mon;
+  (void)data;
 }
 
-monikor_metric_list_t *cpu_poll(void) {
-  monikor_metric_list_t *metrics;
+int cpu_poll(monikor_t *mon, void *data) {
   struct timeval now;
 
+  (void)data;
   gettimeofday(&now, NULL);
-  if (!(metrics = monikor_metric_list_new())
-  || !cpu_poll_metrics(metrics, &now)) {
-    monikor_metric_list_free(metrics);
-    return NULL;
-  }
-  return metrics;
+  return cpu_poll_metrics(mon, &now);
 }

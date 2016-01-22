@@ -4,11 +4,10 @@
 #include "monikor.h"
 #define MOD_NAME "apache"
 
-#define APACHE_HOST "localhost"
-#define APACHE_PORT "80"
-#define APACHE_SERVER_URL "/server-status?auto"
+#define APACHE_DEFAULT_STATUS_URL "http://localhost/server-status?auto"
+#define APACHE_TIMEOUT 5
 
-int apache_poll_metrics(monikor_metric_list_t *metrics, struct timeval *clock);
+int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url);
 
 
 #endif /* end of include guard: APACHE_H_ */
