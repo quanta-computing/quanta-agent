@@ -4,13 +4,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-char      *monikor_read_file(const char *filepath);
-int       monikor_net_connect(const char *host, const char *port);
-int       monikor_net_send_data(int sock, const void *data, size_t len);
-int       monikor_net_send(int sock, const char *msg);
-char      *monikor_net_recv(int sock);
-char      *monikor_net_sr(int sock, const char *msg);
-char      *monikor_net_csr(const char *host, const char *port, const char *msg);
+typedef struct {
+  long code;
+  char *data;
+  size_t size;
+} http_response_t;
+
+char *monikor_read_file(const char *filepath);
+http_response_t *monikor_http_get(const char *url, long timeout);
+
+int monikor_net_connect(const char *host, const char *port);
+int monikor_net_send_data(int sock, const void *data, size_t len);
+int monikor_net_send(int sock, const char *msg);
+char *monikor_net_recv(int sock);
+char *monikor_net_sr(int sock, const char *msg);
+char *monikor_net_csr(const char *host, const char *port, const char *msg);
 
 int timecmp(const struct timeval *a, const struct timeval *b);
 
