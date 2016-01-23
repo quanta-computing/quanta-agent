@@ -21,7 +21,7 @@ static size_t data_handler(char *ptr, size_t size, size_t nmemb, void *data) {
   char *new_data;
   size_t data_size = size * nmemb;
 
-  if (!(new_data = realloc(response->data, response->size + data_size))) {
+  if (!(new_data = realloc(response->data, response->size + data_size + 1))) {
     free(response->data);
     response->data = NULL;
     return 0;
@@ -29,6 +29,7 @@ static size_t data_handler(char *ptr, size_t size, size_t nmemb, void *data) {
   response->data = new_data;
   memcpy((void *)(response->data + response->size), (void *)ptr, data_size);
   response->size += data_size;
+  response->data[response->size] = 0;
   return data_size;
 }
 
