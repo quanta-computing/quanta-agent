@@ -11,10 +11,14 @@ static int set_fd_sets(monikor_io_handler_list_t *list, fd_set *rdfds, fd_set *w
   FD_ZERO(rdfds);
   FD_ZERO(wrfds);
   for (monikor_io_handler_t *handler = list->first; handler; handler = handler->next) {
+    if (handler->fd == -1)
+      continue;
     if (handler->mode & MONIKOR_IO_HANDLER_RD)
       FD_SET(handler->fd, rdfds);
-    if (handler->mode & MONIKOR_IO_HANDLER_WR)
+    else if (handler->mode & MONIKOR_IO_HANDLER_WR)
       FD_SET(handler->fd, wrfds);
+    else
+      continue;
     if (handler->fd > ndfs)
       ndfs = handler->fd;
   }
@@ -38,7 +42,7 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   for (monikor_io_handler_t *handler = list->first; handler; handler = handler->next) {
     uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
       | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
-    if (mode)
+    if (mode && handler->callback)
       handler->callback(handler, mode);
   }
   return err;
