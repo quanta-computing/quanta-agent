@@ -33,10 +33,12 @@ int monikor_run(monikor_t *mon) {
     if (mon->flags & MONIKOR_FLAG_RELOAD) {
       if (monikor_reload(mon))
         return 1;
+      tick = get_tick_interval(mon);
     }
     gettimeofday(&now, NULL);
     next_update += tick;
     monikor_poll_modules(mon, &now);
+    dump_metric_list(mon->metrics->current);
     monikor_update(mon, &now);
     for (gettimeofday(&now, NULL); now.tv_sec < next_update; gettimeofday(&now, NULL)) {
       interval.tv_sec = next_update - now.tv_sec;

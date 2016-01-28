@@ -8,9 +8,11 @@
 monikor_mod_t *monikor_mod_new(const char *name) {
   monikor_mod_t *mod;
 
-  if (!(mod = malloc(sizeof(*mod))))
+  if (!(mod = malloc(sizeof(*mod)))
+  || !(mod->name = strdup(name))) {
+    free(mod);
     return NULL;
-  mod->name = strdup(name);
+  }
   mod->poll_interval = 0;
   mod->dhandle = NULL;
   mod->data = NULL;
