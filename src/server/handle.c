@@ -80,7 +80,6 @@ void monikor_server_handle_any(monikor_io_handler_t *handler, uint8_t mode) {
   monikor_server_handler_t *srv_handler = (monikor_server_handler_t *)handler->data;
 
   (void)mode;
-  printf("SRV HANDLER client %p server %p\n", srv_handler->client, srv_handler->server);
   if (srv_handler->client)
     monikor_server_handle_client(srv_handler);
   else

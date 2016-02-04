@@ -43,7 +43,6 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
     return err;
   handler = list->first;
   while (handler) {
-    printf("Polling handler %d\n", handler->fd);
     next = handler->next;
     uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
       | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
