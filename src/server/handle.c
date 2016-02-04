@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -37,18 +39,29 @@ int monikor_server_handle_connection(monikor_server_t *server) {
 
 int monikor_server_handle_client(monikor_server_handler_t *handler) {
   char buf[SERIALIZED_METRIC_LIST_HDR_SIZE];
-  ssize_t rd;
+  ssize_t ret;
+  size_t rd;
   monikor_metric_list_t *metrics;
 
   monikor_log(LOG_DEBUG, "Receiving data from client on socket %d\n", handler->client->socket);
-  rd = read(handler->client->socket, buf, SERIALIZED_METRIC_LIST_HDR_SIZE);
-  if (rd < (ssize_t)SERIALIZED_METRIC_LIST_HDR_SIZE)
+  ret = read(handler->client->socket, buf, SERIALIZED_METRIC_LIST_HDR_SIZE);
+  if (ret < (ssize_t)SERIALIZED_METRIC_LIST_HDR_SIZE)
     goto err;
   monikor_metric_list_header_unserialize((void *)buf, &handler->client->header);
-  if (!(handler->client->data = malloc(handler->client->header.data_size)))
+  if (!(handler->client->data = malloc(handler->client->header.data_size))) {
+    monikor_log(LOG_ERR, "cannot allocate %zu bytes of memory\n", handler->client->header.data_size);
     goto err;
-  rd = read(handler->client->socket, handler->client->data, handler->client->header.data_size);
-  if (rd < (ssize_t)handler->client->header.data_size)
+  }
+  rd = 0;
+  do {
+    ret = read(handler->client->socket, handler->client->data + rd, handler->client->header.data_size - rd);
+    if (ret == -1) {
+      monikor_log(LOG_ERR, "read(2) error: %s\n", strerror(errno));
+      goto err;
+    }
+    rd += ret;
+  } while (rd < handler->client->header.data_size);
+  if (rd < handler->client->header.data_size)
     goto err;
   monikor_metric_list_unserialize(handler->client->data, &handler->client->header, &metrics);
   monikor_metric_store_lpush(handler->server->mon->metrics, metrics);
