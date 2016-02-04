@@ -30,6 +30,8 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   int err;
   fd_set rdfds;
   fd_set wrfds;
+  monikor_io_handler_t *handler;
+  monikor_io_handler_t *next;
 
   ndfs = set_fd_sets(list, &rdfds, &wrfds);
   if (ndfs <= 0)
@@ -39,11 +41,15 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   } while (err == -1 && errno == EINTR);
   if (err <= 0)
     return err;
-  for (monikor_io_handler_t *handler = list->first; handler; handler = handler->next) {
+  handler = list->first;
+  while (handler) {
+    printf("Polling handler %d\n", handler->fd);
+    next = handler->next;
     uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
       | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
     if (mode && handler->callback)
       handler->callback(handler, mode);
+    handler = next;
   }
   return err;
 }
