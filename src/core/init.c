@@ -30,5 +30,6 @@ int monikor_init(monikor_t *mon, char *config_path) {
     monikor_server_init(&mon->server, mon);
   curl_global_init(CURL_GLOBAL_ALL);
   gettimeofday(&mon->last_clock, NULL);
+  mon->flags = 0;
   return 0;
 }
