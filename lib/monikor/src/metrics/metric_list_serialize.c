@@ -34,8 +34,8 @@ static size_t serialize_metric(uint8_t *data, const monikor_metric_t *metric) {
   *((uint64_t *)(data + METRIC_HDR_CLOCK_SEC_OFF)) = htonll((uint64_t)metric->clock.tv_sec);
   *((uint64_t *)(data + METRIC_HDR_CLOCK_USEC_OFF)) = htonll((uint64_t)metric->clock.tv_usec);
   *((uint16_t *)(data + METRIC_HDR_NAME_SIZE_OFF)) = htons((uint16_t)strlen(metric->name));
-  *((uint16_t *)(data + METRIC_HDR_DATA_SIZE_OFF)) =
-    htons((uint16_t)monikor_metric_data_size(metric));
+  *((uint64_t *)(data + METRIC_HDR_DATA_SIZE_OFF)) =
+    htonll((uint64_t)monikor_metric_data_size(metric));
   data[METRIC_HDR_TYPE_OFF] = (uint8_t)metric->type;
   data[METRIC_HDR_FLAGS_OFF] = metric->flags;
   serialize_metric_name_and_data(data + SERIALIZED_METRIC_HDR_SIZE, metric);
@@ -46,8 +46,8 @@ static size_t serialize_metric_list_header(uint8_t *data, const monikor_metric_l
 size_t total_length) {
   data[METRIC_LIST_HDR_VERSION_OFF] = METRIC_SERIALIZER_VERSION;
   *((uint16_t *)(data + METRIC_LIST_HDR_COUNT_OFF)) = htons(metrics->size);
-  *((uint16_t *)(data + METRIC_LIST_HDR_DATA_SIZE_OFF)) =
-    htons(total_length - SERIALIZED_METRIC_LIST_HDR_SIZE);
+  *((uint64_t *)(data + METRIC_LIST_HDR_DATA_SIZE_OFF)) =
+    htonll(total_length - SERIALIZED_METRIC_LIST_HDR_SIZE);
   return SERIALIZED_METRIC_LIST_HDR_SIZE;
 }
 

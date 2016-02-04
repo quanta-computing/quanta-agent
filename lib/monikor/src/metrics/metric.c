@@ -8,9 +8,11 @@
 monikor_metric_t *monikor_metric_new(const char *name, const struct timeval *clock) {
   monikor_metric_t *metric;
 
-  if (!(metric = malloc(sizeof(*metric))))
+  if (!(metric = malloc(sizeof(*metric)))
+  || !(metric->name = strdup(name))) {
+    free(metric);
     return NULL;
-  metric->name = strdup(name);
+  }
   metric->id = 0;
   metric->clock.tv_sec = clock->tv_sec;
   metric->clock.tv_usec = clock->tv_usec;
@@ -87,7 +89,10 @@ const char *value) {
   if (!(metric = monikor_metric_new(name, clock)))
     return NULL;
   metric->type = MONIKOR_STRING;
-  metric->value._string = strdup(value);
+  if (!(metric->value._string = strdup(value))) {
+    monikor_metric_free(metric);
+    return NULL;
+  }
   return metric;
 }
 

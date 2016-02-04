@@ -60,7 +60,7 @@ typedef struct {
   uint64_t clock_sec;
   uint64_t clock_usec;
   uint16_t name_size;
-  uint16_t data_size;
+  uint64_t data_size;
   uint8_t type;
   uint8_t flags;
 } monikor_serialized_metric_hdr_t;
@@ -69,21 +69,21 @@ typedef struct {
 #define METRIC_HDR_CLOCK_USEC_OFF (sizeof(uint64_t))
 #define METRIC_HDR_NAME_SIZE_OFF (2 * sizeof(uint64_t))
 #define METRIC_HDR_DATA_SIZE_OFF (2 * sizeof(uint64_t) + sizeof(uint16_t))
-#define METRIC_HDR_TYPE_OFF (2 * sizeof(uint64_t) + 2 * sizeof(uint16_t))
-#define METRIC_HDR_FLAGS_OFF (2 * sizeof(uint64_t) + 2 * sizeof(uint16_t) + sizeof(uint8_t))
-#define SERIALIZED_METRIC_HDR_SIZE (2 * sizeof(uint64_t) + 2 * sizeof(uint16_t) + 2 * sizeof(uint8_t))
+#define METRIC_HDR_TYPE_OFF (2 * sizeof(uint64_t) + sizeof(uint16_t) + sizeof(uint64_t))
+#define METRIC_HDR_FLAGS_OFF (2 * sizeof(uint64_t) + sizeof(uint16_t) + sizeof(uint64_t) + sizeof(uint8_t))
+#define SERIALIZED_METRIC_HDR_SIZE (2 * sizeof(uint64_t) + sizeof(uint16_t) + sizeof(uint64_t) + 2 * sizeof(uint8_t))
 
 typedef struct {
   uint8_t version;
   uint16_t count;
-  uint16_t data_size;
+  uint64_t data_size;
 } monikor_serialized_metric_list_hdr_t;
 
 #define METRIC_SERIALIZER_VERSION 1
 #define METRIC_LIST_HDR_VERSION_OFF (0)
 #define METRIC_LIST_HDR_COUNT_OFF (sizeof(uint8_t))
 #define METRIC_LIST_HDR_DATA_SIZE_OFF (sizeof(uint8_t) + sizeof(uint16_t))
-#define SERIALIZED_METRIC_LIST_HDR_SIZE (sizeof(uint8_t) + 2 * sizeof(uint16_t))
+#define SERIALIZED_METRIC_LIST_HDR_SIZE (sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint64_t))
 
 
 // Metrics
