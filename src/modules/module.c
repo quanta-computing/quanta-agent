@@ -31,6 +31,7 @@ void monikor_mod_free(monikor_mod_t *mod) {
   monikor_config_dict_free(mod->config);
   if (mod->dhandle)
     dlclose(mod->dhandle);
+  free(mod);
 }
 
 

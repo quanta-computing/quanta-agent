@@ -75,9 +75,11 @@ static void handle_io_read(monikor_io_handler_t *handler, uint8_t mode) {
   handler->fd = -1;
   handler->mode = 0;
   handler->callback = NULL;
-  free(handler_data);
+  free(handler->data);
+  handler->data = NULL;
   if (received)
     callback(received, data);
+  free(received);
 }
 
 static void handle_io_connect(monikor_io_handler_t *handler, uint8_t mode) {
