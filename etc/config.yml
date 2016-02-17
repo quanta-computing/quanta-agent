@@ -1,18 +1,18 @@
-interval: 5
+interval: 60
 
 log_level: debug
 
 hostid: 31de9f7d766287c7565801f30babbd4f
-quanta_token: 538e664693f800954b83
+quanta_token: 76049d1d498e890ad4dd
 
 server:
-  url: "http://192.168.99.1:3000/push"
-  timeout: 3
+  url: "http://192.168.99.1:4242/push"
+  timeout: 5
 
 max_cache_size_mb: 4
 
 modules:
-  path: ./lib/modules
-  config_path: ./etc/modules/
+  path: /monikor/lib/modules
+  config_path: /monikor/etc/modules/
 
 unix_socket_path: /tmp/monikor.sock
