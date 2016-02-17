@@ -24,6 +24,7 @@ static void set_interval_and_clock(monikor_t *mon,monikor_mod_t *mod) {
       mod->poll_interval = mon->config->poll_interval;
     }
   }
+  mod->last_clock.tv_sec -= mod->poll_interval;
 }
 
 static void monikor_load_one_module(char *name, void *data) {
