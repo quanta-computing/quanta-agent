@@ -12,6 +12,7 @@ int monikor_init(monikor_t *mon, char *config_path) {
   if (!(mon->config = monikor_load_config(config_path)))
     return 1;
   monikor_logger_init(mon->config->log_level);
+  curl_global_init(CURL_GLOBAL_ALL);
   monikor_io_handler_list_init(&mon->io_handlers);
   if (monikor_register_signals(mon)) {
     monikor_log(LOG_CRIT, "Cannot register signal handlers\n");
@@ -28,7 +29,6 @@ int monikor_init(monikor_t *mon, char *config_path) {
     return 1;
   if (mon->config->unix_sock_path)
     monikor_server_init(&mon->server, mon);
-  curl_global_init(CURL_GLOBAL_ALL);
   gettimeofday(&mon->last_clock, NULL);
   mon->flags = 0;
   return 0;

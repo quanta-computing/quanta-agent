@@ -14,12 +14,21 @@ static void cleanup_modules(monikor_t *mon) {
 static void cleanup_io_handlers(monikor_t *mon) {
   monikor_io_handler_t *cur;
   monikor_io_handler_t *next;
+  monikor_curl_handler_t *curl_cur;
+  monikor_curl_handler_t *curl_next;
 
   for (cur = mon->io_handlers.first; cur; cur = next) {
     next = cur->next;
     close(cur->fd);
     free(cur);
   }
+  for (curl_cur = mon->io_handlers.curl.first; curl_cur; curl_cur = curl_next) {
+    curl_next = curl_cur->next;
+    curl_multi_remove_handle(mon->io_handlers.curl.curl, curl_cur->curl);
+    curl_easy_cleanup(curl_cur->curl);
+    free(curl_cur);
+  }
+  curl_multi_cleanup(mon->io_handlers.curl.curl);
 }
 
 void monikor_cleanup(monikor_t *mon) {
