@@ -125,15 +125,25 @@ static int monikor_setup_config_modules(monikor_config_t *cfg) {
 static int monikor_setup_config_server(monikor_config_t *cfg) {
   char *url;
   char *timeout;
+  char *max_send_size;
 
   url = monikor_config_dict_get_scalar(cfg->full_config, "server.url");
-  cfg->server_url = url;
+  cfg->server.url = url;
   timeout = monikor_config_dict_get_scalar(cfg->full_config, "server.timeout");
+  max_send_size = monikor_config_dict_get_scalar(cfg->full_config, "server.max_send_size");
   if (_is_number(timeout)) {
-    cfg->server_timeout = atoi(timeout);
+    cfg->server.timeout = atoi(timeout);
   } else {
-    monikor_log(LOG_WARNING, "Wrong value '%s' for server_timeout, using default.\n", timeout);
-    cfg->server_timeout= MONIKOR_DEFAULT_SERVER_TIMEOUT;
+    if (timeout)
+      monikor_log(LOG_WARNING, "Wrong value '%s' for server.timeout, using default.\n", timeout);
+    cfg->server.timeout= MONIKOR_DEFAULT_SERVER_TIMEOUT;
+  }
+  if (_is_number(max_send_size)) {
+    cfg->server.max_send_size = (size_t)atoi(max_send_size);
+  } else {
+    if (max_send_size)
+      monikor_log(LOG_WARNING, "Wrong value '%s' for server.max_send_size, using default.\n", max_send_size);
+    cfg->server.max_send_size = MONIKOR_DEFAULT_SERVER_MAX_SEND_SIZE;
   }
   return 0;
 }
@@ -146,7 +156,8 @@ static int monikor_setup_config_unix_sock_path(monikor_config_t *cfg) {
   return 0;
 }
 
-// Check for NULL and size
+
+// TODO! Check for NULL and size
 static int monikor_setup_quanta_token(monikor_config_t *cfg) {
   char *token;
 
@@ -156,7 +167,7 @@ static int monikor_setup_quanta_token(monikor_config_t *cfg) {
 }
 
 
-// Check for NULL and size
+// TODO! Check for NULL and size
 static int monikor_setup_hostid(monikor_config_t *cfg) {
   char *hostid;
 
