@@ -142,6 +142,7 @@ int monikor_metric_store_push(monikor_metric_store_t *store, monikor_metric_t *m
 int monikor_metric_store_lpush(monikor_metric_store_t *store, monikor_metric_list_t *metrics);
 void monikor_metric_store_flush(monikor_metric_store_t *store);
 void monikor_metric_store_cache(monikor_metric_store_t *store);
+void monikor_metric_store_uncache(monikor_metric_store_t *store);
 void monikor_metric_store_flush_all(monikor_metric_store_t *store);
 size_t monikor_metric_store_evict_cache(monikor_metric_store_t *store, size_t max_size);
 size_t monikor_metric_store_evict_delta(monikor_metric_store_t *store, struct timeval *clock);

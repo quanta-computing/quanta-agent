@@ -26,7 +26,7 @@ INCD=include/
 INCD=include/
 
 CC=gcc
-CFLAGS=-std=c99 -D_GNU_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
+CFLAGS=-std=c99 -D_GNU_SOURCE -W -Wall -g -g3 -fPIC $(addprefix -I, $(INCD))
 ifeq ($(UNAME),Darwin)
 	# CFLAGS=-std=c99 -D_GNU_SOURCE -W -Wall -O2 -fPIC $(addprefix -I, $(INCD))
 	LDFLAGS=-dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup,-compatibility_version,1.0,-current_version,1.0
