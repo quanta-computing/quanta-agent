@@ -8,7 +8,8 @@
 #include "monikor.h"
 
 static int get_tick_interval(monikor_t *mon) {
-  int tick = mon->config->poll_interval;
+  int tick = mon->config->update_interval < mon->config->poll_interval ?
+    mon->config->update_interval : mon->config->poll_interval;
 
   for (size_t i = 0; i < mon->modules.count; i++) {
     if (mon->modules.modules[i]->poll_interval < tick)
@@ -37,16 +38,23 @@ int monikor_run(monikor_t *mon) {
     }
     gettimeofday(&now, NULL);
     next_update += tick;
+    // next_update + tick might be greater than now.tv_sec when the process was stopped or traced
+    if (next_update < now.tv_sec) {
+      monikor_log(LOG_WARNING, "We shifted too much, rebasing next_update to now\n");
+      next_update = now.tv_sec;
+    }
     monikor_poll_modules(mon, &now);
-    dump_metric_list(mon->metrics->current);
+    // dump_metric_list(mon->metrics->current);
     monikor_update(mon, &now);
-    for (gettimeofday(&now, NULL); now.tv_sec < next_update; gettimeofday(&now, NULL)) {
-      interval.tv_sec = next_update - now.tv_sec;
-      interval.tv_usec = 0;
-      monikor_log(LOG_DEBUG, "Sleeping for %d seconds\n", interval.tv_sec);
+    do {
+      gettimeofday(&now, NULL);
+      // We cannot have negative timeouts so we put at least 10us
+      interval.tv_sec = next_update > now.tv_sec ? next_update - now.tv_sec : 0;
+      interval.tv_usec = interval.tv_sec ? 0 : 10;
       if (monikor_io_handler_poll(&mon->io_handlers, &interval) == -1)
         monikor_log(LOG_ERR, "Error in select(2): %s\n", strerror(errno));
-    }
+
+    } while (now.tv_sec < next_update);
   }
   return 0;
 }

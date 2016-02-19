@@ -49,17 +49,26 @@ static int _is_number(const char *str) {
   return 1;
 }
 
-static int monikor_setup_config_interval(monikor_config_t *cfg) {
+static int get_interval(monikor_config_dict_t *config, const char *name) {
   char *interval;
 
-  interval = monikor_config_dict_get_scalar(cfg->full_config, "interval");
+  interval = monikor_config_dict_get_scalar(config, name);
   if (_is_number(interval))
-    cfg->poll_interval = atoi(interval);
+    return atoi(interval);
   else {
     if (interval)
-      monikor_log(LOG_WARNING, "Wrong value '%s' for poll_interval, using default.\n", interval);
-    cfg->poll_interval = MONIKOR_DEFAULT_POLL_INTERVAL;
+      monikor_log(LOG_WARNING, "Wrong value '%s' for %s, using default.\n", interval, name);
+    return -1;
   }
+}
+
+static int monikor_setup_config_interval(monikor_config_t *cfg) {
+  int interval;
+
+  interval = get_interval(cfg->full_config, "poll_interval");
+  cfg->poll_interval = interval == -1 ? MONIKOR_DEFAULT_POLL_INTERVAL : interval;
+  interval = get_interval(cfg->full_config, "update_interval");
+  cfg->update_interval = interval == -1 ? MONIKOR_DEFAULT_UPDATE_INTERVAL : interval;
   return 0;
 }
 
