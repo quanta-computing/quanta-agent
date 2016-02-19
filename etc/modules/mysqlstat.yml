@@ -1,4 +1,4 @@
-enabled: false
+# enabled: false
 mysql:
   host: localhost
   user: root

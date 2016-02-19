@@ -1,4 +1,5 @@
-interval: 60
+poll_interval: 10
+update_interval: 5
 
 log_level: debug
 
@@ -9,10 +10,11 @@ server:
   url: "http://192.168.99.1:4242/push"
   timeout: 5
 
-max_cache_size_mb: 4
+max_cache_size_mb: 30
 
 modules:
   path: /monikor/lib/modules
-  config_path: /monikor/etc/modules/
+  config_path: /tmp
+  # config_path: /monikor/etc/modules/
 
 unix_socket_path: /tmp/monikor.sock
