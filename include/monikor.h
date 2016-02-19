@@ -48,7 +48,7 @@ int monikor_reload(monikor_t *mon);
 int monikor_load_all_modules(monikor_t *mon);
 void monikor_update(monikor_t *mon, struct timeval *clock);
 int monikor_poll_modules(monikor_t *mon, struct timeval *clock);
-int monikor_send_metrics(monikor_t *mon);
+int monikor_send_metrics(monikor_t *mon, monikor_metric_list_t *metrics);
 void monikor_send_all_metrics(monikor_t *mon);
 void monikor_evict_metrics(monikor_t *mon);
 

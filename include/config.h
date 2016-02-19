@@ -12,7 +12,8 @@
 #define MONIKOR_DEFAULT_POLL_INTERVAL 60
 #define MONIKOR_DEFAULT_UPDATE_INTERVAL 30
 #define MONIKOR_DEFAULT_SERVER_TIMEOUT 5
-#define MONIKOR_DEFAULT_MAX_CACHE_SIZE 30 * 1024 * 1024
+#define MONIKOR_DEFAULT_SERVER_MAX_SEND_SIZE (5 * 1024 * 1024)
+#define MONIKOR_DEFAULT_MAX_CACHE_SIZE (30 * 1024 * 1024)
 
 #define MONIKOR_QUANTA_TOKEN_MAX_LENGTH 42
 #define MONIKOR_HOSTID_MAX_LENGTH 42
@@ -51,8 +52,11 @@ typedef struct {
   char *hostid;
   char *quanta_token;
 
-  char *server_url;
-  int server_timeout;
+  struct {
+    char *url;
+    int timeout;
+    size_t max_send_size;
+  } server;
 
   char *unix_sock_path;
 
