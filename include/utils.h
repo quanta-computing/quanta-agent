@@ -3,17 +3,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <curl/curl.h>
 
 #include "io_handler.h"
+#include "monikor.h"
 
-typedef struct {
+typedef struct _http_response_t {
   long code;
   char *data;
   size_t size;
+  void (*callback)(struct _http_response_t *response, CURLcode result);
+  void *userdata;
 } http_response_t;
 
 char *monikor_read_file(const char *filepath);
-http_response_t *monikor_http_get(const char *url, long timeout);
+int monikor_http_get(monikor_t *mon, const char *url, long timeout,
+  void (*callback)(http_response_t *response, CURLcode result), void *data);
 
 monikor_io_handler_t *monikor_net_exchange(const char *host, const char *port, char *send,
 void (*callback)(char *response, void *data), void *data);

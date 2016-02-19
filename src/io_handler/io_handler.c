@@ -27,6 +27,7 @@ void (*callback)(monikor_curl_handler_t *handler, CURLcode result), void *data) 
     free(handler);
     return NULL;
   }
+  curl_easy_setopt(handler->curl, CURLOPT_FOLLOWLOCATION, 1L);
   handler->callback = callback;
   handler->data = data;
   handler->next = NULL;
