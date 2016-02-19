@@ -46,7 +46,6 @@ static void setup_curl_request(monikor_curl_handler_t *handler) {
   strcpy(data->response, "Unknown error");
   data->error[0] = 0;
   curl_easy_setopt(handler->curl, CURLOPT_URL, data->mon->config->server.url);
-  curl_easy_setopt(handler->curl, CURLOPT_NOPROGRESS, 1L);
   curl_easy_setopt(handler->curl, CURLOPT_POSTFIELDSIZE, data->data_size);
   curl_easy_setopt(handler->curl, CURLOPT_POSTFIELDS, (char *)data->data);
   curl_easy_setopt(handler->curl, CURLOPT_HTTPHEADER, data->headers);
