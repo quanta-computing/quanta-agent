@@ -24,19 +24,19 @@ static int fetch_metric(const char *apache_status, const char *name, uint64_t *v
   return 0;
 }
 
-int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
-  int n = 0;
-  http_response_t *status;
+static void apache_fetch_metrics(http_response_t *status, CURLcode result) {
   uint64_t value;
   uint64_t total_workers = 0;
+  monikor_t *mon = (monikor_t *)status->userdata;
+  struct timeval clock;
+  int n = 0;
 
-  if (!(status = monikor_http_get(url, APACHE_TIMEOUT)))
-    return -1;
-  if (status->code != 200) {
+  if (result != CURLE_OK || status->code != 200) {
     free(status->data);
     free(status);
-    return -1;
+    return;
   }
+  gettimeofday(&clock, NULL);
   for (size_t i = 0; apache_metrics[i].name; i++) {
     if (!fetch_metric(status->data, apache_metrics[i].field_name, &value)) {
       if (!strcmp(apache_metrics[i].name, "apache.workers.bytes_per_second"))
@@ -45,13 +45,20 @@ int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) 
       || !strcmp(apache_metrics[i].name, "apache.workers.idle"))
         total_workers += value;
       monikor_metric_push(mon, monikor_metric_integer(
-        apache_metrics[i].name, clock, value, apache_metrics[i].flags
+        apache_metrics[i].name, &clock, value, apache_metrics[i].flags
       ));
       n++;
     }
   }
-  monikor_metric_push(mon, monikor_metric_integer("apache.workers.total", clock, total_workers, 0));
+  monikor_metric_push(mon, monikor_metric_integer("apache.workers.total", &clock, total_workers, 0));
+  monikor_log_mod(LOG_DEBUG, MOD_NAME, "Got %d apache metrics\n", n + 1);
   free(status->data);
   free(status);
-  return n + 1;
+}
+
+int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
+  (void)clock;
+  if (monikor_http_get(mon, url, APACHE_TIMEOUT, &apache_fetch_metrics, mon))
+    return -1;
+  return 0;
 }

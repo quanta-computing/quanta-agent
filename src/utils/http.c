@@ -33,27 +33,29 @@ static size_t data_handler(char *ptr, size_t size, size_t nmemb, void *data) {
   return data_size;
 }
 
-http_response_t *monikor_http_get(const char *url, long timeout) {
-  CURL *curl;
+static void handle_server_response(monikor_curl_handler_t *handler, CURLcode result) {
+  http_response_t *response = (http_response_t *)handler->data;
+
+  curl_easy_getinfo(handler->curl, CURLINFO_RESPONSE_CODE, &response->code);
+  response->callback(response, result);
+}
+
+int monikor_http_get(monikor_t *mon, const char *url, long timeout,
+void (*callback)(http_response_t *response, CURLcode result), void *userdata) {
+  monikor_curl_handler_t *handler;
   http_response_t *response;
 
   if (!(response = new_response())
-  || !(curl = curl_easy_init())) {
+  || !(handler = monikor_curl_handler_new(&handle_server_response, (void *)response))) {
     free(response);
-    return NULL;
+    return 1;
   }
-  curl_easy_setopt(curl, CURLOPT_URL, url);
-  curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-  curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)response);
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &data_handler);
-  if (curl_easy_perform(curl) != CURLE_OK) {
-    free(response->data);
-    free(response);
-    curl_easy_cleanup(curl);
-    return NULL;
-  }
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response->code);
-  curl_easy_cleanup(curl);
-  return response;
+  response->callback = callback;
+  response->userdata = userdata;
+  curl_easy_setopt(handler->curl, CURLOPT_URL, url);
+  curl_easy_setopt(handler->curl, CURLOPT_TIMEOUT, timeout);
+  curl_easy_setopt(handler->curl, CURLOPT_WRITEDATA, (void *)response);
+  curl_easy_setopt(handler->curl, CURLOPT_WRITEFUNCTION, &data_handler);
+  monikor_io_handler_list_push_curl(&mon->io_handlers, handler);
+  return 0;
 }

@@ -1,5 +1,9 @@
+#include <stdlib.h>
+#include <curl/curl.h>
+
 #include "monikor.h"
 #include "nginx.h"
+
 
 static int fetch_qps(monikor_t *mon, struct timeval *clock, char *status) {
   char *metric;
@@ -49,19 +53,22 @@ static int fetch_metrics(monikor_t *mon, struct timeval *clock, char *status) {
   return n;
 }
 
-int nginx_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
+static void nginx_fetch_metrics(http_response_t *status, CURLcode result) {
+  struct timeval clock;
   int n;
-  http_response_t *status;
 
-  if (!(status = monikor_http_get(url, NGINX_TIMEOUT)))
-    return -1;
-  if (status->code != 200) {
-    free(status->data);
-    free(status);
-    return -1;
+  if (result == CURLE_OK && status->code == 200) {
+    gettimeofday(&clock, NULL);
+    n = fetch_metrics((monikor_t *)status->userdata, &clock, status->data);
+    monikor_log_mod(LOG_INFO, MOD_NAME, "Got %d nginx metrics\n", n);
   }
-  n = fetch_metrics(mon, clock, status->data);
   free(status->data);
   free(status);
-  return n;
+}
+
+int nginx_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
+  (void)clock;
+  if (monikor_http_get(mon, url, NGINX_TIMEOUT, &nginx_fetch_metrics, (void *)mon))
+    return -1;
+  return 0;
 }
