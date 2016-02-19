@@ -15,17 +15,26 @@ static void _compute_float_delta(monikor_metric_t *a, monikor_metric_t *b, monik
   res->type = MONIKOR_FLOAT;
   res->value._float = b->value._float - a->value._float;
   if (a->flags & MONIKOR_METRIC_TIMEDELTA) {
-    res->value._float /= _compute_metrics_interval(a, b);
+    if (b->value._int < a->value._int)
+      res->value._float = 0.0;
+    else
+      res->value._float /= _compute_metrics_interval(a, b);
   }
 }
 
 static void _compute_int_delta(monikor_metric_t *a, monikor_metric_t *b, monikor_metric_t *res) {
   if (a->flags & MONIKOR_METRIC_TIMEDELTA) {
     res->type = MONIKOR_FLOAT;
-    res->value._float = (float)(b->value._int - a->value._int) / _compute_metrics_interval(a, b);
+    if (b->value._int < a->value._int)
+      res->value._float = 0.0;
+    else
+      res->value._float = (float)(b->value._int - a->value._int) / _compute_metrics_interval(a, b);
   } else {
     res->type = MONIKOR_INTEGER;
-    res->value._int = b->value._int - a->value._int;
+    if (b->value._int < a->value._int)
+      res->value._int = 0;
+    else
+      res->value._int = b->value._int - a->value._int;
   }
 }
 
