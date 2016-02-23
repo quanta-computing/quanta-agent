@@ -6,51 +6,32 @@
 
 #include "logger.h"
 
-static const char *priority_message[] = {
-    "EMERG",
-    "ALERT",
-    "CRITICAL",
-    "ERROR",
-    "WARNING",
-    "NOTICE",
-    "INFO",
-    "DEBUG"
-};
-
 static int _monikor_log_level = LOG_INFO;
 
 
+//TODO! remove LOG_PERROR (or make it optional)
 void monikor_logger_init(int prio) {
   if (prio != MONIKOR_LOG_DEFAULT)
     _monikor_log_level = prio;
+  closelog();
+  openlog("monikor", LOG_PID|LOG_PERROR, LOG_DAEMON);
 }
 
 
 void monikor_logger_cleanup(void) {
+  closelog();
 }
 
 
 int monikor_vlog(int prio, const char *message, va_list ap) {
-  char *full_msg;
-  size_t full_msg_len;
-  int ret;
-
   if (prio == MONIKOR_LOG_DEFAULT)
     prio = _monikor_log_level;
   if (prio < MONIKOR_LOG_MIN_PRIO || prio > MONIKOR_LOG_MAX_PRIO)
     return -1;
   if (prio > _monikor_log_level)
     return 0;
-  full_msg_len = strlen(priority_message[prio]) + strlen(MONIKOR_LOG_SEP) + strlen(message);
-  if (!(full_msg = malloc(full_msg_len + 1)))
-    return -1;
-  strcpy(full_msg, priority_message[prio]);
-  strcat(full_msg, MONIKOR_LOG_SEP);
-  strcat(full_msg, message);
-  ret = vprintf(full_msg, ap);
-  fflush(stdout);
-  free(full_msg);
-  return ret;
+  vsyslog(prio, message, ap);
+  return 0;
 }
 
 
