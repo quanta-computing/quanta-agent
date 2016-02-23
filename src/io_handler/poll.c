@@ -31,7 +31,6 @@ static void update_timeout_if_needed(monikor_io_handler_list_t *list, struct tim
   long curl_timeout = 0;
 
   curl_multi_timeout(list->curl.curl, &curl_timeout);
-  monikor_log(LOG_DEBUG, "Curl timeout %ld\n", curl_timeout);
   if (curl_timeout > 0 && curl_timeout / 1000 < timeout->tv_sec) {
     timeout->tv_sec = curl_timeout / 1000;
     timeout->tv_usec = 1000 * (curl_timeout % 1000);
@@ -45,7 +44,6 @@ static void perform_curl_handling(monikor_io_handler_list_t *list) {
   CURL *easy_handler;
   monikor_curl_handler_t *handler;
 
-  monikor_log(LOG_DEBUG, "CURL HANDLING\n");
   curl_multi_perform(list->curl.curl, &running);
   while ((msg = curl_multi_info_read(list->curl.curl, &msg_count))) {
     if (msg->msg != CURLMSG_DONE)
