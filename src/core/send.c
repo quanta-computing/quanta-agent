@@ -6,6 +6,7 @@
 #define MAX_HEADER_LENGTH 256
 #define RESPONSE_BODY_SIZE 1024
 
+
 typedef struct {
   monikor_t *mon;
   monikor_metric_list_t *metrics;
@@ -16,7 +17,8 @@ typedef struct {
   size_t data_size;
 } send_data_t;
 
-size_t data_handler(char *ptr, size_t size, size_t nmemb, void *userdata) {
+
+static size_t data_handler(char *ptr, size_t size, size_t nmemb, void *userdata) {
   char *data = userdata;
 
   strncpy(data, ptr, RESPONSE_BODY_SIZE > size * nmemb ? size * nmemb : RESPONSE_BODY_SIZE);
@@ -27,7 +29,6 @@ size_t data_handler(char *ptr, size_t size, size_t nmemb, void *userdata) {
 static struct curl_slist *set_http_headers(monikor_t *mon) {
   struct curl_slist *headers = NULL;
   char hdr[MAX_HEADER_LENGTH];
-
 
   if (!(headers = curl_slist_append(headers, "Content-Type: application/octet-stream")))
     return NULL;
