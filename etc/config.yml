@@ -1,5 +1,5 @@
-poll_interval: 10
-update_interval: 5
+poll_interval: 60
+update_interval: 15
 
 log_level: debug
 
@@ -8,13 +8,13 @@ quanta_token: 76049d1d498e890ad4dd
 
 server:
   url: "http://192.168.99.1:4242/push"
-  timeout: 3
+  timeout: 5
 
 max_cache_size_mb: 30
 
 modules:
   path: /monikor/lib/modules
-  config_path: /tmp
-  # config_path: /monikor/etc/modules/
+  # config_path: /tmp
+  config_path: /monikor/etc/modules/
 
 unix_socket_path: /tmp/monikor.sock
