@@ -33,7 +33,7 @@ monikor_config_t *monikor_config_new(void) {
   cfg->listen.mode = MONIKOR_DEFAULT_LISTEN_MODE;
   cfg->logger.level = LOG_NOTICE;
   cfg->logger.file = NULL;
-  cfg->max_cache_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
+  cfg->cache.max_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
   return cfg;
 }
 

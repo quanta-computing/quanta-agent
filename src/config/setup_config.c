@@ -223,13 +223,13 @@ static int monikor_setup_hostid(monikor_config_t *cfg) {
 static int monikor_setup_cache_size(monikor_config_t *cfg) {
   char *size;
 
-  size = monikor_config_dict_get_scalar(cfg->full_config, "max_cache_size_mb");
+  size = monikor_config_dict_get_scalar(cfg->full_config, "cache.max_size_mb");
   if (_is_number(size))
-    cfg->max_cache_size = atoi(size) * 1024 * 1024;
+    cfg->cache.max_size = atoi(size) * 1024 * 1024;
   else {
     if (size)
-      monikor_log(LOG_WARNING, "Wrong value '%s' for max_cache_size_mb, using default.\n", size);
-    cfg->max_cache_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
+      monikor_log(LOG_WARNING, "Wrong value '%s' for cache.max_size_mb, using default.\n", size);
+    cfg->cache.max_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
   }
   return 0;
 }

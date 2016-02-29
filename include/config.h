@@ -81,10 +81,12 @@ typedef struct {
     char *file;
   } logger;
 
+  struct {
+    int max_size;
+  } cache;
+
   int poll_interval;
   int update_interval;
-
-  int max_cache_size;
 
 } monikor_config_t;
 

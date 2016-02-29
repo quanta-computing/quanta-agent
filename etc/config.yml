@@ -1,7 +1,13 @@
-poll_interval: 60
-update_interval: 15
+# user: nobody
+directory: /tmp
+# daemonize: yes
 
-log_level: debug
+poll_interval: 10
+update_interval: 5
+
+logger:
+  level: debug
+  file: stderr
 
 hostid: 31de9f7d766287c7565801f30babbd4f
 quanta_token: 76049d1d498e890ad4dd
@@ -11,11 +17,15 @@ server:
   timeout: 5
   proxy_url: 'http://toto:toto42sh@127.0.0.1:6666'
 
-max_cache_size_mb: 30
+cache:
+  max_size_mb: 30
 
 modules:
   path: /monikor/lib/modules
   # config_path: /tmp
   config_path: /monikor/etc/modules/
 
-unix_socket_path: /tmp/monikor.sock
+listen:
+  path: /tmp/monikor.sock
+  user: www-data
+  mode: 0666
