@@ -29,7 +29,8 @@ void redis_cleanup(monikor_t *mon, void *data) {
 
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    close(mod->io_handler->fd);
+    if (mod->io_handler->fd != -1)
+      close(mod->io_handler->fd);
     free(mod->io_handler->data);
     free(mod->io_handler);
   }

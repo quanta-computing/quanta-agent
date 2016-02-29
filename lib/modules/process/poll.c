@@ -52,6 +52,7 @@ int poll_process_metrics(monikor_t *mon, struct timeval *clock) {
     if (looks_like_pid_dir(&entry))
       fetch_one_process_metrics(metrics, entry.d_name);
   }
+  closedir(dir);
   for (size_t i = 0; i < NB_PROC_METRICS; i++)
     monikor_metric_push(mon, monikor_metric_integer(metric_name[i], clock, metrics[i], 0));
   return NB_PROC_METRICS;
