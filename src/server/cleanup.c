@@ -16,4 +16,5 @@ void monikor_server_cleanup(monikor_server_t *server) {
   monikor_unregister_io_handler(server->mon, server->handler);
   monikor_server_handler_free(server->handler);
   close(server->socket);
+  unlink(server->mon->config->listen.path);
 }

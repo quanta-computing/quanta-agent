@@ -24,7 +24,8 @@ int monikor_server_handle_connection(monikor_server_t *server) {
       if ((server->clients[i].socket = accept(server->socket, (struct sockaddr *)&addr, &addrlen)) == -1)
         return -1;
       if (!(handler = monikor_server_handler_new(server, &server->clients[i]))) {
-        close(server->clients[i].socket);
+        if (server->clients[i].socket != -1)
+          close(server->clients[i].socket);
         monikor_client_init(&server->clients[i]);
         return -1;
       }
