@@ -16,6 +16,10 @@ monikor_config_t *monikor_config_new(void) {
     return NULL;
   cfg->full_config = monikor_config_dict_new();
   cfg->config_path = MONIKOR_DEFAULT_CONFIG_PATH;
+  cfg->user = NULL;
+  cfg->group = NULL;
+  cfg->run_dir = MONIKOR_DEFAULT_RUN_DIR;
+  cfg->daemonize = 0;
   cfg->server.url = NULL;
   cfg->server.proxy_url = NULL;
   cfg->modules.path = NULL;
@@ -23,8 +27,12 @@ monikor_config_t *monikor_config_new(void) {
   cfg->modules.modules = NULL;
   cfg->quanta_token = NULL;
   cfg->hostid = NULL;
-  cfg->unix_sock_path = NULL;
-  cfg->log_level = LOG_NOTICE;
+  cfg->listen.path = NULL;
+  cfg->listen.user = NULL;
+  cfg->listen.group = NULL;
+  cfg->listen.mode = MONIKOR_DEFAULT_LISTEN_MODE;
+  cfg->logger.level = LOG_NOTICE;
+  cfg->logger.file = NULL;
   cfg->max_cache_size = MONIKOR_DEFAULT_MAX_CACHE_SIZE;
   return cfg;
 }

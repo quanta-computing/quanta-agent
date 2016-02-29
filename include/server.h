@@ -7,7 +7,7 @@
 #include "io_handler.h"
 
 #ifndef MONIKOR_STRUCT_TYPEDEF_DECL
-#define MONIKOR_STRUCT_TYPEDEF_DECL
+# define MONIKOR_STRUCT_TYPEDEF_DECL
 typedef struct monikor_s monikor_t;
 #endif
 

@@ -3,25 +3,47 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "logger.h"
 
 static int _monikor_log_level = LOG_INFO;
+static int _log_fd = -1;
 
 
-//TODO! remove LOG_PERROR (or make it optional)
-void monikor_logger_init(int prio) {
+/*
+** If prio is MONIKOR_LOG_DEFAULT, we setup the logger to use stderr. This is useful to wait
+** until we read the config and setup the logger properly again.
+** if log_file is not NULL, we try to open the file.
+** We always fallback to syslogging if anything goes wrong
+*/
+void monikor_logger_init(int prio, const char *log_file) {
   if (prio != MONIKOR_LOG_DEFAULT)
     _monikor_log_level = prio;
-  closelog();
-  openlog("monikor", LOG_PID|LOG_PERROR, LOG_DAEMON);
+  if (prio == MONIKOR_LOG_DEFAULT
+  || (log_file && !strcmp(log_file, "stderr"))) {
+    _log_fd = 2;
+  }
+  else if (log_file) {
+    if ((_log_fd = open(log_file, O_WRONLY|O_APPEND|O_CREAT)) == -1) {
+      fprintf(stderr, "Cannot open log file %s, fallbacking to syslog\n", log_file);
+    }
+  }
+  if (_log_fd == -1) {
+    closelog();
+    openlog("monikor", LOG_PID, LOG_DAEMON);
+  }
 }
-
 
 void monikor_logger_cleanup(void) {
-  closelog();
+  if (_log_fd != 2 && _log_fd != -1)
+    close(_log_fd);
+  else
+    closelog();
 }
-
 
 int monikor_vlog(int prio, const char *message, va_list ap) {
   if (prio == MONIKOR_LOG_DEFAULT)
@@ -30,10 +52,12 @@ int monikor_vlog(int prio, const char *message, va_list ap) {
     return -1;
   if (prio > _monikor_log_level)
     return 0;
-  vsyslog(prio, message, ap);
+  if (_log_fd == -1)
+    vsyslog(prio, message, ap);
+  else
+    vdprintf(_log_fd, message, ap);
   return 0;
 }
-
 
 int monikor_log(int prio, const char *message, ...) {
   int ret;
@@ -44,7 +68,6 @@ int monikor_log(int prio, const char *message, ...) {
   va_end(ap);
   return ret;
 }
-
 
 static char *_format_mod_log_message(const char *mod_name, const char *message) {
   char *full_msg;
@@ -57,7 +80,6 @@ static char *_format_mod_log_message(const char *mod_name, const char *message) 
   return full_msg;
 }
 
-
 int monikor_vlog_mod(int prio, const char *mod_name, const char *message, va_list ap) {
   int ret;
   char *full_msg;
@@ -68,7 +90,6 @@ int monikor_vlog_mod(int prio, const char *mod_name, const char *message, va_lis
   free(full_msg);
   return ret;
 }
-
 
 int monikor_log_mod(int prio, const char *mod_name, const char *message, ...) {
   int ret;

@@ -10,11 +10,12 @@
 # define MONIKOR_LOG_MAX_PRIO LOG_DEBUG
 # define MONIKOR_LOG_DEFAULT -1
 
+# define LOG_ERROR LOG_ERR
 
 extern int monikor_log_level;
 
 
-void monikor_logger_init(int prio);
+void monikor_logger_init(int prio, const char *file);
 void monikor_logger_cleanup(void);
 
 

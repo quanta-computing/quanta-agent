@@ -22,22 +22,6 @@ static const struct {
   {NULL, NULL}
 };
 
-static int monikor_setup_config_log_level(monikor_config_t *cfg) {
-  char *level;
-
-  cfg->log_level = LOG_INFO;
-  if (!(level = monikor_config_dict_get_scalar(cfg->full_config, "log_level")))
-    return 1;
-  for (int i = 0; log_level_mappings[i].lower; i++)
-    if (!strcmp(level, log_level_mappings[i].lower)
-    || !strcmp(level, log_level_mappings[i].upper)) {
-      cfg->log_level = i;
-      return 0;
-    }
-  return 1;
-}
-
-
 static int _is_number(const char *str) {
   if (!str)
     return 0;
@@ -47,6 +31,57 @@ static int _is_number(const char *str) {
     str++;
   }
   return 1;
+}
+
+static int _is_true(const char *str) {
+  if (!str)
+    return 0;
+  return !strcmp(str, "true") || !strcmp(str, "yes");
+}
+
+
+static int monikor_setup_config_user(monikor_config_t *cfg) {
+  cfg->user = monikor_config_dict_get_scalar(cfg->full_config, "user");
+  cfg->group = monikor_config_dict_get_scalar(cfg->full_config, "group");
+  return 0;
+}
+
+static int monikor_config_setup_run_dir(monikor_config_t *cfg) {
+  cfg->run_dir = monikor_config_dict_get_scalar(cfg->full_config, "directory");
+  if (!cfg->run_dir)
+    cfg->run_dir = MONIKOR_DEFAULT_RUN_DIR;
+  return 0;
+}
+
+static int monikor_setup_config_daemonize(monikor_config_t *cfg) {
+  if (_is_true(monikor_config_dict_get_scalar(cfg->full_config, "daemonize")))
+    cfg->daemonize = 1;
+  else
+    cfg->daemonize = 0;
+  return 0;
+}
+
+static int _get_log_level_from_str(const char *level) {
+  if (!level)
+    return -1;
+  for (int i = 0; log_level_mappings[i].lower; i++) {
+    if (!strcmp(level, log_level_mappings[i].lower)
+    || !strcmp(level, log_level_mappings[i].upper)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+static int monikor_setup_config_logger(monikor_config_t *cfg) {
+  cfg->logger.level = _get_log_level_from_str(
+    monikor_config_dict_get_scalar(cfg->full_config, "logger.level"));
+  if (cfg->logger.level == -1)
+    cfg->logger.level = LOG_NOTICE;
+  cfg->logger.file = monikor_config_dict_get_scalar(cfg->full_config, "logger.file");
+  if (cfg->logger.file && !strcmp(cfg->logger.file, "syslog"))
+    cfg->logger.file = NULL;
+  return 0;
 }
 
 static int get_interval(monikor_config_dict_t *config, const char *name) {
@@ -147,11 +182,21 @@ static int monikor_setup_config_server(monikor_config_t *cfg) {
   return 0;
 }
 
-static int monikor_setup_config_unix_sock_path(monikor_config_t *cfg) {
-  char *unix_sock_path;
+static int monikor_setup_config_listen(monikor_config_t *cfg) {
+  char *mode;
+  char *end;
 
-  unix_sock_path = monikor_config_dict_get_scalar(cfg->full_config, "unix_socket_path");
-  cfg->unix_sock_path = unix_sock_path;
+  cfg->listen.path = monikor_config_dict_get_scalar(cfg->full_config, "listen.path");
+  cfg->listen.user = monikor_config_dict_get_scalar(cfg->full_config, "listen.user");
+  cfg->listen.group = monikor_config_dict_get_scalar(cfg->full_config, "listen.group");
+  mode = monikor_config_dict_get_scalar(cfg->full_config, "listen.mode");
+  if (mode) {
+    cfg->listen.mode = (mode_t)strtoul(mode, &end, 0);
+    if (*end) {
+      monikor_log(LOG_WARNING, "Invalid value %s for listen.mode, using default.\n", mode);
+      cfg->listen.mode = MONIKOR_DEFAULT_LISTEN_MODE;
+    }
+  }
   return 0;
 }
 
@@ -190,11 +235,14 @@ static int monikor_setup_cache_size(monikor_config_t *cfg) {
 }
 
 int monikor_setup_config(monikor_config_t *cfg) {
+  monikor_setup_config_user(cfg);
+  monikor_config_setup_run_dir(cfg);
+  monikor_setup_config_daemonize(cfg);
   monikor_setup_config_modules(cfg);
   monikor_setup_config_server(cfg);
-  monikor_setup_config_log_level(cfg);
+  monikor_setup_config_logger(cfg);
   monikor_setup_config_interval(cfg);
-  monikor_setup_config_unix_sock_path(cfg);
+  monikor_setup_config_listen(cfg);
   monikor_setup_quanta_token(cfg);
   monikor_setup_hostid(cfg);
   monikor_setup_cache_size(cfg);

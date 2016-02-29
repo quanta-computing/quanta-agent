@@ -3,21 +3,9 @@
 
 #include "monikor.h"
 
-
-int monikor_init(monikor_t *mon, char *config_path) {
+int monikor_init_modules(monikor_t *mon) {
   size_t mod_size;
 
-  mon->modules.count = 0;
-  monikor_logger_init(MONIKOR_LOG_DEFAULT);
-  if (!(mon->config = monikor_load_config(config_path)))
-    return 1;
-  monikor_logger_init(mon->config->log_level);
-  curl_global_init(CURL_GLOBAL_ALL);
-  monikor_io_handler_list_init(&mon->io_handlers);
-  if (monikor_register_signals(mon)) {
-    monikor_log(LOG_CRIT, "Cannot register signal handlers\n");
-    return 1;
-  }
   mod_size = mon->config->modules.modules->size * sizeof(*mon->modules.modules);
   mon->modules.count = 0;
   if (!(mon->modules.modules = malloc(mod_size))
@@ -27,8 +15,28 @@ int monikor_init(monikor_t *mon, char *config_path) {
   }
   if (monikor_load_all_modules(mon))
     return 1;
-  if (mon->config->unix_sock_path)
-    monikor_server_init(&mon->server, mon);
+  return 0;
+}
+
+int monikor_init(monikor_t *mon, char *config_path) {
+  monikor_logger_init(-1, NULL);
+  if (!(mon->config = monikor_load_config(config_path)))
+    return 1;
+  monikor_logger_init(mon->config->logger.level, mon->config->logger.file);
+  curl_global_init(CURL_GLOBAL_ALL);
+  monikor_io_handler_list_init(&mon->io_handlers);
+  if (mon->config->listen.path) {
+    if (monikor_server_init(&mon->server, mon))
+      monikor_log(LOG_ERR, "Cannot start local server on %s\n", mon->config->listen.path);
+  }
+  if (monikor_daemonize(mon))
+    return 1;
+  if (monikor_register_signals(mon)) {
+    monikor_log(LOG_CRIT, "Cannot register signal handlers\n");
+    return 1;
+  }
+  if (monikor_init_modules(mon))
+    return 1;
   gettimeofday(&mon->last_clock, NULL);
   mon->flags = 0;
   return 0;

@@ -3,9 +3,11 @@
 
 #include <stdio.h>
 #include <yaml.h>
+#include <stdint.h>
 
 #include "strl.h"
 
+#define MONIKOR_DEFAULT_RUN_DIR "/"
 #define MONIKOR_DEFAULT_CONFIG_PATH "/etc/monikor/monikor.yml"
 #define MONIKOR_DEFAULT_MODULES_PATH "/usr/lib/monikor/modules"
 #define MONIKOR_DEFAULT_MODULES_CONFIG_PATH "/etc/monikor/mod.d"
@@ -15,10 +17,13 @@
 #define MONIKOR_DEFAULT_SERVER_MAX_SEND_SIZE (5 * 1024 * 1024)
 #define MONIKOR_DEFAULT_MAX_CACHE_SIZE (30 * 1024 * 1024)
 
+#define MONIKOR_DEFAULT_LISTEN_MODE 0660
+
 #define MONIKOR_QUANTA_TOKEN_MAX_LENGTH 42
 #define MONIKOR_HOSTID_MAX_LENGTH 42
 
 #define MONIKOR_CONFIG_EXT ".yml"
+
 
 typedef enum {
   MONIKOR_CFG_DICT,
@@ -43,6 +48,11 @@ typedef struct {
   monikor_config_dict_t *full_config;
   char *config_path;
 
+  char *user;
+  char *group;
+  char *run_dir;
+  uint8_t daemonize;
+
   struct {
     char *path;
     char *config_path;
@@ -59,13 +69,23 @@ typedef struct {
     char *proxy_url;
   } server;
 
-  char *unix_sock_path;
+  struct {
+    char *path;
+    char *user;
+    char *group;
+    mode_t mode;
+  } listen;
 
-  int log_level;
+  struct {
+    int level;
+    char *file;
+  } logger;
+
   int poll_interval;
   int update_interval;
 
   int max_cache_size;
+
 } monikor_config_t;
 
 

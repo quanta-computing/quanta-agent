@@ -4,26 +4,52 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "server.h"
 #include "io_handler.h"
 
 static int monikor_server_bind(monikor_server_t *server) {
   struct sockaddr_un addr;
+  uid_t uid = -1;
+  gid_t gid = -1;
 
-  addr.sun_family = AF_UNIX;
-  if (!server->mon->config->unix_sock_path
-  || strlen(server->mon->config->unix_sock_path) >= sizeof(addr.sun_path))
+
+  if (strlen(server->mon->config->listen.path) >= sizeof(addr.sun_path)) {
+    monikor_log(LOG_ERR, "Invalid unix socket path %s\n", server->mon->config->listen.path);
     return -1;
-  strcpy(addr.sun_path, server->mon->config->unix_sock_path);
-  unlink(server->mon->config->unix_sock_path);
+  }
+  if (server->mon->config->listen.user) {
+    struct passwd *pwd_ent;
+
+    if (!(pwd_ent = getpwnam(server->mon->config->listen.user))) {
+      monikor_log(LOG_ERR, "Cannot find user %s\n", server->mon->config->listen.user);
+      return -1;
+    }
+    uid = pwd_ent->pw_uid;
+    gid = pwd_ent->pw_gid;
+  }
+  if (server->mon->config->listen.group) {
+    struct group *grp_ent;
+
+    if (!(grp_ent = getgrnam(server->mon->config->listen.group))) {
+      monikor_log(LOG_ERR, "Cannot find group %s\n", server->mon->config->listen.group);
+      return -1;
+    }
+    gid = grp_ent->gr_gid;
+  }
+  addr.sun_family = AF_UNIX;
+  strcpy(addr.sun_path, server->mon->config->listen.path);
+  unlink(server->mon->config->listen.path);
   if ((server->socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1
   || bind(server->socket, (struct sockaddr *)&addr, sizeof(addr))
-  || chmod(server->mon->config->unix_sock_path, 0666)
+  || chmod(server->mon->config->listen.path, server->mon->config->listen.mode)
+  || chown(server->mon->config->listen.path, uid, gid)
   || listen(server->socket, MONIKOR_SRV_MAX_CLIENTS))
     return -1;
   monikor_log(LOG_INFO, "Monikor agent listening on socket %s\n",
-    server->mon->config->unix_sock_path);
+    server->mon->config->listen.path);
   return 0;
 }
 
@@ -64,7 +90,7 @@ int monikor_server_init(monikor_server_t *server, monikor_t *mon) {
   if (monikor_server_bind(server) ||
   !(server->handler = monikor_server_handler_new(server, NULL))) {
     monikor_server_handler_free(server->handler);
-    if (server->handler)
+    if (server->handler && server->socket != -1)
       close(server->socket);
     return -1;
   }

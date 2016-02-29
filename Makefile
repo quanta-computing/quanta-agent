@@ -36,6 +36,7 @@ SRCF=	config/config.c \
 			server/init.c \
 			core/cleanup.c \
 			core/control.c \
+			core/daemonize.c \
 			core/evict.c \
 			core/exit.c \
 			core/init.c \
