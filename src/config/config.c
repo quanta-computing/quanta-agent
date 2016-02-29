@@ -17,6 +17,7 @@ monikor_config_t *monikor_config_new(void) {
   cfg->full_config = monikor_config_dict_new();
   cfg->config_path = MONIKOR_DEFAULT_CONFIG_PATH;
   cfg->server.url = NULL;
+  cfg->server.proxy_url = NULL;
   cfg->modules.path = NULL;
   cfg->modules.config_path = NULL;
   cfg->modules.modules = NULL;

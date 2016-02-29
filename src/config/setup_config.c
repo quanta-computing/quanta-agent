@@ -123,12 +123,11 @@ static int monikor_setup_config_modules(monikor_config_t *cfg) {
 }
 
 static int monikor_setup_config_server(monikor_config_t *cfg) {
-  char *url;
   char *timeout;
   char *max_send_size;
 
-  url = monikor_config_dict_get_scalar(cfg->full_config, "server.url");
-  cfg->server.url = url;
+  cfg->server.url = monikor_config_dict_get_scalar(cfg->full_config, "server.url");
+  cfg->server.proxy_url = monikor_config_dict_get_scalar(cfg->full_config, "server.proxy_url");
   timeout = monikor_config_dict_get_scalar(cfg->full_config, "server.timeout");
   max_send_size = monikor_config_dict_get_scalar(cfg->full_config, "server.max_send_size");
   if (_is_number(timeout)) {

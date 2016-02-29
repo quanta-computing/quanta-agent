@@ -54,6 +54,8 @@ static void setup_curl_request(monikor_curl_handler_t *handler) {
   curl_easy_setopt(handler->curl, CURLOPT_WRITEDATA, (void *)data->response);
   curl_easy_setopt(handler->curl, CURLOPT_WRITEFUNCTION, &data_handler);
   curl_easy_setopt(handler->curl, CURLOPT_ERRORBUFFER, data->error);
+  if (data->mon->config->server.proxy_url)
+    curl_easy_setopt(handler->curl, CURLOPT_PROXY, data->mon->config->server.proxy_url);
 }
 
 static void handle_server_response(monikor_curl_handler_t *handler, CURLcode result) {

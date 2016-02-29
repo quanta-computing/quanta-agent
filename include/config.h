@@ -56,6 +56,7 @@ typedef struct {
     char *url;
     int timeout;
     size_t max_send_size;
+    char *proxy_url;
   } server;
 
   char *unix_sock_path;
