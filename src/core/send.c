@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include <curl/curl.h>
 
 #include "monikor.h"
@@ -29,13 +31,19 @@ static size_t data_handler(char *ptr, size_t size, size_t nmemb, void *userdata)
 static struct curl_slist *set_http_headers(monikor_t *mon) {
   struct curl_slist *headers = NULL;
   char hdr[MAX_HEADER_LENGTH];
+  char hostname[256];
 
+  if (gethostname(hostname, 255)) {
+    monikor_log(LOG_ERR, "Canot get hostname: %s\n", strerror(errno));
+    return NULL;
+  }
+  hostname[255] = 0;
   if (!(headers = curl_slist_append(headers, "Content-Type: application/octet-stream")))
     return NULL;
   sprintf(hdr, "Authorization: Token %s", mon->config->quanta_token);
   if (!(headers = curl_slist_append(headers, hdr)))
     return NULL;
-  sprintf(hdr, "X-Quanta-Hostid: %s", mon->config->hostid);
+  sprintf(hdr, "X-Quanta-Hostid: %s %s %s", mon->config->hostid, hostname, MONIKOR_VERSION);
   if (!(headers = curl_slist_append(headers, hdr)))
     return NULL;
   return headers;

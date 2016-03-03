@@ -11,6 +11,8 @@
 typedef struct monikor_s monikor_t;
 #endif
 
+#define MONIKOR_VERSION "0.0.1"
+
 #include "server.h"
 #include "strl.h"
 #include "metric.h"
