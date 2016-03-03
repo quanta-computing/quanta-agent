@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <yaml.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #include "strl.h"
 
