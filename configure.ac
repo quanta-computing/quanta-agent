@@ -2,12 +2,18 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
-AC_CONFIG_SRCDIR([include/config.h])
-AC_CONFIG_HEADERS([config.h])
+AC_INIT(quanta-agent, 0.0.1, support@quanta-computing.com)
+AM_INIT_AUTOMAKE([subdir-objects])
+LT_INIT
+
+AC_CONFIG_MACRO_DIR([m4])
+# AC_CONFIG_SRCDIR(src/main.c)
+
+AC_ENABLE_SHARED
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 
@@ -33,4 +39,9 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([dup2 gethostname getpagesize gettimeofday select socket strchr strdup strerror strndup strrchr strstr strtol strtoul strtoull])
 
-AC_OUTPUT
+# Check for libraries.
+AC_CHECK_LIB([curl], [curl_easy_init])
+AC_CHECK_LIB([dl], [dlopen])
+AC_CHECK_LIB([yaml], [yaml_parser_initialize])
+
+AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile)
