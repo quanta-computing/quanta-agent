@@ -1,116 +1,118 @@
 Maintainer: Matthieu ROSINSKI <support@quanta-computing.com>
-Section: misc
+Section: net
 Priority: extra
-Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, libvarnishapi-dev, libcurl-dev, libyaml-dev
+Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, libvarnishapi-dev, libcurl3-dev, libyaml-dev
 Standards-Version: 3.9.5
 Source: monikor
 
 Package: quanta-agent
 Architecture: any
-Depends: quanta-agent-base, quanta-agent-cpu, quanta-agent-disk, quanta-agent-memory, quanta-agent-network, quanta-agent-process
+Depends: ${misc:Depends}, quanta-agent-base, quanta-agent-cpu, quanta-agent-disk, quanta-agent-memory, quanta-agent-network, quanta-agent-process
 Description: Quanta monitoring agent with default plugins
-  This metapackage provides the quanta-agent and default plugins to monitor your system
+ This metapackage provides the quanta-agent and default plugins to monitor
+ your system
 
 Package: quanta-agent-all
 Architecture: any
-Depends: quanta-agent, quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nginx, quanta-agent-redis, quanta-agent-varnish
+Depends: ${misc:Depends}, quanta-agent, quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nginx, quanta-agent-redis, quanta-agent-varnish
 Description: Quanta monitoring agent with all plugins
-  This metapackage provides the quanta-agent and all plugins to monitor your system
+ This metapackage provides the quanta-agent and all plugins to monitor your system
 
 Package: quanta-agent-base
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, libmonikor (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta monitoring agent
-  This package provides a daemon to monitor system metrics for Quanta
+ This package provides a daemon to monitor system metrics for Quanta
 
 Package: libmonikor
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta metrics library
-  This package provides tools to interact with metric sets
+ This package provides tools to interact with metric sets
 
 Package: libmonikor-dev
 Architecture: any
+Section: libdevel
 Depends: ${misc:Depends}, libmonikor (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta metrics library
-  This package provides tools to interact with metric sets
+ This package provides tools to interact with metric sets
 
 Package: quanta-agent-apache
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Apache monitoring agent
-  This package provides a quanta-agent module to monitor Apache usage
+ This package provides a quanta-agent module to monitor Apache usage
 
 Package: quanta-agent-cpu
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta CPU monitoring agent
-  This package provides a quanta-agent module to monitor CPU usage
+ This package provides a quanta-agent module to monitor CPU usage
 
 Package: quanta-agent-disk
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta disk monitoring agent
-  This package provides a quanta-agent module to monitor disk usage
+ This package provides a quanta-agent module to monitor disk usage
 
 Package: quanta-agent-memcached
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Memcached monitoring agent
-  This package provides a quanta-agent module to monitor Memcached
+ This package provides a quanta-agent module to monitor Memcached
 
 Package: quanta-agent-memory
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta memory monitoring agent
-  This package provides a quanta-agent module to monitor memory usage
+ This package provides a quanta-agent module to monitor memory usage
 
 Package: quanta-agent-mysql
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta MySQL monitoring agent
-  This package provides a quanta-agent module to monitor MySQL usage
+ This package provides a quanta-agent module to monitor MySQL usage
 
 Package: quanta-agent-network
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta network monitoring agent
-  This package provides a quanta-agent module to monitor network usage
+ This package provides a quanta-agent module to monitor network usage
 
 Package: quanta-agent-nginx
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta nginx monitoring agent
-  This package provides a quanta-agent module to monitor Nginx usage
+ This package provides a quanta-agent module to monitor Nginx usage
 
 Package: quanta-agent-process
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta process monitoring agent
-  This package provides a quanta-agent module to monitor process usage
+ This package provides a quanta-agent module to monitor process usage
 
 Package: quanta-agent-redis
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Redis monitoring agent
-  This package provides a quanta-agent module to monitor Redis usage
+ This package provides a quanta-agent module to monitor Redis usage
 
 Package: quanta-agent-varnish
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Varnish monitoring agent
-  This package provides a quanta-agent module to monitor Varnish usage
+ This package provides a quanta-agent module to monitor Varnish usage
