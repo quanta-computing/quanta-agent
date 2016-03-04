@@ -87,10 +87,13 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   handler = list->first;
   while (handler) {
     next = handler->next;
-    uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
-      | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
-    if (mode && handler->callback)
-      handler->callback(handler, mode);
+    if (handler->fd != -1) {
+      uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
+        | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
+      if (mode && handler->callback) {
+        handler->callback(handler, mode);
+      }
+    }
     handler = next;
   }
   return err;
