@@ -44,8 +44,8 @@ int redis_poll(monikor_t *mon, void *data) {
     return -1;
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    close(mod->io_handler->fd);
-    free(mod->io_handler->data);
+    if (mod->io_handler->fd != -1)
+      close(mod->io_handler->fd);
     free(mod->io_handler);
     mod->io_handler = NULL;
   }
