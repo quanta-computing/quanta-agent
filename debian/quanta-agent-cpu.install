@@ -1,0 +1,2 @@
+/usr/lib/x86_64-linux-gnu/cpu.so /usr/lib/quanta/modules
+/etc/monikor/modules.d/cpu.yml /etc/quanta/modules.d

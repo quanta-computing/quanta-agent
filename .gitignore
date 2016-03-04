@@ -27,7 +27,7 @@
 *.i*86
 *.x86_64
 *.hex
-/monikor
+/src/monikor
 /fork
 /client
 
@@ -57,3 +57,26 @@ Makefile.in
 .dirstamp
 .libs/
 *.l[ao]
+
+# Packaging files
+debian/tmp
+debian/files
+debian/autoreconf.*
+debian/*.substvars
+debian/stamp-*
+debian/libmonikor-dev/
+debian/libmonikor/
+debian/quanta-agent-all/
+debian/quanta-agent-apache/
+debian/quanta-agent-base/
+debian/quanta-agent-cpu/
+debian/quanta-agent-disk/
+debian/quanta-agent-memcached/
+debian/quanta-agent-memory/
+debian/quanta-agent-mysql/
+debian/quanta-agent-network/
+debian/quanta-agent-nginx/
+debian/quanta-agent-process/
+debian/quanta-agent-redis/
+debian/quanta-agent-varnish/
+debian/quanta-agent/

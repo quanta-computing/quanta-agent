@@ -1,0 +1,2 @@
+/usr/lib/x86_64-linux-gnu/memcached.so /usr/lib/quanta/modules
+/etc/monikor/modules.d/memcached.yml /etc/quanta/modules.d

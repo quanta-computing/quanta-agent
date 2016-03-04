@@ -1,0 +1,2 @@
+/usr/lib/x86_64-linux-gnu/nginx.so /usr/lib/quanta/modules
+/etc/monikor/modules.d/nginx.yml /etc/quanta/modules.d
