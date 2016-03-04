@@ -44,4 +44,15 @@ AC_CHECK_LIB([curl], [curl_easy_init])
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([yaml], [yaml_parser_initialize])
 
-AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile)
+AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
+  lib/modules/apache/Makefile
+  lib/modules/cpu/Makefile
+  lib/modules/disk/Makefile
+  lib/modules/memcached/Makefile
+  lib/modules/memory/Makefile
+  lib/modules/mysqlstat/Makefile
+  lib/modules/network/Makefile
+  lib/modules/nginx/Makefile
+  lib/modules/process/Makefile
+  lib/modules/redis/Makefile
+  lib/modules/varnish/Makefile)
