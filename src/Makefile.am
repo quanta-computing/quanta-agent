@@ -2,6 +2,9 @@ AM_CFLAGS=-std=c99 -D_GNU_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -W -Wal
 AM_LDFLAGS=-rdynamic
 bin_PROGRAMS = monikor
 
+monikorconfdir=$(sysconfdir)/monikor
+monikorconf_DATA=../etc/config.yml
+
 monikor_LDADD= -lyaml -lcurl -ldl $(top_builddir)/lib/monikor/src/libmonikor.la
 monikor_SOURCES = config/config.c \
 			config/setup_config.c \
@@ -42,13 +45,4 @@ monikor_SOURCES = config/config.c \
 			core/update.c \
 			core/usage.c \
 			main.c \
-			debug.c \
-      config.h \
-      io_handler.h \
-      logger.g \
-      module.h \
-      monikor.h \
-      server.h \
-      strl.h \
-      utils.h \
-      metric.h
+			debug.c
