@@ -78,32 +78,32 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
-	make -C ./lib/monikor fclean
+	make -f Makefile.old -C ./lib/monikor fclean
 
 mrproper: fclean
 
 re: mrproper all
 
 $(LIBMONIKOR):
-	make -C ./lib/monikor/
+	make -f Makefile.old -C ./lib/monikor/
 
 cpu:
-	make -C ./lib/modules/cpu re
+	make -f Makefile.old -C ./lib/modules/cpu re
 
 process:
-	make -C ./lib/modules/process re
+	make -f Makefile.old -C ./lib/modules/process re
 
 memory:
-	make -C ./lib/modules/memory re
+	make -f Makefile.old -C ./lib/modules/memory re
 
 network:
-	make -C ./lib/modules/network re
+	make -f Makefile.old -C ./lib/modules/network re
 
 apache:
-	make -C ./lib/modules/apache re
+	make -f Makefile.old -C ./lib/modules/apache re
 
 dummy:
-	make -C ./lib/modules/dummy re
+	make -f Makefile.old -C ./lib/modules/dummy re
 
 modules: dummy cpu process memory apache network
 
