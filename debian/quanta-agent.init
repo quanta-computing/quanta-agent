@@ -19,6 +19,7 @@ test -x $DAEMON || exit 0
 
 DIR=/var/run/quanta-agent
 PID=$DIR/$NAME.pid
+RETRY=2
 
 if test ! -d "$DIR"; then
   mkdir $DIR
@@ -29,7 +30,7 @@ fi
 case "$1" in
   start)
     log_daemon_msg "Starting $DESC" "$NAME"
-	   start-stop-daemon --oknodo --start --pidfile $PID --exec $DAEMON -- $CONFIG >/dev/null 2>&1
+	   start-stop-daemon --oknodo --start --background --make-pidfile --pidfile $PID --exec $DAEMON -- $CONFIG >/dev/null 2>&1
     case "$?" in
         0) log_end_msg 0 ;;
         *) log_end_msg 1; exit 1 ;;

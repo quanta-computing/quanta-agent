@@ -2,12 +2,12 @@ user: nobody
 directory: /var/run/quanta-agent
 daemonize: no
 
-poll_interval: 60
-update_interval: 15
+poll_interval: 10
+update_interval: 5
 
 logger:
-  level: notice
-  file: syslog
+  level: debug
+  file: stderr
 
 hostid: 0242ac110001
 quanta_token: 76049d1d498e890ad4dd
