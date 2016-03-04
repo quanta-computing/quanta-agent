@@ -15,7 +15,7 @@ static void _compute_float_delta(monikor_metric_t *a, monikor_metric_t *b, monik
   res->type = MONIKOR_FLOAT;
   res->value._float = b->value._float - a->value._float;
   if (a->flags & MONIKOR_METRIC_TIMEDELTA) {
-    if (b->value._int < a->value._int)
+    if (b->value._float < a->value._float)
       res->value._float = 0.0;
     else
       res->value._float /= _compute_metrics_interval(a, b);
