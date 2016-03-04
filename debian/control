@@ -9,14 +9,15 @@ Package: quanta-agent
 Architecture: any
 Depends: ${misc:Depends}, quanta-agent-base, quanta-agent-cpu, quanta-agent-disk, quanta-agent-memory, quanta-agent-network, quanta-agent-process
 Description: Quanta monitoring agent with default plugins
- This metapackage provides the quanta-agent and default plugins to monitor
- your system
+ This package provides the quanta-agent and default plugins to monitor your
+ system. It also provides init scripts.
 
 Package: quanta-agent-all
 Architecture: any
 Depends: ${misc:Depends}, quanta-agent, quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nginx, quanta-agent-redis, quanta-agent-varnish
 Description: Quanta monitoring agent with all plugins
- This metapackage provides the quanta-agent and all plugins to monitor your system
+ This metapackage provides the quanta-agent and all plugins to monitor your
+ system
 
 Package: quanta-agent-base
 Architecture: any
