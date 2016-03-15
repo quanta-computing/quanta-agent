@@ -53,6 +53,13 @@ static int monikor_config_setup_run_dir(monikor_config_t *cfg) {
   return 0;
 }
 
+static int monikor_config_setup_pidfile(monikor_config_t *cfg) {
+  cfg->pidfile = monikor_config_dict_get_scalar(cfg->full_config, "pidfile");
+  if (!cfg->pidfile)
+    cfg->pidfile = MONIKOR_DEFAULT_PIDFILE;
+  return 0;
+}
+
 static int monikor_setup_config_daemonize(monikor_config_t *cfg) {
   if (_is_true(monikor_config_dict_get_scalar(cfg->full_config, "daemonize")))
     cfg->daemonize = 1;
@@ -237,6 +244,7 @@ static int monikor_setup_cache_size(monikor_config_t *cfg) {
 int monikor_setup_config(monikor_config_t *cfg) {
   monikor_setup_config_user(cfg);
   monikor_config_setup_run_dir(cfg);
+  monikor_config_setup_pidfile(cfg);
   monikor_setup_config_daemonize(cfg);
   monikor_setup_config_modules(cfg);
   monikor_setup_config_server(cfg);

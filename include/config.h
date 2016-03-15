@@ -9,6 +9,7 @@
 #include "strl.h"
 
 #define MONIKOR_DEFAULT_RUN_DIR "/"
+#define MONIKOR_DEFAULT_PIDFILE "/tmp/monikor.pid"
 #define MONIKOR_DEFAULT_CONFIG_PATH "/etc/monikor/monikor.yml"
 #define MONIKOR_DEFAULT_MODULES_PATH "/usr/lib/monikor/modules"
 #define MONIKOR_DEFAULT_MODULES_CONFIG_PATH "/etc/monikor/mod.d"
@@ -52,6 +53,7 @@ typedef struct {
   char *user;
   char *group;
   char *run_dir;
+  char *pidfile;
   uint8_t daemonize;
 
   struct {

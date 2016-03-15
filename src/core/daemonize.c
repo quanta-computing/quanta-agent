@@ -11,6 +11,16 @@
 #include "monikor.h"
 
 
+static int write_pid(monikor_t *mon) {
+  int fd;
+
+  if ((fd = open(mon->config->pidfile, O_WRONLY|O_CREAT, 0644)) == -1)
+    return -1;
+  dprintf(fd, "%d\n", getpid());
+  close(fd);
+  return 0;
+}
+
 static int perform_daemonize(monikor_t *mon) {
   pid_t pid;
   int nullfd;
@@ -80,7 +90,7 @@ static int drop_privileges(monikor_t *mon) {
   }
   if (setgid(gid) == -1
   || setuid(uid) == -1) {
-    monikor_log(LOG_ERR, "Cannot drop root privileges: %s", strerror(errno));
+    monikor_log(LOG_ERR, "Cannot drop root privileges: %s\n", strerror(errno));
     return 1;
   }
   return 0;
@@ -91,5 +101,12 @@ int monikor_daemonize(monikor_t *mon) {
     if (perform_daemonize(mon))
       return 1;
   }
-  return drop_privileges(mon);
+  if (drop_privileges(mon))
+    return 1;
+  if (mon->config->daemonize) {
+    if (write_pid(mon)) {
+      monikor_log(LOG_ERR, "Cannot write pid file: %s\n", strerror(errno));
+    }
+  }
+  return 0;
 }
