@@ -3,6 +3,6 @@ lib_LTLIBRARIES = mysqlstat.la
 
 mysqlstat_la_SOURCES = mysqlstat.c poll.c
 mysqlstat_la_LDFLAGS = -module -avoid-version
-mysqlstat_la_LIBADD = -lmysqlclient -lz -lm -ldl
+mysqlstat_la_LIBADD = -L/usr/lib64/mysql -lmysqlclient -lz -lm -ldl
 mysqlstatconfdir = $(sysconfdir)/monikor/modules.d/
 mysqlstatconf_DATA = ../../../etc/modules/mysqlstat.yml

@@ -13,6 +13,7 @@ AC_ENABLE_SHARED
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
