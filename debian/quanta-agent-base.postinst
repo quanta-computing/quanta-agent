@@ -1,0 +1,42 @@
+#!/bin/sh -e
+
+. /usr/share/debconf/confmodule
+db_version 2.0 || [ $? -lt 30 ]
+
+CONF_TPL=/usr/share/quanta/agent.yml
+CONF=/etc/quanta/agent.yml
+
+if [ "$1" = "configure" ]; then
+  cp $CONF_TPL $CONF.new
+
+  db_get quanta-agent/quanta_token
+  TOKEN=$RET
+  if [ ! -z "$TOKEN" ]; then
+    sed -i -e s/__YOUR_QUANTA_TOKEN__/$TOKEN/ $CONF.new
+  fi
+
+  HOSTID=`ip link | grep link/ether | head -1 | awk '{print $2}' | tr -d ':'`
+  if [ ! -z "$HOSTID" ]; then
+    sed -i -e s/__YOUR_HOSTID__/$HOSTID/ $CONF.new
+  fi
+
+  ucf --debconf-ok $CONF.new $CONF
+  rm -f $CONF.new
+
+  if ! getent group quanta-agent > /dev/null 2>&1; then
+    addgroup --system --quiet quanta-agent
+  fi
+
+  if ! getent passwd quanta-agent > /dev/null 2>&1; then
+    addgroup --quiet --system --disabled-login --ingroup quanta-agent \
+      --home /var/run/quanta --no-create-home \
+      quanta-agent
+  fi
+
+fi
+
+db_stop
+
+#DEBHELPER#
+
+exit 0

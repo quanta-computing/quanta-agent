@@ -21,7 +21,7 @@ Description: Quanta monitoring agent with all plugins
 
 Package: quanta-agent-base
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, libmonikor (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, ucf, libmonikor (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta monitoring agent
  This package provides a daemon to monitor system metrics for Quanta

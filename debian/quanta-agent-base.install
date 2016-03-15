@@ -1,3 +1,3 @@
 #!/usr/bin/dh-exec
 usr/bin/monikor => /usr/bin/quanta-agent
-etc/monikor/config.yml => /etc/quanta/agent.yml
+etc/monikor/config.yml => /usr/share/quanta/agent.yml
