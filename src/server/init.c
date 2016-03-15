@@ -82,6 +82,7 @@ void monikor_client_init(monikor_client_t *client) {
 
 int monikor_server_init(monikor_server_t *server, monikor_t *mon) {
   server->handler = NULL;
+  server->socket = -1;
   server->mon = mon;
   for (size_t i = 0; i < MONIKOR_SRV_MAX_CLIENTS; i++) {
     monikor_client_init(&server->clients[i]);

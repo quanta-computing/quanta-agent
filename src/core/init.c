@@ -25,6 +25,8 @@ int monikor_init(monikor_t *mon, char *config_path) {
   monikor_logger_init(mon->config->logger.level, mon->config->logger.file);
   curl_global_init(CURL_GLOBAL_ALL);
   monikor_io_handler_list_init(&mon->io_handlers);
+  mon->server.handler = NULL;
+  mon->server.socket = -1;
   if (mon->config->listen.path) {
     if (monikor_server_init(&mon->server, mon))
       monikor_log(LOG_ERR, "Cannot start local server on %s\n", mon->config->listen.path);

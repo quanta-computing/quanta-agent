@@ -13,8 +13,14 @@ void monikor_server_handler_free(monikor_io_handler_t *handler) {
 }
 
 void monikor_server_cleanup(monikor_server_t *server) {
-  monikor_unregister_io_handler(server->mon, server->handler);
-  monikor_server_handler_free(server->handler);
-  close(server->socket);
-  unlink(server->mon->config->listen.path);
+  if (!server)
+    return;
+  if (server->handler) {
+    monikor_unregister_io_handler(server->mon, server->handler);
+    monikor_server_handler_free(server->handler);
+  }
+  if (server->socket != -1)
+    close(server->socket);
+  if (server->mon->config->listen.path)
+    unlink(server->mon->config->listen.path);
 }
