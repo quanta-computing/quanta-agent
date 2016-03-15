@@ -1,6 +1,7 @@
-user: nobody
-directory: /var/run/quanta-agent
-daemonize: no
+user: quanta-agent
+directory: /var/run/quanta
+pidfile: /var/run/quanta/agent.pid
+daemonize: yes
 
 poll_interval: 60
 update_interval: 15
@@ -9,8 +10,8 @@ logger:
   level: notice
   file: syslog
 
-hostid: 0242ac110001
-quanta_token: 76049d1d498e890ad4dd
+hostid: __YOUR_HOSTID__
+quanta_token: __YOUR_QUANTA_TOKEN__
 
 server:
   url: "http://192.168.99.1:4242/push"
@@ -24,7 +25,6 @@ modules:
   config_path: /etc/quanta/modules.d
 
 listen:
-  path: /var/run/monikor.sock
-  user: nobody
-  group: www-data
-  mode: 0660
+  path: /var/run/quanta/monikor.sock
+  user: quanta-agent
+  mode: 0666
