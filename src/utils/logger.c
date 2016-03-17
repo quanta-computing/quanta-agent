@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "logger.h"
 
@@ -36,7 +37,7 @@ void monikor_logger_init(int prio, const char *log_file) {
   }
   if (_log_fd == -1) {
     closelog();
-    openlog("monikor", LOG_PID, LOG_DAEMON);
+    openlog(program_invocation_short_name, LOG_PID, LOG_DAEMON);
   }
 }
 
