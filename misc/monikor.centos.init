@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# chkconfig: - 86 14
+# description: Quanta agent daemon
+# processname: quanta-agent
+# config: /etc/quanta/agent.yml
+#
+
+### BEGIN INIT INFO
+# Provides: quanta-agent
+# Required-Start: $local_fs $network
+# Required-Stop: $local_fs $network
+# Should-Start: quanta-agent
+# Should-Stop: quanta-agent
+# Default-Start:
+# Default-Stop: 0 1 2 3 4 5 6
+# Short-Description: Start and stop Quanta agent
+# Description: Quanta agent
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+if [ -x /usr/bin/quanta-agent ]; then
+    exec=quanta-agent
+else
+    exit 5
+fi
+
+prog=${exec##*/}
+conf=/etc/quanta/agent.yml
+pidfile=/var/run/quanta/agent.pid
+
+if [ -f /etc/sysconfig/quanta-agent ]; then
+  . /etc/sysconfig/quanta-agent
+fi
+
+lockfile=/var/lock/subsys/quanta-agent
+
+start()
+{
+  echo -n $"Starting quanta agent: "
+  daemon $exec $conf
+  rv=$?
+  echo
+  [ $rv -eq 0 ] && touch $lockfile
+  return $rv
+}
+
+stop()
+{
+  echo -n $"Stopping quanta agent: "
+  killproc $prog
+  rv=$?
+  echo
+  [ $rv -eq 0 ] && rm -f $lockfile
+  return $rv
+}
+
+restart()
+{
+  stop
+  start
+}
+
+case "$1" in
+    start|stop|restart)
+        $1
+        ;;
+    force-reload)
+        restart
+        ;;
+    status)
+        status -p $pidfile $prog
+        ;;
+    try-restart)
+        if status $prog >/dev/null ; then
+            restart
+        fi
+        ;;
+    reload)
+        action $"Service ${0##*/} does not support the reload action: " /bin/false
+        exit 3
+        ;;
+    *)
+	echo $"Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
+	exit 2
+	;;
+esac
