@@ -1,15 +1,17 @@
 user: nobody
-directory: /var/run/quanta-agent
-daemonize: no
+daemonize: yes
 
-poll_interval: 10
-update_interval: 5
+directory: /tmp
+pidfile: /tmp/toto.pid
+
+poll_interval: 60
+update_interval: 30
 
 logger:
   level: debug
-  file: stderr
+  file: /tmp/monikor.log
 
-hostid: 0242ac110001
+hostid: 35546b3fc238
 quanta_token: 76049d1d498e890ad4dd
 
 server:
@@ -20,11 +22,11 @@ cache:
   max_size_mb: 30
 
 modules:
-  path: /usr/lib/quanta/modules
-  config_path: /etc/quanta/modules.d
+  path: /usr/local/lib/
+  config_path: /monikor/etc/modules
 
 listen:
-  path: /var/run/monikor.sock
+  path: /tmp/monikor.sock
   user: nobody
   group: www-data
   mode: 0660

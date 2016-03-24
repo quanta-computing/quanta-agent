@@ -25,6 +25,6 @@ modules:
   config_path: /etc/quanta/modules.d
 
 listen:
-  path: /var/run/quanta/monikor.sock
+  path: /var/run/quanta/agent.sock
   user: quanta-agent
   mode: 0666
