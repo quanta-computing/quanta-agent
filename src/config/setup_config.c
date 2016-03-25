@@ -61,10 +61,7 @@ static int monikor_config_setup_pidfile(monikor_config_t *cfg) {
 }
 
 static int monikor_setup_config_daemonize(monikor_config_t *cfg) {
-  if (_is_true(monikor_config_dict_get_scalar(cfg->full_config, "daemonize")))
-    cfg->daemonize = 1;
-  else
-    cfg->daemonize = 0;
+  cfg->daemonize = _is_true(monikor_config_dict_get_scalar(cfg->full_config, "daemonize"));
   return 0;
 }
 
@@ -208,7 +205,6 @@ static int monikor_setup_config_listen(monikor_config_t *cfg) {
 }
 
 
-// TODO! Check for NULL and size
 static int monikor_setup_quanta_token(monikor_config_t *cfg) {
   char *token;
 
@@ -218,7 +214,6 @@ static int monikor_setup_quanta_token(monikor_config_t *cfg) {
 }
 
 
-// TODO! Check for NULL and size
 static int monikor_setup_hostid(monikor_config_t *cfg) {
   char *hostid;
 

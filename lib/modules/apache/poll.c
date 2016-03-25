@@ -56,8 +56,7 @@ static void apache_fetch_metrics(http_response_t *status, CURLcode result) {
   free(status);
 }
 
-int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
-  (void)clock;
+int apache_poll_metrics(monikor_t *mon, const char *url) {
   if (monikor_http_get(mon, url, APACHE_TIMEOUT, &apache_fetch_metrics, mon))
     return -1;
   return 0;

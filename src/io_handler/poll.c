@@ -79,9 +79,7 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   monikor_log(LOG_DEBUG, "Sleeping for %d seconds\n", timeout->tv_sec);
   if (ndfs <= 0)
     return ndfs;
-  do {
-    err = select(ndfs, &rdfds, &wrfds, NULL, timeout);
-  } while (err == -1 && errno == EINTR);
+  while ((err = select(ndfs, &rdfds, &wrfds, NULL, timeout)) == -1 && errno == EINTR);
   if (err <= 0)
     return err;
   handler = list->first;

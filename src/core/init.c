@@ -19,7 +19,7 @@ int monikor_init_modules(monikor_t *mon) {
 }
 
 int monikor_init(monikor_t *mon, char *config_path) {
-  monikor_logger_init(-1, NULL);
+  monikor_logger_init(MONIKOR_LOG_DEFAULT, NULL);
   if (!(mon->config = monikor_load_config(config_path)))
     return 1;
   monikor_logger_init(mon->config->logger.level, mon->config->logger.file);

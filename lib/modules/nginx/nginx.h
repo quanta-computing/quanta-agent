@@ -8,6 +8,6 @@
 #define NGINX_DEFAULT_STATUS_URL "http://localhost/nginx-status"
 #define NGINX_TIMEOUT 3
 
-int nginx_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url);
+void nginx_poll_metrics(http_response_t *status, CURLcode result);
 
 #endif /* end of include guard: nginx_H_ */

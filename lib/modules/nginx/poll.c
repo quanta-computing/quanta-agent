@@ -53,7 +53,7 @@ static int fetch_metrics(monikor_t *mon, struct timeval *clock, char *status) {
   return n;
 }
 
-static void nginx_fetch_metrics(http_response_t *status, CURLcode result) {
+void nginx_poll_metrics(http_response_t *status, CURLcode result) {
   struct timeval clock;
   int n;
 
@@ -64,11 +64,4 @@ static void nginx_fetch_metrics(http_response_t *status, CURLcode result) {
   }
   free(status->data);
   free(status);
-}
-
-int nginx_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url) {
-  (void)clock;
-  if (monikor_http_get(mon, url, NGINX_TIMEOUT, &nginx_fetch_metrics, (void *)mon))
-    return -1;
-  return 0;
 }

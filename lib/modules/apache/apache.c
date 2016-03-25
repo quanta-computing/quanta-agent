@@ -32,10 +32,7 @@ void apache_cleanup(monikor_t *mon, void *data) {
 }
 
 int apache_poll(monikor_t *mon, void *data) {
-  struct timeval now;
-
   if (!data)
     return -1;
-  gettimeofday(&now, NULL);
-  return apache_poll_metrics(mon, &now, (char *)data);
+  return apache_poll_metrics(mon, (char *)data);
 }

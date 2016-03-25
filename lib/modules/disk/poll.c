@@ -43,10 +43,10 @@ uint64_t sector_size) {
 }
 
 static int is_monitored_device(const char *dev) {
-  return strlen(dev) == 3
-    && (dev[0] == 'h' || dev[0] == 's')
+  return (dev[0] == 'h' || dev[0] == 's')
     && dev[1] == 'd'
-    && (dev[2] >= 'a' && dev[2] <= 'z');
+    && (dev[2] >= 'a' && dev[2] <= 'z')
+    && !dev[3];
 }
 
 static int fetch_one_disk_dev_metrics(monikor_t *mon, struct timeval *clock, char *part) {
@@ -106,7 +106,7 @@ static int fetch_one_disk_fs_metrics(monikor_t *mon, struct timeval *clock, char
   char *fstype;
   char *opts;
   struct statvfs stat;
-  char metric_name[1280];
+  char metric_name[1280]; // 1024 + max metric name size
   char *metric_base_end;
 
   if (!(path = strchr(mount, ' '))

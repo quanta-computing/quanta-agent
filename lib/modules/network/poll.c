@@ -10,18 +10,17 @@ static const char *net_metrics[] = {
 };
 #define NB_METRICS (sizeof(net_metrics) / sizeof(*net_metrics))
 
-static int poll_device_metrics(monikor_t *mon, struct timeval *clock,
-char *name, char *info) {
+static int poll_device_metrics(monikor_t *mon, struct timeval *clock, char *name, char *info) {
   int n = 0;
   char *metric;
   char *metric_base_end;
   char metric_name[256];
-  long value;
+  uint64_t value;
 
   metric_base_end = metric_name + sprintf(metric_name, "network.interfaces.%s.", name);
   metric = info;
   for (size_t i = 0; i < NB_METRICS; i++) {
-    value = strtol(metric, &metric, 10);
+    value = strtoull(metric, &metric, 10);
     if (net_metrics[i]) {
       strcpy(metric_base_end, net_metrics[i]);
       monikor_metric_push(mon, monikor_metric_integer(
@@ -44,7 +43,7 @@ static char *next_device_info(char *netinfo, char **devname, char **devinfo) {
   if (!(end = strchr(netinfo, ':')))
     return NULL;
   for (*devname = end; **devname != ' ' && *devname != netinfo; *devname -= 1);
-  *devname +=1;
+  *devname += 1;
   *devinfo = end + 1;
   *end = 0;
   if (!(end = strchr(*devinfo, '\n')))

@@ -40,10 +40,12 @@ static struct curl_slist *set_http_headers(monikor_t *mon) {
   hostname[255] = 0;
   if (!(headers = curl_slist_append(headers, "Content-Type: application/octet-stream")))
     return NULL;
-  sprintf(hdr, "Authorization: Token %s", mon->config->quanta_token);
+  snprintf(hdr, MAX_HEADER_LENGTH, "Authorization: Token %s",
+    mon->config->quanta_token ? mon->config->quanta_token : "unknown");
   if (!(headers = curl_slist_append(headers, hdr)))
     return NULL;
-  sprintf(hdr, "X-Quanta-Hostid: %s %s %s", mon->config->hostid, hostname, MONIKOR_VERSION);
+  snprintf(hdr, MAX_HEADER_LENGTH, "X-Quanta-Hostid: %s %s %s",
+    mon->config->hostid ? mon->config->hostid : "unknown", hostname, MONIKOR_VERSION);
   if (!(headers = curl_slist_append(headers, hdr)))
     return NULL;
   return headers;

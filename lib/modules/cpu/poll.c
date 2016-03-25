@@ -33,7 +33,7 @@ static size_t cpu_fetch_metrics(float *values, size_t n_metrics) {
   char *start;
   char *end;
   unsigned i;
-  long tps = sysconf (_SC_CLK_TCK);
+  long tps = sysconf(_SC_CLK_TCK);
 
   if (!(proc_stat = monikor_read_file("/proc/stat"))
   || !(cpu_info = get_proc_stat_cpu_info(proc_stat)))

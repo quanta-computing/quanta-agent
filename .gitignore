@@ -30,6 +30,7 @@
 /src/monikor
 /fork
 /client
+/pkg
 
 # Debug files
 *.dSYM/

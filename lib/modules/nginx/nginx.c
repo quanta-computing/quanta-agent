@@ -21,8 +21,7 @@ void nginx_cleanup(monikor_t *mon, void *data) {
 }
 
 int nginx_poll(monikor_t *mon, void *data) {
-  struct timeval now;
-
-  gettimeofday(&now, NULL);
-  return nginx_poll_metrics(mon, &now, (char *)data);
+  if (monikor_http_get(mon, (char *)data, NGINX_TIMEOUT, &nginx_poll_metrics, (void *)mon))
+    return -1;
+  return 0;
 }

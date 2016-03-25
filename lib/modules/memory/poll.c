@@ -19,19 +19,19 @@ static const struct {
   {NULL, NULL}
 };
 
-static int fetch_metric(const char *meminfo, const char *name, unsigned long *value) {
+static int fetch_metric(const char *meminfo, const char *name, uint64_t *value) {
   char *line;
 
   if (!(line = strstr(meminfo, name)))
     return 1;
-  *value = strtol(line + strlen(name), NULL, 10) * 1024;
+  *value = strtoull(line + strlen(name), NULL, 10) * 1024;
   return 0;
 }
 
 int memory_poll_metrics(monikor_t *mon, struct timeval *clock) {
   int n;
   char *meminfo;
-  unsigned long value;
+  uint64_t value;
 
   if (!(meminfo = monikor_read_file("/proc/meminfo"))) {
     monikor_log_mod(LOG_WARNING, MOD_NAME, "Cannot read /proc/meminfo");

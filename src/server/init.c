@@ -85,7 +85,7 @@ int monikor_server_init(monikor_server_t *server, monikor_t *mon) {
   server->socket = -1;
   server->mon = mon;
   for (size_t i = 0; i < MONIKOR_SRV_MAX_CLIENTS; i++) {
-    monikor_client_init(&server->clients[i]);
+    monikor_client_init(server->clients + i);
   }
   server->n_clients = 0;
   if (monikor_server_bind(server) ||

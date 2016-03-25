@@ -7,7 +7,7 @@
 #define APACHE_DEFAULT_STATUS_URL "http://localhost/server-status?auto"
 #define APACHE_TIMEOUT 5
 
-int apache_poll_metrics(monikor_t *mon, struct timeval *clock, const char *url);
+int apache_poll_metrics(monikor_t *mon, const char *url);
 
 
 #endif /* end of include guard: APACHE_H_ */
