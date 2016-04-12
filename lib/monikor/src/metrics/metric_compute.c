@@ -14,7 +14,7 @@ static float _compute_metrics_interval(monikor_metric_t *a, monikor_metric_t *b)
 static void _compute_float_delta(monikor_metric_t *a, monikor_metric_t *b, monikor_metric_t *res) {
   res->type = MONIKOR_FLOAT;
   res->value._float = b->value._float - a->value._float;
-  if (a->flags & MONIKOR_METRIC_TIMEDELTA) {
+  if ((a->flags & MONIKOR_METRIC_TIMEDELTA) == MONIKOR_METRIC_TIMEDELTA) {
     if (b->value._float < a->value._float)
       res->value._float = 0.0;
     else
@@ -23,7 +23,7 @@ static void _compute_float_delta(monikor_metric_t *a, monikor_metric_t *b, monik
 }
 
 static void _compute_int_delta(monikor_metric_t *a, monikor_metric_t *b, monikor_metric_t *res) {
-  if (a->flags & MONIKOR_METRIC_TIMEDELTA) {
+  if ((a->flags & MONIKOR_METRIC_TIMEDELTA) == MONIKOR_METRIC_TIMEDELTA) {
     res->type = MONIKOR_FLOAT;
     if (b->value._int < a->value._int)
       res->value._float = 0.0;
