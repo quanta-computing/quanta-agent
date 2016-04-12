@@ -28,7 +28,7 @@ if [ "$1" = "configure" ]; then
   fi
 
   if ! getent passwd quanta-agent > /dev/null 2>&1; then
-    addgroup --quiet --system --disabled-login --ingroup quanta-agent \
+    adduser --quiet --system --disabled-login --ingroup quanta-agent \
       --home /var/run/quanta --no-create-home \
       quanta-agent
   fi

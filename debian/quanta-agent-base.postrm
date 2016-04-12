@@ -10,7 +10,7 @@ case "$1" in
            ucf --purge /etc/quanta/agent.yml
         fi
         rm -f /etc/quanta/agent.yml
-        rm -f /var/run/quanta/
+        rm -Rf /var/run/quanta/
 
         if getent passwd quanta-agent >/dev/null 2>&1; then
           userdel quanta-agent

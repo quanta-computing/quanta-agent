@@ -17,12 +17,16 @@ DESC="Quanta agent"
 
 test -x $DAEMON || exit 0
 
-DIR=/var/run/quanta-agent
-PID=$DIR/$NAME.pid
+DIR=/var/run/quanta
+PID=$DIR/agent.pid
 RETRY=2
 
 if test ! -d "$DIR"; then
   mkdir $DIR
+fi
+
+if getent passwd quanta-agent > /dev/null 2>&1; then
+  chown quanta-agent:quanta-agent $DIR
 fi
 
 . /lib/lsb/init-functions
