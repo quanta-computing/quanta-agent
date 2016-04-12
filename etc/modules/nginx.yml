@@ -1,3 +1,3 @@
 # enabled: false
 nginx:
-  url: http://127.0.0.1:8042/status
+  url: http://127.0.0.1/status
