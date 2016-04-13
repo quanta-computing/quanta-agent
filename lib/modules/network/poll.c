@@ -42,8 +42,11 @@ static char *next_device_info(char *netinfo, char **devname, char **devinfo) {
 
   if (!(end = strchr(netinfo, ':')))
     return NULL;
-  for (*devname = end; **devname != ' ' && *devname != netinfo; *devname -= 1);
-  *devname += 1;
+  for (*devname = end
+  ; **devname && **devname != ' ' && **devname != '\n' && *devname != netinfo
+  ; *devname -= 1);
+  if (*devname != netinfo)
+    *devname += 1;
   *devinfo = end + 1;
   *end = 0;
   if (!(end = strchr(*devinfo, '\n')))
@@ -53,7 +56,11 @@ static char *next_device_info(char *netinfo, char **devname, char **devinfo) {
 }
 
 static inline int is_valid_device(const char *name) {
-  return strlen(name) <= MNK_NET_MAX_DEV_LEN && strncmp(name, "lo", 2);
+  return strlen(name) <= MNK_NET_MAX_DEV_LEN
+    && strncmp(name, "lo", 2)
+    && strncmp(name, "veth", 4)
+    && strncmp(name, "dummy", 5)
+    && strncmp(name, "docker", 6);
 }
 
 
