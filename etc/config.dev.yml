@@ -1,15 +1,17 @@
+hostname: monhostname
+
 user: nobody
-daemonize: yes
+daemonize: no
 
 directory: /tmp
 pidfile: /tmp/toto.pid
 
 poll_interval: 60
-update_interval: 30
+update_interval: 10
 
 logger:
   level: debug
-  file: /tmp/monikor.log
+  file: stderr
 
 hostid: 35546b3fc238
 quanta_token: 76049d1d498e890ad4dd
@@ -22,8 +24,8 @@ cache:
   max_size_mb: 30
 
 modules:
-  path: /usr/local/lib/
-  config_path: /monikor/etc/modules
+  path: /usr/lib/x86_64-linux-gnu/
+  config_path: /tmp
 
 listen:
   path: /tmp/monikor.sock
