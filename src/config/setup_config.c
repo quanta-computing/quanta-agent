@@ -46,6 +46,11 @@ static int monikor_setup_config_user(monikor_config_t *cfg) {
   return 0;
 }
 
+static int monikor_setup_config_hostname(monikor_config_t *cfg) {
+  cfg->hostname = monikor_config_dict_get_scalar(cfg->full_config, "hostname");
+  return 0;
+}
+
 static int monikor_config_setup_run_dir(monikor_config_t *cfg) {
   cfg->run_dir = monikor_config_dict_get_scalar(cfg->full_config, "directory");
   if (!cfg->run_dir)
@@ -237,6 +242,7 @@ static int monikor_setup_cache_size(monikor_config_t *cfg) {
 }
 
 int monikor_setup_config(monikor_config_t *cfg) {
+  monikor_setup_config_hostname(cfg);
   monikor_setup_config_user(cfg);
   monikor_config_setup_run_dir(cfg);
   monikor_config_setup_pidfile(cfg);

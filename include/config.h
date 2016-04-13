@@ -50,6 +50,8 @@ typedef struct {
   monikor_config_dict_t *full_config;
   char *config_path;
 
+  char *hostname;
+
   char *user;
   char *group;
   char *run_dir;

@@ -33,7 +33,9 @@ static struct curl_slist *set_http_headers(monikor_t *mon) {
   char hdr[MAX_HEADER_LENGTH];
   char hostname[256];
 
-  if (gethostname(hostname, 255)) {
+  if (mon->config->hostname) {
+    strncpy(hostname, mon->config->hostname, 255);
+  } else if (gethostname(hostname, 255)) {
     monikor_log(LOG_ERR, "Canot get hostname: %s\n", strerror(errno));
     return NULL;
   }
