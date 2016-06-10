@@ -1,5 +1,5 @@
 Name:	monikor
-Version: 0.0.1
+Version: 1.0.6
 Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
@@ -8,7 +8,7 @@ Packager: Matthieu ROSINSKI <support@quanta-computing.com>
 Group: Applications/Internet
 URL: http://www.quanta-computing.com
 License: toto
-Source: monikor-0.0.1.tgz
+Source: monikor-1.0.6.tgz
 
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0
@@ -76,7 +76,6 @@ Requires: quanta-agent-base = %{version}
 %package -n quanta-agent-nginx
 Summary: Quanta agent Nginx plugin
 Group: Applications/Internet
-Requires: nginx
 Requires: quanta-agent-base = %{version}
 
 %package -n quanta-agent-process

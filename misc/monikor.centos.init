@@ -50,7 +50,7 @@ start()
 stop()
 {
   echo -n $"Stopping quanta agent: "
-  killproc $prog
+  killproc -p $pidfile $prog
   rv=$?
   echo
   [ $rv -eq 0 ] && rm -f $lockfile
