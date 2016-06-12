@@ -32,7 +32,10 @@ void redis_poll_metrics(char *status, void *data) {
     sprintf(metric_name, "%s:", metrics[i].field);
     if ((metric = strstr(status, metric_name))) {
       metric += strlen(metric_name);
-      sprintf(metric_name, "redis.%s", metrics[i].name);
+      if (mod->instance)
+        sprintf(metric_name, "redis.%s.%s", metrics[i].name, mod->instance);
+      else
+        sprintf(metric_name, "redis.%s", metrics[i].name);
       monikor_metric_push(mod->mon, monikor_metric_integer(metric_name, &clock,
         (uint64_t)strtoull(metric, NULL, 10), metrics[i].flags));
     }

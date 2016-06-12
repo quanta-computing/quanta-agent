@@ -6,10 +6,12 @@
 #define MOD_NAME "redis"
 #define MONIKOR_REDIS_DEFAULT_HOST "localhost"
 #define MONIKOR_REDIS_DEFAULT_PORT "6379"
+#define MONIKOR_REDIS_MAX_INSTANCE_LENGTH 42
 
 typedef struct {
   char *host;
   char *port;
+  char *instance;
   monikor_t *mon;
   monikor_io_handler_t *io_handler;
 } redis_module_t;
