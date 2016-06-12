@@ -20,13 +20,18 @@ static const struct {
 
 static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
   varnish_iterator_data_t *iterator = (varnish_iterator_data_t *)data;
+  char metric_name[256];
 
   if (!pt)
     return 0;
   for (size_t i = 0; metrics[i].name; i++) {
     if (!strcmp(pt->name, metrics[i].varnish_name)) {
+      if (iterator->mod->instance)
+        sprintf(metric_name, "%s.%s", metrics[i].name, iterator->mod->instance);
+      else
+        sprintf(metric_name, "%s", metrics[i].name);
       monikor_metric_push(iterator->mon, monikor_metric_integer(
-        metrics[i].name, iterator->clock, *(const volatile uint64_t *)pt->ptr, metrics[i].flags
+        metric_name, iterator->clock, *(const volatile uint64_t *)pt->ptr, metrics[i].flags
       ));
       iterator->count++;
       break;
@@ -35,17 +40,18 @@ static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
   return 0;
 }
 
-int varnish_poll_metrics(monikor_t *mon, struct timeval *clock, struct VSM_data *vd) {
+int varnish_poll_metrics(varnish_module_t *mod, struct timeval *clock) {
   varnish_iterator_data_t iterator;
 
-  if (VSM_Open(vd, 1)) {
+  if (VSM_Open(mod->vd, 1)) {
     monikor_log_mod(LOG_ERR, MOD_NAME, "Cannot open varnish log\n");
     return -1;
   }
-  iterator.mon = mon;
+  iterator.mod = mod;
+  iterator.mon = mod->mon;
   iterator.clock = clock;
   iterator.count = 0;
-  VSC_Iter(vd, &varnish_fetch_metric, (void *)&iterator);
-  VSM_Close(vd);
+  VSC_Iter(mod->vd, &varnish_fetch_metric, (void *)&iterator);
+  VSM_Close(mod->vd);
   return iterator.count;
 }
