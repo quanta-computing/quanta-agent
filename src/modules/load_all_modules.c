@@ -32,12 +32,15 @@ static void monikor_load_one_module(char *name, void *data) {
   monikor_mod_t *mod;
   monikor_config_dict_t *config;
   char *enabled;
+  char *mod_name;
 
   if (!(config = monikor_load_mod_config(mon->config->modules.config_path, name)))
     return;
   enabled = monikor_config_dict_get_scalar(config, "enabled");
+  mod_name = monikor_config_dict_get_scalar(config, "module");
+  mod_name = mod_name ? mod_name : name;
   if ((enabled && (!strcmp(enabled, "no") || !strcmp(enabled, "false")))
-  || !(mod = monikor_load_module(name, mon->config->modules.path))) {
+  || !(mod = monikor_load_module(mod_name, mon->config->modules.path))) {
     monikor_log(LOG_INFO, "Module %s disabled\n", name);
     monikor_config_dict_free(config);
     return;
