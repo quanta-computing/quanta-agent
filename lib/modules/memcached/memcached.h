@@ -6,11 +6,13 @@
 #define MOD_NAME "memcached"
 #define MONIKOR_MEMCACHED_DEFAULT_HOST "localhost"
 #define MONIKOR_MEMCACHED_DEFAULT_PORT "11211"
+#define MONIKOR_MEMCACHED_MAX_INSTANCE_LENGTH 42
 
 
 typedef struct {
   char *host;
   char *port;
+  char *instance;
   monikor_t *mon;
   monikor_io_handler_t *io_handler;
 } memcached_module_t;

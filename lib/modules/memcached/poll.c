@@ -19,7 +19,7 @@ static const struct {
   {NULL, NULL}
 };
 
-static void fetch_hitmiss_metrics(monikor_t *mon, struct timeval *clock, char *status) {
+static void fetch_hitmiss_metrics(memcached_module_t *mod, struct timeval *clock, char *status) {
   char metric_name[256];
   char *metric;
   uint64_t hits = 0;
@@ -37,10 +37,18 @@ static void fetch_hitmiss_metrics(monikor_t *mon, struct timeval *clock, char *s
       misses += strtoull(metric, NULL, 10);
     }
   }
-  monikor_metric_push(mon, monikor_metric_integer(
-    "memcached.cache.hits", clock, hits, MONIKOR_METRIC_DELTA));
-  monikor_metric_push(mon, monikor_metric_integer(
-    "memcached.cache.misses", clock, misses, MONIKOR_METRIC_DELTA));
+  if (mod->instance)
+    sprintf(metric_name, "memcached.cache.hits.%s", mod->instance);
+  else
+    sprintf(metric_name, "memcached.cache.hits");
+  monikor_metric_push(mod->mon, monikor_metric_integer(
+    metric_name, clock, hits, MONIKOR_METRIC_DELTA));
+  if (mod->instance)
+    sprintf(metric_name, "memcached.cache.misses.%s", mod->instance);
+  else
+    sprintf(metric_name, "memcached.cache.misses");
+  monikor_metric_push(mod->mon, monikor_metric_integer(
+    metric_name, clock, misses, MONIKOR_METRIC_DELTA));
 }
 
 static const struct {
@@ -72,10 +80,13 @@ void memcached_poll_metrics(char *status, void *data) {
     sprintf(metric_name, "STAT %s ", metrics[i].field);
     if ((metric = strstr(status, metric_name))) {
       metric += strlen(metric_name);
-      sprintf(metric_name, "memcached.%s", metrics[i].name);
+      if (mod->instance)
+        sprintf(metric_name, "memcached.%s.%s", metrics[i].name, mod->instance);
+      else
+        sprintf(metric_name, "memcached.%s", metrics[i].name);
       monikor_metric_push(mod->mon, monikor_metric_integer(metric_name, &clock,
         (uint64_t)strtoull(metric, NULL, 10), metrics[i].flags));
     }
   }
-  fetch_hitmiss_metrics(mod->mon, &clock, status);
+  fetch_hitmiss_metrics(mod, &clock, status);
 }

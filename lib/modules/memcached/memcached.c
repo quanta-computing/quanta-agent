@@ -18,6 +18,12 @@ void *memcached_init(monikor_t *mon, monikor_config_dict_t *config) {
   mod->io_handler = NULL;
   mod->host = monikor_config_dict_get_scalar(config, "memcached.host");
   mod->port = monikor_config_dict_get_scalar(config, "memcached.port");
+  mod->instance = monikor_config_dict_get_scalar(config, "memcached.instance");
+  if (mod->instance && strlen(mod->instance) >= MONIKOR_MEMCACHED_MAX_INSTANCE_LENGTH) {
+    mod->instance[MONIKOR_MEMCACHED_MAX_INSTANCE_LENGTH - 1] = 0;
+    monikor_log_mod(LOG_WARNING, MOD_NAME, "Instance name too long, stripped to %d chars\n",
+      MONIKOR_MEMCACHED_MAX_INSTANCE_LENGTH);
+  }
   if (!mod->host)
     mod->host = MONIKOR_MEMCACHED_DEFAULT_HOST;
   if (!mod->port)
