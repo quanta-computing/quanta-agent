@@ -38,7 +38,6 @@ Requires: libmonikor = %{version}
 %package -n quanta-agent-apache
 Summary: Quanta agent apache plugin
 Group: Applications/Internet
-Requires: httpd
 Requires: quanta-agent-base = %{version}
 
 %package -n quanta-agent-cpu
