@@ -1,5 +1,5 @@
 Name:	monikor
-Version: 1.0.6
+Version: 1.1.0
 Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
@@ -8,7 +8,7 @@ Packager: Matthieu ROSINSKI <support@quanta-computing.com>
 Group: Applications/Internet
 URL: http://www.quanta-computing.com
 License: toto
-Source: monikor-1.0.6.tgz
+Source: monikor-1.1.0.tgz
 
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0
