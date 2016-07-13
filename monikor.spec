@@ -140,7 +140,7 @@ This package provides a Varnish plugin for quanta-agent
 %setup
 
 %build
-%configure
+%config(noreplace)ure
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make
@@ -174,7 +174,7 @@ rm -f %{buildroot}/usr/lib64/*.a
 %files -n quanta-agent-base
 /etc/init.d/quanta-agent
 /usr/bin/quanta-agent
-%config /etc/quanta/agent.yml
+%config(noreplace) /etc/quanta/agent.yml
 %dir /etc/quanta/modules.d
 
 %files -n libmonikor
@@ -185,47 +185,47 @@ rm -f %{buildroot}/usr/lib64/*.a
 
 %files -n quanta-agent-apache
 /usr/lib/quanta/modules/apache.so
-/etc/quanta/modules.d/apache.yml
+%config(noreplace) /etc/quanta/modules.d/apache.yml
 
 %files -n quanta-agent-cpu
 /usr/lib/quanta/modules/cpu.so
-/etc/quanta/modules.d/cpu.yml
+%config(noreplace) /etc/quanta/modules.d/cpu.yml
 
 %files -n quanta-agent-disk
 /usr/lib/quanta/modules/disk.so
-/etc/quanta/modules.d/disk.yml
+%config(noreplace) /etc/quanta/modules.d/disk.yml
 
 %files -n quanta-agent-memcached
 /usr/lib/quanta/modules/memcached.so
-/etc/quanta/modules.d/memcached.yml
+%config(noreplace) /etc/quanta/modules.d/memcached.yml
 
 %files -n quanta-agent-memory
 /usr/lib/quanta/modules/memory.so
-/etc/quanta/modules.d/memory.yml
+%config(noreplace) /etc/quanta/modules.d/memory.yml
 
 %files -n quanta-agent-mysql
 /usr/lib/quanta/modules/mysqlstat.so
-/etc/quanta/modules.d/mysqlstat.yml
+%config(noreplace) /etc/quanta/modules.d/mysqlstat.yml
 
 %files -n quanta-agent-network
 /usr/lib/quanta/modules/network.so
-/etc/quanta/modules.d/network.yml
+%config(noreplace) /etc/quanta/modules.d/network.yml
 
 %files -n quanta-agent-nginx
 /usr/lib/quanta/modules/nginx.so
-/etc/quanta/modules.d/nginx.yml
+%config(noreplace) /etc/quanta/modules.d/nginx.yml
 
 %files -n quanta-agent-process
 /usr/lib/quanta/modules/process.so
-/etc/quanta/modules.d/process.yml
+%config(noreplace) /etc/quanta/modules.d/process.yml
 
 %files -n quanta-agent-redis
 /usr/lib/quanta/modules/redis.so
-/etc/quanta/modules.d/redis.yml
+%config(noreplace) /etc/quanta/modules.d/redis.yml
 
 %files -n quanta-agent-varnish
 /usr/lib/quanta/modules/varnish.so
-/etc/quanta/modules.d/varnish.yml
+%config(noreplace) /etc/quanta/modules.d/varnish.yml
 
 %post -n quanta-agent-base
 HOSTID=`ip link | grep link/ether | head -1 | awk '{print $2}' | tr -d ':'`
