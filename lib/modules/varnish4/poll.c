@@ -1,7 +1,7 @@
 #include <inttypes.h>
 
 #include "monikor.h"
-#include "varnish.h"
+#include "varnish4.h"
 
 static const struct {
   char *varnish_name;
@@ -23,7 +23,7 @@ static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
   if (!pt)
     return 0;
   for (size_t i = 0; metrics[i].name; i++) {
-    if (!strcmp(pt->name, metrics[i].varnish_name)) {
+    if (!strcmp(pt->desc->name, metrics[i].varnish_name)) {
       if (iterator->mod->instance)
         sprintf(metric_name, "%s.%s", metrics[i].name, iterator->mod->instance);
       else
@@ -41,7 +41,7 @@ static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
 int varnish_poll_metrics(varnish_module_t *mod, struct timeval *clock) {
   varnish_iterator_data_t iterator;
 
-  if (VSM_Open(mod->vd, 1)) {
+  if (VSM_Open(mod->vd)) {
     monikor_log_mod(LOG_ERR, MOD_NAME, "Cannot open varnish log\n");
     return -1;
   }
@@ -49,7 +49,7 @@ int varnish_poll_metrics(varnish_module_t *mod, struct timeval *clock) {
   iterator.mon = mod->mon;
   iterator.clock = clock;
   iterator.count = 0;
-  VSC_Iter(mod->vd, &varnish_fetch_metric, (void *)&iterator);
+  VSC_Iter(mod->vd, NULL, &varnish_fetch_metric, (void *)&iterator);
   VSM_Close(mod->vd);
   return iterator.count;
 }

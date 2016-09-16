@@ -6,8 +6,8 @@ daemonize: no
 directory: /tmp
 pidfile: /tmp/toto.pid
 
-poll_interval: 60
-update_interval: 10
+poll_interval: 10
+update_interval: 5
 
 logger:
   level: debug
