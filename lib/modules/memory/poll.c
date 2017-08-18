@@ -5,22 +5,22 @@
 #include "memory.h"
 
 static const monikor_memory_metric_t meminfo_metrics[] = {
-  {"memory.total", "MemTotal:"},
-  {"memory.free", "MemFree:"},
-  {"memory.available", "MemAvailable:"},
-  {"memory.buffers", "Buffers:"},
-  {"memory.cached", "Cached:"},
-  {"memory.active", "Active:"},
-  {"memory.inactive", "Inactive:"},
-  {"swap.total", "SwapTotal:"},
-  {"swap.free", "SwapFree:"},
-  {NULL, NULL}
+  {"memory.total", "MemTotal:", 0},
+  {"memory.free", "MemFree:", 0},
+  {"memory.available", "MemAvailable:", 0},
+  {"memory.buffers", "Buffers:", 0},
+  {"memory.cached", "Cached:", 0},
+  {"memory.active", "Active:", 0},
+  {"memory.inactive", "Inactive:", 0},
+  {"swap.total", "SwapTotal:", 0},
+  {"swap.free", "SwapFree:", 0},
+  {NULL, NULL, 0}
 };
 
 static const monikor_memory_metric_t vmstat_metrics[] = {
-  {"swap.activity.pages_in", "pswpin"},
-  {"swap.activity.pages_out", "pswpout"},
-  {NULL, NULL}
+  {"swap.activity.pages_in", "pswpin", MONIKOR_METRIC_TIMEDELTA},
+  {"swap.activity.pages_out", "pswpout", MONIKOR_METRIC_TIMEDELTA},
+  {NULL, NULL, 0}
 };
 
 static int fetch_metric(const char *info, const char *name, uint64_t *value) {
@@ -47,7 +47,7 @@ const monikor_memory_metric_t *metrics) {
   for (size_t i = 0; metrics[i].name; i++) {
     if (!fetch_metric(info, metrics[i].field_name, &value)) {
       monikor_metric_push(mon, monikor_metric_integer(
-        metrics[i].name, clock, value, 0
+        metrics[i].name, clock, value, metrics[i].flags
       ));
       n++;
     }
