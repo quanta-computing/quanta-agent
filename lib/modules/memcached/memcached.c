@@ -56,7 +56,7 @@ int memcached_poll(monikor_t *mon, void *data) {
     free(mod->io_handler);
     mod->io_handler = NULL;
   }
-  mod->io_handler = monikor_net_exchange(mod->host, mod->port, "stats\n",
+  mod->io_handler = monikor_net_exchange(mod->host, mod->port, "stats\nstats slabs\nquit\n",
     &memcached_poll_metrics, (void *)mod);
   if (!mod->io_handler) {
     monikor_log_mod(LOG_ERR, MOD_NAME, "Cannot connect to %s:%s: %s\n",
