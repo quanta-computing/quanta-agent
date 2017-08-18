@@ -15,6 +15,7 @@ static const struct {
   {"keyspace_hits", "keyspace.hits", MONIKOR_METRIC_DELTA},
   {"keyspace_misses", "keyspace.misses", MONIKOR_METRIC_DELTA},
   {"evicted_keys", "keyspace.evictions", MONIKOR_METRIC_DELTA},
+  {"expired_keys", "keyspace.expirations", MONIKOR_METRIC_DELTA},
   {"used_memory", "size", 0},
   {"connected_clients", "connections.active", 0},
   {"blocked_clients", "connections.blocked", 0},
