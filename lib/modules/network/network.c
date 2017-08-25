@@ -18,8 +18,11 @@ void network_cleanup(monikor_t *mon, void *data) {
 
 int network_poll(monikor_t *mon, void *data) {
   struct timeval now;
+  int i = 0;
 
   (void)data;
   gettimeofday(&now, NULL);
-  return poll_network_metrics(mon, &now);
+  i += poll_network_metrics(mon, &now);
+  i += poll_tcp_metrics(mon, &now)
+  return i;
 }
