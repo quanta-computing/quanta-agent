@@ -6,7 +6,9 @@ SUBDIRS = apache \
   memory \
   mysqlstat \
   network \
+  nfs \
   nginx \
   process \
   redis \
-  varnish
+  system \
+  varnish4

@@ -23,6 +23,6 @@ int network_poll(monikor_t *mon, void *data) {
   (void)data;
   gettimeofday(&now, NULL);
   i += poll_network_metrics(mon, &now);
-  i += poll_tcp_metrics(mon, &now)
+  i += poll_tcp_metrics(mon, &now);
   return i;
 }

@@ -32,16 +32,16 @@ static const struct {
 
   {"n_object", "varnish.memory.objects", 0},
   {"g_bytes", "varnish.memory.used", 0},
-  {"g_space", "varnish.memory.total", 0},
+  {"g_space", "varnish.memory.free", 0},
   {"c_fail", "varnish.memory.alloc_fails", MONIKOR_METRIC_DELTA},
-  {"shm_records", "varnish.shm.records", 0},
+  {"shm_records", "varnish.shm.records", MONIKOR_METRIC_TIMEDELTA},
   {"shm_writes", "varnish.shm.writes", MONIKOR_METRIC_TIMEDELTA},
   {"shm_flushes", "varnish.shm.flushes", MONIKOR_METRIC_TIMEDELTA},
 
   {"n_backend", "varnish.backends.count", 0},
   {"backend_req", "varnish.backends.requests_per_second", MONIKOR_METRIC_TIMEDELTA},
   {"backend_conn", "varnish.backends.connections.count", MONIKOR_METRIC_TIMEDELTA},
-  {"backend_unhealthy", "varnish.backends.connections.unhealty", MONIKOR_METRIC_TIMEDELTA},
+  {"backend_unhealthy", "varnish.backends.connections.unhealthy", MONIKOR_METRIC_TIMEDELTA},
   {"backend_busy", "varnish.backends.connections.busy", MONIKOR_METRIC_TIMEDELTA},
   {"backend_fail", "varnish.backends.connections.fail", MONIKOR_METRIC_TIMEDELTA},
   {"backend_reuse", "varnish.backends.connections.reuse", MONIKOR_METRIC_TIMEDELTA},
@@ -64,13 +64,9 @@ static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
 
   if (!pt)
     return 0;
-  // printf("METRIC %s.%s.%s\n",
-  //   pt->section->fantom->type,
-  //   pt->section->fantom->ident,
-  //   pt->desc->name);
   for (size_t i = 0; metrics[i].name; i++) {
     if (!strcmp(pt->desc->name, metrics[i].varnish_name)
-    && (pt->section->fantom->ident && strcmp(pt->section->fantom->ident, "Transient"))) {
+    && (!pt->section->fantom->ident || strcmp(pt->section->fantom->ident, "Transient"))) {
       if (iterator->mod->instance)
         sprintf(metric_name, "%s.%s", metrics[i].name, iterator->mod->instance);
       else

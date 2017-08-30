@@ -64,7 +64,7 @@ int poll_tcp_metrics(monikor_t *mon, struct timeval *clock)
     clock, get_index_value(value, find_index(stat, "AttemptFails")), MONIKOR_METRIC_TIMEDELTA));
   n += monikor_metric_push(mon, monikor_metric_integer("network.tcp.resets",
     clock, get_index_value(value, find_index(stat, "EstabResets")), MONIKOR_METRIC_TIMEDELTA));
-  n += monikor_metric_push(mon, monikor_metric_integer("network.tcp.estblished",
+  n += monikor_metric_push(mon, monikor_metric_integer("network.tcp.current",
     clock, get_index_value(value, find_index(stat, "CurrEstab")), 0));
   free(stats);
   return n;
