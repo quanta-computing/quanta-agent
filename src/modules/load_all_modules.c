@@ -56,3 +56,16 @@ int monikor_load_all_modules(monikor_t *mon) {
   strl_apply_data(mon->config->modules.modules, monikor_load_one_module, (void *)mon);
   return 0;
 }
+
+int monikor_info_module_load(monikor_t *mon) {
+  monikor_mod_t *mod = NULL;
+
+  monikor_log(LOG_INFO, "loading module sysinfo (builtin)\n");
+  if (!(mod = monikor_mod_new("info")))
+    return 1;
+  mod->poll = &monikor_info_module_poll;
+  set_interval_and_clock(mon, mod);
+  mon->modules.modules[mon->modules.count] = mod;
+  mon->modules.count++;
+  return 0;
+}
