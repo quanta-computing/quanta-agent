@@ -6,7 +6,7 @@
 int monikor_init_modules(monikor_t *mon) {
   size_t mod_size;
 
-  mod_size = mon->config->modules.modules->size * sizeof(*mon->modules.modules);
+  mod_size = (1 + mon->config->modules.modules->size) * sizeof(*mon->modules.modules);
   mon->modules.count = 0;
   if (!(mon->modules.modules = malloc(mod_size))
   || !(mon->metrics = monikor_metric_store_new())) {
@@ -14,6 +14,8 @@ int monikor_init_modules(monikor_t *mon) {
     return 1;
   }
   if (monikor_load_all_modules(mon))
+    return 1;
+  if (monikor_info_module_load(mon))
     return 1;
   return 0;
 }

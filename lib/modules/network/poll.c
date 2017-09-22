@@ -55,16 +55,18 @@ static char *next_device_info(char *netinfo, char **devname, char **devinfo) {
   return end + 1;
 }
 
-static inline int is_valid_device(const char *name) {
-  return strlen(name) <= MNK_NET_MAX_DEV_LEN
-    && strncmp(name, "lo", 2)
-    && strncmp(name, "veth", 4)
+static inline int is_valid_device(const char *name, monikor_net_mod_t *mod) {
+  if (strlen(name) > MNK_NET_MAX_DEV_LEN)
+    return 0;
+  if (mod->ifaces)
+    return strl_contains(mod->ifaces, name);
+  return strncmp(name, "veth", 4)
     && strncmp(name, "dummy", 5)
     && strncmp(name, "docker", 6);
 }
 
 
-int poll_network_metrics(monikor_t *mon, struct timeval *clock) {
+int poll_network_metrics(monikor_t *mon, struct timeval *clock, monikor_net_mod_t *mod) {
   int n = 0;
   char *netinfo;
   char *rest;
@@ -75,7 +77,7 @@ int poll_network_metrics(monikor_t *mon, struct timeval *clock) {
     return 0;
   rest = netinfo;
   while ((rest = next_device_info(rest, &dev, &info))) {
-    if (is_valid_device(dev))
+    if (is_valid_device(dev, mod))
       n += poll_device_metrics(mon, clock, dev, info);
   }
   free(netinfo);

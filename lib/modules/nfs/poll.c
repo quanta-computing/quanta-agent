@@ -29,13 +29,14 @@ static const char *metrics[] = {
 
 static int fetch_metrics(monikor_t *mon, struct timeval *clock, char *proc) {
   uint64_t value;
-  int n;
+  int n = 0;
 
   proc += strlen("proc3 ");
   for (size_t i = 0; metrics[i]; i++) {
     value = (uint64_t)strtoull(proc, &proc, 10);
-    if (*metrics[i])
+    if (!*metrics[i]) {
       continue;
+    }
     n += monikor_metric_push(mon, monikor_metric_integer(metrics[i],
       clock, value, MONIKOR_METRIC_TIMEDELTA));
   }
@@ -45,10 +46,13 @@ static int fetch_metrics(monikor_t *mon, struct timeval *clock, char *proc) {
 int nfs_fetch_metrics(monikor_t *mon, struct timeval *clock) {
   char *nfsstat;
   char *proc;
+  int n;
 
   if (!(nfsstat = monikor_read_file("/proc/net/rpc/nfs"))
   || !(proc = strstr(nfsstat, "proc3"))) {
     return 0;
   }
-  return fetch_metrics(mon, clock, proc);
+  n = fetch_metrics(mon, clock, proc);
+  free(nfsstat);
+  return n;
 }

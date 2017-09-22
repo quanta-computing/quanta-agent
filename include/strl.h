@@ -27,6 +27,8 @@ int strl_vpush_many(strl_t *l, va_list ap);
 int strl_push_many(strl_t *l, ...);
 void strl_concat(strl_t *head, strl_t *tail);
 
+int strl_contains(strl_t *l, const char *s);
+
 void strl_apply(strl_t *l, void (*apply)(char *s));
 void strl_apply_data(strl_t *l, void (*apply)(char *s, void *data), void *data);
 

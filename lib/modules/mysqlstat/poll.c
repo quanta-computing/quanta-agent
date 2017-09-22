@@ -70,7 +70,7 @@ static int mysqlstat_fetch_slow_queries(monikor_t *mon, struct timeval *clock, M
   }
   slow_queries += strlen("Slow queries:");
   value = (uint64_t)strtoull(slow_queries, NULL, 10);
-  monikor_metric_push(mon, monikor_metric_integer("mysql.slow_queries",
+  monikor_metric_push(mon, monikor_metric_integer("mysql.queries.slow",
     clock, value, MONIKOR_METRIC_TIMEDELTA));
   return 1;
 }
