@@ -8,6 +8,7 @@ SUBDIRS = apache \
   network \
   nfs \
   nginx \
+  postgresql \
   process \
   redis \
   system \

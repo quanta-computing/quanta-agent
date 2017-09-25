@@ -55,6 +55,7 @@ AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
   lib/modules/network/Makefile
   lib/modules/nfs/Makefile
   lib/modules/nginx/Makefile
+  lib/modules/postgresql/Makefile
   lib/modules/process/Makefile
   lib/modules/redis/Makefile
   lib/modules/system/Makefile
