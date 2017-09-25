@@ -41,5 +41,6 @@ void                monikor_mod_free(monikor_mod_t *mod);
 void                monikor_mod_destroy(monikor_t *mon, monikor_mod_t *mod);
 
 int monikor_info_module_poll(monikor_t *mon, void *data);
+int monikor_info_module_load(monikor_t *mon);
 
 #endif /* end of include guard: MONIKOR_MODULE_H_ */

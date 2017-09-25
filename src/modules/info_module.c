@@ -5,7 +5,7 @@
 
 #define AWS_INSTANCE_ID_URL "http://169.254.169.254/latest/meta-data/instance-id"
 #define GCE_INSTANCE_ID_URL "http://metadata.google.internal/computeMetadata/v1/instance/id"
-#define CLOUD_HTTPGET_TIMEOUT 5
+#define CLOUD_HTTPGET_TIMEOUT 15
 
 static int poll_uname(monikor_t *mon, struct timeval *clock) {
   int n = 0;
@@ -101,6 +101,7 @@ static void handle_cloud_instance_id(http_response_t *status, CURLcode result) {
   struct timeval clock;
 
   if (result != CURLE_OK || status->code != 200) {
+    monikor_log(LOG_ERR, "cannot get cloud instance ID");
     free(status->data);
     free(status);
     return;
@@ -142,7 +143,9 @@ static int poll_cloud(monikor_t *mon, struct timeval *clock) {
 }
 
 static int poll_tags(monikor_t *mon, struct timeval *clock) {
-  
+  (void)mon;
+  (void)clock;
+  return 0;
 }
 
 int monikor_info_module_poll(monikor_t *mon, void *data) {
