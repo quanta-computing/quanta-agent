@@ -15,6 +15,8 @@ typedef struct monikor_s monikor_t;
 # define MONIKOR_MOD_POLL_TAG "_poll"
 # define MONIKOR_MOD_CLEANUP_TAG "_cleanup"
 
+# define MONIKOR_MOD_DEFERRED_METRICS_CODE -2
+
 # define MONIKOR_MAX_TAG_NAME_LENGH 512
 
 
