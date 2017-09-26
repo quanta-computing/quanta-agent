@@ -23,5 +23,5 @@ void nginx_cleanup(monikor_t *mon, void *data) {
 int nginx_poll(monikor_t *mon, void *data) {
   if (monikor_http_get(mon, (char *)data, NGINX_TIMEOUT, &nginx_poll_metrics, (void *)mon))
     return -1;
-  return 0;
+  return MONIKOR_MOD_DEFERRED_METRICS_CODE;
 }
