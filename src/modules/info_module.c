@@ -143,9 +143,29 @@ static int poll_cloud(monikor_t *mon, struct timeval *clock) {
 }
 
 static int poll_tags(monikor_t *mon, struct timeval *clock) {
-  (void)mon;
-  (void)clock;
-  return 0;
+  int n = 0;
+  monikor_config_dict_t *tags;
+  char metric_name[MONIKOR_MAX_TAG_NAME_LENGH + sizeof("sysinfo.agent.tags.") + 1];
+
+
+  if (!(tags = monikor_config_dict_get_dict(mon->config->full_config, "tags"))
+  || !(tags = tags->value.dict))
+    return 0;
+  for (; tags; tags = tags->next) {
+    if (!tags->key || strlen(tags->key) > MONIKOR_MAX_TAG_NAME_LENGH) {
+      monikor_log_mod(LOG_WARNING, "sysinfo", "tag %s is not a valid tag name\n", tags->key);
+      continue;
+    }
+    if (tags->type != MONIKOR_CFG_SCALAR) {
+      monikor_log_mod(LOG_WARNING, "sysinfo", "tag %s is not a string value\n", tags->key);
+      continue;
+    }
+    sprintf(metric_name, "sysinfo.agent.tags.%s", tags->key);
+    n += monikor_metric_push(mon, monikor_metric_string(
+      metric_name, clock, tags->value.value ? tags->value.value : ""
+    ));
+  }
+  return n;
 }
 
 int monikor_info_module_poll(monikor_t *mon, void *data) {
