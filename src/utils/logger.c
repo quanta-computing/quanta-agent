@@ -23,6 +23,10 @@ static int _log_fd = -1;
 #  define GET_PROG_SHORTNAME() getprogname()
 #endif
 
+int monikor_logger_level(void) {
+  return _monikor_log_level;
+}
+
 /*
 ** If prio is MONIKOR_LOG_DEFAULT, we setup the logger to use stderr. This is useful to wait
 ** until we read the config and setup the logger properly again.

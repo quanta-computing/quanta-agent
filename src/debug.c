@@ -25,9 +25,13 @@ void dump_metric(monikor_metric_t *metric) {
 }
 
 void dump_store_size(monikor_metric_store_t *store) {
-  monikor_log(LOG_DEBUG, "Current: %zu (%zu)\n\tDelta: %zu (%zu)\n\tCache: %zu (%zu)\n",
-    store->current->size, store->current->data_size,
-    store->delta->size, store->delta->data_size,
+  monikor_log(LOG_DEBUG, "metrics store 'current' size %zu (%zuB)\n",
+    store->current->size, store->current->data_size
+  );
+  monikor_log(LOG_DEBUG, "metrics store 'delta' size %zu (%zuB)\n",
+    store->delta->size, store->delta->data_size
+  );
+  monikor_log(LOG_DEBUG, "metrics store 'cache' size %zu (%zuB)\n",
     store->cache->size, store->cache->data_size
   );
 }
