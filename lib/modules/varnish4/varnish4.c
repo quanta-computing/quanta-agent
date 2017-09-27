@@ -5,7 +5,7 @@
 #include "varnish4.h"
 
 
-void *varnish4_init(monikor_t *mon, monikor_config_dict_t *config) {
+void *varnish_init(monikor_t *mon, monikor_config_dict_t *config) {
   varnish_module_t *mod;
 
   (void)mon;
@@ -29,7 +29,7 @@ void *varnish4_init(monikor_t *mon, monikor_config_dict_t *config) {
   return (void *)mod;
 }
 
-void varnish4_cleanup(monikor_t *mon, void *data) {
+void varnish_cleanup(monikor_t *mon, void *data) {
   varnish_module_t *mod = (varnish_module_t *)data;
 
   (void)mon;
@@ -38,7 +38,7 @@ void varnish4_cleanup(monikor_t *mon, void *data) {
   free(mod);
 }
 
-int varnish4_poll(monikor_t *mon, void *data) {
+int varnish_poll(monikor_t *mon, void *data) {
   struct timeval now;
 
   (void)mon;

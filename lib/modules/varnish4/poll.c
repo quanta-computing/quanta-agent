@@ -83,6 +83,7 @@ static int varnish_fetch_metric(void *data, const struct VSC_point * const pt) {
 
 int varnish_poll_metrics(varnish_module_t *mod, struct timeval *clock) {
   varnish_iterator_data_t iterator;
+  const char *err;
 
   iterator.mod = mod;
   iterator.mon = mod->mon;
@@ -91,7 +92,14 @@ int varnish_poll_metrics(varnish_module_t *mod, struct timeval *clock) {
   if (VSM_Abandoned(mod->vd)) {
     monikor_log_mod(LOG_INFO, MOD_NAME, "connecting to varnish log\n");
     VSM_Close(mod->vd);
-    VSM_Open(mod->vd);
+    if (VSM_Open(mod->vd)) {
+      if (!(err = VSM_Error(mod->vd)))
+        err = "unknown error\n";
+      monikor_log_mod(LOG_WARNING, MOD_NAME,
+        "cannot connect to varnish log: %s", err
+      );
+      return 0;
+    }
   }
   VSC_Iter(mod->vd, NULL, &varnish_fetch_metric, (void *)&iterator);
   return iterator.count;

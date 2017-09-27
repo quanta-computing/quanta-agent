@@ -3,7 +3,7 @@ lib_LTLIBRARIES = varnish.la
 
 varnish_la_SOURCES = varnish4.c poll.c
 varnish_la_LDFLAGS = -module -avoid-version
-varnish_la_LIBADD = -lvarnishapi -ldl
+varnish_la_LIBADD = -lvarnishapi -ldl -lm
 
 varnishconfdir = $(sysconfdir)/monikor/modules.d/
 varnishconf_DATA = ../../../etc/modules/varnish.yml
