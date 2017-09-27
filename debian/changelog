@@ -1,3 +1,25 @@
+monikor (1.2.0) quanta; urgency=low
+
+  * Add PostgreSQL module
+  * Add Varnish4 support with a lot of metrics
+  * Add NFSv3 module
+  * Add more system metrics (context switches, interrupts, etc)
+  * Add inodes filesystem metrics
+  * Add swap operations metrics
+  * Add Memcached max cache size metric
+  * Add Redis objects count metric
+  * Add MySQL slow queries metric
+  * Add TCP network metrics
+  * Allow the user to select the network interfaces to monitor in network.yml
+  * Add a builtin "sysinfo" module to get OS/kernel informations as well as
+    cloud provider
+  * Add support for "tags" in agent.yml, they are sent as string metrics
+  * If the agent is running on GCP or AWS and no hostid is provided, it will
+    try to use the instance id
+  * Better logging and debug messages
+
+ -- Matthieu ROSINSKI <support@quanta-computing.com>  Wed, 27 Sep 2017 16:48:42 +2000
+
 monikor (1.1.0) quanta; urgency=low
 
   * Allow the parameter "module" in modules configuration file to specify the module to use

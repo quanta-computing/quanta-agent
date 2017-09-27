@@ -5,7 +5,7 @@
 #include <vapi/vsc.h>
 #include "monikor.h"
 
-#define MOD_NAME "varnish4"
+#define MOD_NAME "varnish"
 #define MONIKOR_VARNISH_MAX_INSTANCE_LENGTH 42
 
 typedef struct {
