@@ -19,9 +19,6 @@ void network_cleanup(monikor_t *mon, void *data) {
   monikor_net_mod_t *mod = (monikor_net_mod_t *)data;
 
   (void)mon;
-  if (!mod)
-    return;
-  strl_delete(mod->ifaces);
   free(mod);
 }
 
