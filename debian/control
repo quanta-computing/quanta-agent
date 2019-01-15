@@ -7,14 +7,14 @@ Source: monikor
 
 Package: quanta-agent
 Architecture: any
-Depends: ${misc:Depends}, quanta-agent-base (= ${binary:Version}), quanta-agent-cpu, quanta-agent-disk, quanta-agent-memory, quanta-agent-network, quanta-agent-process
+Depends: ${misc:Depends}, quanta-agent-base (= ${binary:Version}), quanta-agent-cpu, quanta-agent-disk, quanta-agent-memory, quanta-agent-network, quanta-agent-process, quanta-agent-system
 Description: Quanta monitoring agent with default plugins
  This package provides the quanta-agent and default plugins to monitor your
  system. It also provides init scripts.
 
 Package: quanta-agent-all
 Architecture: any
-Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nginx, quanta-agent-redis, quanta-agent-varnish
+Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nfs, quanta-agent-nginx, quanta-agent-postgresql, quanta-agent-redis, quanta-agent-varnish
 Description: Quanta monitoring agent with all plugins
  This metapackage provides the quanta-agent and all plugins to monitor your
  system
@@ -95,7 +95,7 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta NFS monitoring agent
-  This package provides a quanta-agent module to monitor NFS statistics
+ This package provides a quanta-agent module to monitor NFS statistics
 
 Package: quanta-agent-nginx
 Architecture: any
@@ -103,6 +103,13 @@ Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Versi
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta nginx monitoring agent
  This package provides a quanta-agent module to monitor Nginx usage
+
+Package: quanta-agent-postgresql
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
+Pre-Depends: ${misc:Pre-Depends}
+Description: Quanta process monitoring agent
+ This package provides a quanta-agent module to monitor process usage
 
 Package: quanta-agent-process
 Architecture: any
@@ -117,6 +124,13 @@ Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Versi
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Redis monitoring agent
  This package provides a quanta-agent module to monitor Redis usage
+
+Package: quanta-agent-system
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
+Pre-Depends: ${misc:Pre-Depends}
+Description: Quanta system monitoring agent
+  This package provides a quanta-agent module to monitor system metrics
 
 Package: quanta-agent-varnish
 Architecture: any
