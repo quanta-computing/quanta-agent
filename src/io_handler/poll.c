@@ -31,10 +31,6 @@ static int update_timeout_if_needed(monikor_io_handler_list_t *list, struct time
   long curl_timeout = 0;
 
   curl_multi_timeout(list->curl.curl, &curl_timeout);
-  monikor_log(LOG_DEBUG, "Updating timeout timeout=%ds.%dus curl_timeout=%ds.%dus\n",
-    timeout->tv_sec, timeout->tv_usec,
-    curl_timeout / 1000, 1000 * (curl_timeout % 1000)
-  );
   // If curl_timeout is 0, we should "perform immediately", calling
   // curl_multi_perform agian
   // If curl_timeout is -1, we should not wait "too long" according to the
@@ -45,7 +41,6 @@ static int update_timeout_if_needed(monikor_io_handler_list_t *list, struct time
     timeout->tv_sec = curl_timeout / 1000;
     timeout->tv_usec = 1000 * (curl_timeout % 1000);
   }
-  monikor_log(LOG_DEBUG, "New timeout: %ds.%dus\n", timeout->tv_sec, timeout->tv_usec);
   return 0;
 }
 
