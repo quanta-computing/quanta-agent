@@ -27,14 +27,26 @@ static int set_fd_sets(monikor_io_handler_list_t *list, fd_set *rdfds, fd_set *w
   return ndfs + 1;
 }
 
-static void update_timeout_if_needed(monikor_io_handler_list_t *list, struct timeval *timeout) {
+static int update_timeout_if_needed(monikor_io_handler_list_t *list, struct timeval *timeout) {
   long curl_timeout = 0;
 
   curl_multi_timeout(list->curl.curl, &curl_timeout);
+  monikor_log(LOG_DEBUG, "Updating timeout timeout=%ds.%dus curl_timeout=%ds.%dus\n",
+    timeout->tv_sec, timeout->tv_usec,
+    curl_timeout / 1000, 1000 * (curl_timeout % 1000)
+  );
+  // If curl_timeout is 0, we should "perform immediately", calling
+  // curl_multi_perform agian
+  // If curl_timeout is -1, we should not wait "too long" according to the
+  // docs. Let's just keep our current timeout value which is fairly short.
+  if (curl_timeout == 0)
+    return -1;
   if (curl_timeout > 0 && curl_timeout / 1000 < timeout->tv_sec) {
     timeout->tv_sec = curl_timeout / 1000;
     timeout->tv_usec = 1000 * (curl_timeout % 1000);
   }
+  monikor_log(LOG_DEBUG, "New timeout: %ds.%dus\n", timeout->tv_sec, timeout->tv_usec);
+  return 0;
 }
 
 static void perform_curl_handling(monikor_io_handler_list_t *list) {
@@ -73,9 +85,10 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   monikor_io_handler_t *handler;
   monikor_io_handler_t *next;
 
-  perform_curl_handling(list);
-  ndfs = set_fd_sets(list, &rdfds, &wrfds);
-  update_timeout_if_needed(list, timeout);
+  do {
+    perform_curl_handling(list);
+    ndfs = set_fd_sets(list, &rdfds, &wrfds);
+  } while (update_timeout_if_needed(list, timeout));
   monikor_log(LOG_DEBUG, "Sleeping for %d seconds\n", timeout->tv_sec);
   if (ndfs <= 0)
     return ndfs;
