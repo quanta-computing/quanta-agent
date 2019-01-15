@@ -76,8 +76,11 @@ debian/quanta-agent-memcached/
 debian/quanta-agent-memory/
 debian/quanta-agent-mysql/
 debian/quanta-agent-network/
+debian/quanta-agent-nfs/
 debian/quanta-agent-nginx/
+debian/quanta-agent-postgresql/
 debian/quanta-agent-process/
 debian/quanta-agent-redis/
+debian/quanta-agent-system/
 debian/quanta-agent-varnish/
 debian/quanta-agent/
