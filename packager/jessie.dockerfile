@@ -2,8 +2,8 @@ FROM debian:jessie
 MAINTAINER Matthieu 'Korrigan' ROSINSKI <mro@quanta-computing.com>
 
 RUN apt-get update && apt-get install -y curl
-RUN echo 'deb http://apt.quanta.gr quanta/' > /etc/apt/sources.list.d/quanta.list
-RUN curl -s https://www.quanta-monitoring.com/quanta-repo-key.gpg -o - | apt-key add -
+RUN echo 'deb http://apt.quanta.io quanta/' > /etc/apt/sources.list.d/quanta.list
+RUN curl -s https://apt.quanta.io/quanta-repo-key.gpg -o - | apt-key add -
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
   libyaml-dev \
   libcurl4-openssl-dev \
   libmysqlclient-dev \
+  libpq-dev \
   sendmail \
   wget
 
