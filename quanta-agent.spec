@@ -4,9 +4,9 @@ Release: 1%{?dist}
 Summary: This package provides a daemon to monitor system health and reports to Quanta servers.
 Distribution: Quanta
 Vendor: Quanta-Computing
-Packager: Matthieu ROSINSKI <support@quanta-computing.com>
+Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
-URL: http://www.quanta-computing.com
+URL: http://www.quanta.io
 License: toto
 Requires: quanta-agent-base = %{version}
 Requires: quanta-agent-cpu = %{version}

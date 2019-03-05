@@ -4,9 +4,9 @@ Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
 Vendor: Quanta-Computing
-Packager: Matthieu ROSINSKI <support@quanta-computing.com>
+Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
-URL: http://www.quanta-computing.com
+URL: http://www.quanta.io
 License: toto
 Source: monikor-1.2.0.tgz
 
@@ -167,7 +167,7 @@ This package provides a Varnish plugin for quanta-agent
 %setup
 
 %build
-%config(noreplace)ure
+%configure
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make
