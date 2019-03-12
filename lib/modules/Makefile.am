@@ -12,4 +12,4 @@ SUBDIRS = apache \
   process \
   redis \
   system \
-  varnish4
+  varnish
