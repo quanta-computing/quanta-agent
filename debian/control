@@ -1,4 +1,4 @@
-Maintainer: Matthieu ROSINSKI <support@quanta-computing.com>
+Maintainer: Matthieu ROSINSKI <support@quanta.io>
 Section: net
 Priority: extra
 Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, libvarnishapi-dev, libcurl3-dev, libyaml-dev, libpq-dev

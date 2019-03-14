@@ -14,7 +14,7 @@ hostid: __YOUR_HOSTID__
 quanta_token: __YOUR_QUANTA_TOKEN__
 
 server:
-  url: "https://www.quanta-monitoring.com/push"
+  url: "https://metrics.quanta.io/push"
   timeout: 10
 
 cache:
