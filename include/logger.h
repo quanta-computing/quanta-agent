@@ -14,7 +14,7 @@
 
 extern int monikor_log_level;
 
-
+int monikor_logger_level(void);
 void monikor_logger_init(int prio, const char *file);
 void monikor_logger_cleanup(void);
 

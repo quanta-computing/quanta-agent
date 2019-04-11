@@ -89,6 +89,7 @@ static int drop_privileges(monikor_t *mon) {
     return 0;
   }
   if (setgid(gid) == -1
+  || initgroups(mon->config->user, gid) == -1
   || setuid(uid) == -1) {
     monikor_log(LOG_ERR, "Cannot drop root privileges: %s\n", strerror(errno));
     return 1;

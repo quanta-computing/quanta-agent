@@ -15,6 +15,11 @@ typedef struct monikor_s monikor_t;
 # define MONIKOR_MOD_POLL_TAG "_poll"
 # define MONIKOR_MOD_CLEANUP_TAG "_cleanup"
 
+# define MONIKOR_MOD_DEFERRED_METRICS_CODE -2
+
+# define MONIKOR_MAX_TAG_NAME_LENGH 512
+
+
 # ifdef __APPLE__
 #  define MONIKOR_MOD_SUFFIX ".dylib"
 # else
@@ -40,5 +45,7 @@ monikor_mod_t       *monikor_mod_new(const char *name);
 void                monikor_mod_free(monikor_mod_t *mod);
 void                monikor_mod_destroy(monikor_t *mon, monikor_mod_t *mod);
 
+int monikor_info_module_poll(monikor_t *mon, void *data);
+int monikor_info_module_load(monikor_t *mon);
 
 #endif /* end of include guard: MONIKOR_MODULE_H_ */

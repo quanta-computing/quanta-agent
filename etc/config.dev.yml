@@ -6,8 +6,8 @@ daemonize: no
 directory: /tmp
 pidfile: /tmp/toto.pid
 
-poll_interval: 60
-update_interval: 10
+poll_interval: 10
+update_interval: 5
 
 logger:
   level: debug
@@ -19,6 +19,15 @@ quanta_token: 76049d1d498e890ad4dd
 server:
   url: "http://192.168.254.254:3333/push"
   timeout: 5
+
+tags:
+  randomtag: randomvalue
+  emptytag:
+  invalidlistvalue:
+    - aaa
+    - bbb
+    - ccc
+  anothertag: another value
 
 cache:
   max_size_mb: 30

@@ -1,0 +1,2 @@
+/usr/lib/x86_64-linux-gnu/nfs.so /usr/lib/quanta/modules
+/etc/monikor/modules.d/nfs.yml /etc/quanta/modules.d

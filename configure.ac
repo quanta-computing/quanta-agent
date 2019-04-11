@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(quanta-agent, 1.1.0, support@quanta-computing.com)
+AC_INIT(quanta-agent, 1.2.0, support@quanta.io)
 AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT
 
@@ -53,7 +53,10 @@ AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
   lib/modules/memory/Makefile
   lib/modules/mysqlstat/Makefile
   lib/modules/network/Makefile
+  lib/modules/nfs/Makefile
   lib/modules/nginx/Makefile
+  lib/modules/postgresql/Makefile
   lib/modules/process/Makefile
   lib/modules/redis/Makefile
+  lib/modules/system/Makefile
   lib/modules/varnish/Makefile)

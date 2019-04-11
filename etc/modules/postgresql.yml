@@ -1,0 +1,4 @@
+postgresql:
+  user: quanta
+  password: supersecret
+  database: mydatabase

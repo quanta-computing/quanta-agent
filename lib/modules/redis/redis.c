@@ -63,5 +63,5 @@ int redis_poll(monikor_t *mon, void *data) {
     return -1;
   }
   monikor_register_io_handler(mon, mod->io_handler);
-  return 0;
+  return MONIKOR_MOD_DEFERRED_METRICS_CODE;
 }

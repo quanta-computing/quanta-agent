@@ -65,6 +65,7 @@ static const struct {
   {"curr_connections", "connections.current", 0},
   {"threads", "threads", 0},
   {"bytes", "size", 0},
+  {"limit_maxbytes", "total_size", 0},
   {"evictions", "cache.evictions", MONIKOR_METRIC_DELTA},
   {NULL, NULL, 0}
 };

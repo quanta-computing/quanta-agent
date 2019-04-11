@@ -1,1 +1,10 @@
 # enabled: no
+# You can specify the network devices you want to monitor by uncommenting the
+# list below.
+# If you don't specify anything, the module will monitor all devices whose
+# name does not starts with 'veth', 'dummy' or 'docker'
+#
+# network:
+#   interfaces:
+#     - lo
+#     - eth0

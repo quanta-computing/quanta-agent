@@ -42,11 +42,17 @@ static void handle_server_response(monikor_curl_handler_t *handler, CURLcode res
 
 int monikor_http_get(monikor_t *mon, const char *url, long timeout,
 void (*callback)(http_response_t *response, CURLcode result), void *userdata) {
+  return monikor_http_get_with_headers(mon, url, timeout, callback, userdata, NULL);
+}
+
+int monikor_http_get_with_headers(monikor_t *mon, const char *url, long timeout,
+void (*callback)(http_response_t *response, CURLcode result), void *userdata, struct curl_slist *headers) {
   monikor_curl_handler_t *handler;
   http_response_t *response;
 
   if (!(response = new_response())
-  || !(handler = monikor_curl_handler_new(&handle_server_response, (void *)response))) {
+  || !(handler = monikor_curl_handler_new(&handle_server_response, (void *)response))
+  ) {
     free(response);
     return 1;
   }
@@ -56,6 +62,8 @@ void (*callback)(http_response_t *response, CURLcode result), void *userdata) {
   curl_easy_setopt(handler->curl, CURLOPT_TIMEOUT, timeout);
   curl_easy_setopt(handler->curl, CURLOPT_WRITEDATA, (void *)response);
   curl_easy_setopt(handler->curl, CURLOPT_WRITEFUNCTION, &data_handler);
+  if (headers)
+    curl_easy_setopt(handler->curl, CURLOPT_HTTPHEADER, headers);
   monikor_io_handler_list_push_curl(&mon->io_handlers, handler);
   return 0;
 }

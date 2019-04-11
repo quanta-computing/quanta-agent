@@ -1,5 +1,5 @@
 Template: quanta-agent/quanta_token
 Type: string
 Description: Your Quanta autoregistration token:
- You can fetch your token on https://www.quanta-monitoring.com
+ You can fetch your token on https://app.quanta.io
  in your servers settings panel.

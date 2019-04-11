@@ -1,3 +1,25 @@
+monikor (1.2.0) quanta; urgency=low
+
+  * Add PostgreSQL module
+  * Add Varnish4 support with a lot of metrics
+  * Add NFSv3 module
+  * Add more system metrics (context switches, interrupts, etc)
+  * Add inodes filesystem metrics
+  * Add swap operations metrics
+  * Add Memcached max cache size metric
+  * Add Redis objects count metric
+  * Add MySQL slow queries metric
+  * Add TCP network metrics
+  * Allow the user to select the network interfaces to monitor in network.yml
+  * Add a builtin "sysinfo" module to get OS/kernel informations as well as
+    cloud provider
+  * Add support for "tags" in agent.yml, they are sent as string metrics
+  * If the agent is running on GCP or AWS and no hostid is provided, it will
+    try to use the instance id
+  * Better logging and debug messages
+
+ -- Matthieu ROSINSKI <support@quanta.io>  Wed, 27 Sep 2017 16:48:42 +2000
+
 monikor (1.1.0) quanta; urgency=low
 
   * Allow the parameter "module" in modules configuration file to specify the module to use
@@ -5,53 +27,53 @@ monikor (1.1.0) quanta; urgency=low
   * Varnish module now handles the n arg (it's instance parameter)
   * Bumping to 1.1.0
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Sun, 12 June 2016 18:05:23 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Sun, 12 June 2016 18:05:23 +0000
 
 monikor (1.0.6) quanta; urgency=low
 
   * Add 'hostname' configuration variable
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Wed, 13 Apr 2016 15:10:58 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Wed, 13 Apr 2016 15:10:58 +0000
 
 monikor (1.0.5) quanta; urgency=low
 
   * Fix network module to avoid stripping the first character of interface with long names
   * Filter-out some common local interface on network module
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Tue, 12 Apr 2016 14:39:04 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Tue, 12 Apr 2016 14:39:04 +0000
 
 monikor (1.0.4) quanta; urgency=low
 
   * Update packaging scripts to add correct dependencies
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Thu, 31 Mar 2016 16:46:55 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Thu, 31 Mar 2016 16:46:55 +0000
 
 monikor (1.0.3) quanta; urgency=low
 
   * Fix a bug with metric with flag DELTA interpreted as TIMEDELTA
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Thu, 31 Mar 2016 15:26:09 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Thu, 31 Mar 2016 15:26:09 +0000
 
 monikor (1.0.2) quanta; urgency=low
 
   * Fix CPU module to divide by number of cores
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Thu, 31 Mar 2016 10:00:18 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Thu, 31 Mar 2016 10:00:18 +0000
 
 monikor (1.0.1-1) quanta; urgency=low
 
   * Fix maintainer scripts
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Tue, 29 Mar 2016 12:51:35 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Tue, 29 Mar 2016 12:51:35 +0000
 
 monikor (1.0.0) quanta; urgency=low
 
   * Ready for release, bumping to 1.0.0
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Tue, 29 Mar 2016 09:45:53 +0000
+ -- Matthieu ROSINSKI <support@quanta.io>  Tue, 29 Mar 2016 09:45:53 +0000
 
 monikor (0.0.1) quanta; urgency=medium
 
   * Initial release.
 
- -- Matthieu ROSINSKI <support@quanta-computing.com>  Thu, 03 Mar 2016 17:33:59 +0100
+ -- Matthieu ROSINSKI <support@quanta.io>  Thu, 03 Mar 2016 17:33:59 +0100

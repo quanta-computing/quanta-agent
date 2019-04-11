@@ -110,6 +110,14 @@ void strl_apply_data(strl_t *l, void (*apply)(char *s, void *data), void *data) 
     apply(it->str, data);
 }
 
+int strl_contains(strl_t *l, const char *s) {
+  for (strl_node_t *it = l->first; it; it = it->next) {
+    if (!strcmp(it->str, s))
+      return 1;
+  }
+  return 0;
+}
+
 strl_t *strl_from_separated_string(const char *sc, const char *sep) {
   strl_t *l;
   char *last;

@@ -59,5 +59,5 @@ static void apache_fetch_metrics(http_response_t *status, CURLcode result) {
 int apache_poll_metrics(monikor_t *mon, const char *url) {
   if (monikor_http_get(mon, url, APACHE_TIMEOUT, &apache_fetch_metrics, mon))
     return -1;
-  return 0;
+  return MONIKOR_MOD_DEFERRED_METRICS_CODE;
 }

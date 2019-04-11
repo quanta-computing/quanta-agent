@@ -12,6 +12,8 @@ static int poll_module(monikor_t *mon, monikor_mod_t *mod) {
     return 1;
   } else if (n_metrics == 0) {
     monikor_log(LOG_WARNING, "No data for module %s\n", mod->name);
+  } else if (n_metrics == MONIKOR_MOD_DEFERRED_METRICS_CODE) {
+    monikor_log(LOG_DEBUG, "Metrics fetch deferred for module %s\n", mod->name);
   } else {
     monikor_log(LOG_DEBUG, "Got %d metrics from module %s\n", n_metrics, mod->name);
   }

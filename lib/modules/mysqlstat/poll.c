@@ -41,7 +41,7 @@ static MYSQL *_mysql_connect(monikor_mysql_config_t *config) {
   return dbh;
 }
 
-int fetch_mysql_metrics(monikor_t *mon, struct timeval *clock, MYSQL_RES *result) {
+static int fetch_mysql_metrics(monikor_t *mon, struct timeval *clock, MYSQL_RES *result) {
   int n = 0;
   char metric_name[256];
   MYSQL_ROW row;
@@ -59,6 +59,22 @@ int fetch_mysql_metrics(monikor_t *mon, struct timeval *clock, MYSQL_RES *result
   return n;
 }
 
+static int mysqlstat_fetch_slow_queries(monikor_t *mon, struct timeval *clock, MYSQL *dbh) {
+  const char *stats;
+  char *slow_queries;
+  uint64_t value;
+
+  if (!(stats = mysql_stat(dbh))
+  || !(slow_queries = strstr(stats, "Slow queries:"))) {
+    return 0;
+  }
+  slow_queries += strlen("Slow queries:");
+  value = (uint64_t)strtoull(slow_queries, NULL, 10);
+  monikor_metric_push(mon, monikor_metric_integer("mysql.queries.slow",
+    clock, value, MONIKOR_METRIC_TIMEDELTA));
+  return 1;
+}
+
 int mysqlstat_poll_metrics(monikor_t *mon, struct timeval *clock, monikor_mysql_config_t *config) {
   MYSQL *dbh;
   MYSQL_RES *result;
@@ -67,6 +83,7 @@ int mysqlstat_poll_metrics(monikor_t *mon, struct timeval *clock, monikor_mysql_
 
   if (!(dbh = _mysql_connect(config)))
     return -1;
+  n = mysqlstat_fetch_slow_queries(mon, clock, dbh);
   if (mysql_query(dbh, "SHOW GLOBAL STATUS;SHOW VARIABLES")) {
     monikor_log_mod(LOG_ERR, MOD_NAME, "MySQL query error: %s\n", mysql_error(dbh));
     mysql_close(dbh);

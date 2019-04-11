@@ -1,8 +1,8 @@
 #ifndef varnish_H_
 #define varnish_H_
 
-#include <varnish/varnishapi.h>
-
+#include <vapi/vsm.h>
+#include <vapi/vsc.h>
 #include "monikor.h"
 
 #define MOD_NAME "varnish"

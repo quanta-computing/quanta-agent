@@ -1,14 +1,14 @@
 Name:	monikor
-Version: 1.1.0
+Version: 1.2.0
 Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
 Vendor: Quanta-Computing
-Packager: Matthieu ROSINSKI <support@quanta-computing.com>
+Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
-URL: http://www.quanta-computing.com
+URL: http://www.quanta.io
 License: toto
-Source: monikor-1.1.0.tgz
+Source: monikor-1.2.0.tgz
 
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0
@@ -72,9 +72,21 @@ Summary: Quanta agent network plugin
 Group: Applications/Internet
 Requires: quanta-agent-base = %{version}
 
+%package -n quanta-agent-nfs
+Summary: Quanta agent NFS plugin
+Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+
 %package -n quanta-agent-nginx
 Summary: Quanta agent Nginx plugin
 Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+
+%package -n quanta-agent-postgresql
+Summary: Quanta agent PostgreSQL plugin
+Group: Applications/Internet
+BuildRequires: postgresql-devel
+Requires: postgresql-libs
 Requires: quanta-agent-base = %{version}
 
 %package -n quanta-agent-process
@@ -87,10 +99,16 @@ Summary: Quanta agent Redis plugin
 Group: Applications/Internet
 Requires: quanta-agent-base = %{version}
 
+%package -n quanta-agent-system
+Summary: Quanta agent system plugin
+Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+
 %package -n quanta-agent-varnish
 Summary: Quanta agent Varnish plugin
 Group: Applications/Internet
-Requires: varnish-libs = 3.0.7
+BuildRequires: varnish-libs-devel
+Requires: varnish-libs >= 4.0.0
 Requires: quanta-agent-base = %{version}
 
 %description -n quanta-agent-base
@@ -123,14 +141,23 @@ This package provides a Mysql plugin for quanta-agent
 %description -n quanta-agent-network
 This package provides a network plugin for quanta-agent
 
+%description -n quanta-agent-nfs
+This package provides a NFS plugin for quanta-agent
+
 %description -n quanta-agent-nginx
 This package provides a Nginx plugin for quanta-agent
+
+%description -n quanta-agent-postgresql
+This package provides a PostgreSQL plugin for quanta-agent
 
 %description -n quanta-agent-process
 This package provides a process plugin for quanta-agent
 
 %description -n quanta-agent-redis
 This package provides a Redis plugin for quanta-agent
+
+%description -n quanta-agent-system
+This package provides a system plugin for quanta-agent
 
 %description -n quanta-agent-varnish
 This package provides a Varnish plugin for quanta-agent
@@ -140,7 +167,7 @@ This package provides a Varnish plugin for quanta-agent
 %setup
 
 %build
-%config(noreplace)ure
+%configure
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make
@@ -162,9 +189,12 @@ mv %{buildroot}/usr/lib64/memcached.so %{buildroot}/usr/lib/quanta/modules/memca
 mv %{buildroot}/usr/lib64/memory.so %{buildroot}/usr/lib/quanta/modules/memory.so
 mv %{buildroot}/usr/lib64/mysqlstat.so %{buildroot}/usr/lib/quanta/modules/mysqlstat.so
 mv %{buildroot}/usr/lib64/network.so %{buildroot}/usr/lib/quanta/modules/network.so
+mv %{buildroot}/usr/lib64/nfs.so %{buildroot}/usr/lib/quanta/modules/nfs.so
 mv %{buildroot}/usr/lib64/nginx.so %{buildroot}/usr/lib/quanta/modules/nginx.so
+mv %{buildroot}/usr/lib64/postgresql.so %{buildroot}/usr/lib/quanta/modules/postgresql.so
 mv %{buildroot}/usr/lib64/process.so %{buildroot}/usr/lib/quanta/modules/process.so
 mv %{buildroot}/usr/lib64/redis.so %{buildroot}/usr/lib/quanta/modules/redis.so
+mv %{buildroot}/usr/lib64/system.so %{buildroot}/usr/lib/quanta/modules/system.so
 mv %{buildroot}/usr/lib64/varnish.so %{buildroot}/usr/lib/quanta/modules/varnish.so
 
 # remove unused lib files
@@ -211,9 +241,17 @@ rm -f %{buildroot}/usr/lib64/*.a
 /usr/lib/quanta/modules/network.so
 %config(noreplace) /etc/quanta/modules.d/network.yml
 
+%files -n quanta-agent-nfs
+/usr/lib/quanta/modules/nfs.so
+%config(noreplace) /etc/quanta/modules.d/nfs.yml
+
 %files -n quanta-agent-nginx
 /usr/lib/quanta/modules/nginx.so
 %config(noreplace) /etc/quanta/modules.d/nginx.yml
+
+%files -n quanta-agent-postgresql
+/usr/lib/quanta/modules/postgresql.so
+%config(noreplace) /etc/quanta/modules.d/postgresql.yml
 
 %files -n quanta-agent-process
 /usr/lib/quanta/modules/process.so
@@ -222,6 +260,10 @@ rm -f %{buildroot}/usr/lib64/*.a
 %files -n quanta-agent-redis
 /usr/lib/quanta/modules/redis.so
 %config(noreplace) /etc/quanta/modules.d/redis.yml
+
+%files -n quanta-agent-system
+/usr/lib/quanta/modules/system.so
+%config(noreplace) /etc/quanta/modules.d/system.yml
 
 %files -n quanta-agent-varnish
 /usr/lib/quanta/modules/varnish.so

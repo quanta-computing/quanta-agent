@@ -223,7 +223,8 @@ static int monikor_setup_hostid(monikor_config_t *cfg) {
   char *hostid;
 
   hostid = monikor_config_dict_get_scalar(cfg->full_config, "hostid");
-  cfg->hostid = hostid;
+  if (hostid && *hostid)
+    cfg->hostid = hostid;
   return 0;
 }
 

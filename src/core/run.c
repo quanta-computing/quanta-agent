@@ -44,7 +44,8 @@ int monikor_run(monikor_t *mon) {
       next_update = now.tv_sec;
     }
     monikor_poll_modules(mon, &now);
-    // dump_metric_list(mon->metrics->current);
+    if (monikor_logger_level() <= LOG_DEBUG)
+      dump_metric_list(mon->metrics->current);
     monikor_update(mon, &now);
     do {
       gettimeofday(&now, NULL);

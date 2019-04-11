@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <syslog.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -14,6 +14,18 @@
 static int _monikor_log_level = LOG_INFO;
 static int _log_fd = -1;
 
+/*
+** Darwin & BSD compat
+*/
+#ifdef __GLIBC__
+#  define GET_PROG_SHORTNAME() program_invocation_short_name
+#else
+#  define GET_PROG_SHORTNAME() getprogname()
+#endif
+
+int monikor_logger_level(void) {
+  return _monikor_log_level;
+}
 
 /*
 ** If prio is MONIKOR_LOG_DEFAULT, we setup the logger to use stderr. This is useful to wait
@@ -37,7 +49,7 @@ void monikor_logger_init(int prio, const char *log_file) {
   }
   if (_log_fd == -1) {
     closelog();
-    openlog(program_invocation_short_name, LOG_PID, LOG_DAEMON);
+    openlog(GET_PROG_SHORTNAME(), LOG_PID, LOG_DAEMON);
   }
 }
 

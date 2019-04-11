@@ -17,9 +17,12 @@ typedef struct _http_response_t {
 } http_response_t;
 
 char *monikor_read_file(const char *filepath);
+char *monikor_read_fd(int fd);
 int monikor_http_get(monikor_t *mon, const char *url, long timeout,
   void (*callback)(http_response_t *response, CURLcode result), void *data);
-
+int monikor_http_get_with_headers(monikor_t *mon, const char *url, long timeout,
+  void (*callback)(http_response_t *response, CURLcode result),
+  void *data, struct curl_slist *headers);
 monikor_io_handler_t *monikor_net_exchange(const char *host, const char *port, char *send,
 void (*callback)(char *response, void *data), void *data);
 
