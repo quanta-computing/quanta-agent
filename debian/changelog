@@ -2,7 +2,7 @@ monikor (1.2.1) quanta; urgency=low
 
   * Add Redis auth support
 
--- Matthieu ROSINSKI <support@quanta.io> Wed, 10 Apr 2019 17:20:42 +2000
+ -- Matthieu ROSINSKI <support@quanta.io>  Wed, 10 Apr 2019 17:20:42 +2000
 
 monikor (1.2.0) quanta; urgency=low
 
