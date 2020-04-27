@@ -13,14 +13,8 @@ SUBDIRS = apache \
   redis \
   system
 
-if VARNISH4
-  SUBDIRS += varnish
-endif
-
-if VARNISH5
-  SUBDIRS += varnish
-endif
-
 if VARNISH3
   SUBDIRS += varnish3
+else VARNISH4 || VARNISH5
+  SUBDIRS += varnish
 endif
