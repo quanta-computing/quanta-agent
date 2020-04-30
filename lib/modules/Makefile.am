@@ -15,6 +15,13 @@ SUBDIRS = apache \
 
 if VARNISH3
   SUBDIRS += varnish3
-else VARNISH4 || VARNISH5
+endif
+if VARNISH4
   SUBDIRS += varnish
+endif
+if VARNISH5
+  SUBDIRS += varnish
+endif
+if VARNISH6
+  SUBDIRS += varnish6
 endif
