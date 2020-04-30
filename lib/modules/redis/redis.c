@@ -31,8 +31,8 @@ void *redis_init(monikor_t *mon, monikor_config_dict_t *config) {
   if (!mod->port)
     mod->port = MONIKOR_REDIS_DEFAULT_PORT;
   if (mod->auth) {
-    asprintf(&info_command,
-      "*2\r\n$4\r\nAUTH\r\n$%d\r\n%s\r\n%s",
+    (void)asprintf(&info_command,
+      "*2\r\n$4\r\nAUTH\r\n$%zu\r\n%s\r\n%s",
       strlen(mod->auth), mod->auth, INFO_COMMAND);
     if (!info_command) {
       monikor_log_mod(LOG_ERR, MOD_NAME,
