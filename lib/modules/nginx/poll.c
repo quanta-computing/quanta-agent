@@ -57,7 +57,7 @@ void nginx_poll_metrics(http_response_t *status, CURLcode result) {
   struct timeval clock;
   int n;
 
-  if (result == CURLE_OK && status->code == 200) {
+  if (result == CURLE_OK && status->code == 200 && status->data) {
     gettimeofday(&clock, NULL);
     n = fetch_metrics((monikor_t *)status->userdata, &clock, status->data);
     monikor_log_mod(LOG_INFO, MOD_NAME, "Got %d nginx metrics\n", n);
