@@ -1,3 +1,7 @@
+monikor (1.2.3) quanta; urgency=low
+
+  * Fix crash in Nginx module when status endpoint returns an empty response
+
 monikor (1.2.2) quanta; urgency=low
 
   * Fix compiler warnings / potential minor bugs

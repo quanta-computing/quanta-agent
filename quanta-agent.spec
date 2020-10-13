@@ -1,5 +1,5 @@
 Name:	quanta-agent
-Version: 1.2.2
+Version: 1.2.3
 Release: 1%{?dist}
 Summary: This package provides a daemon to monitor system health and reports to Quanta servers.
 Distribution: Quanta
