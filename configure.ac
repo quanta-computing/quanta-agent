@@ -45,12 +45,6 @@ AC_CHECK_LIB([curl], [curl_easy_init])
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([yaml], [yaml_parser_initialize])
 
-# Varnish version
-AM_CONDITIONAL([VARNISH3], [pkg-config --atleast-version=3 varnishapi && ! pkg-config --atleast-version=4 varnishapi])
-AM_CONDITIONAL([VARNISH4], [pkg-config --atleast-version=4 varnishapi && ! pkg-config --atleast-version=5 varnishapi])
-AM_CONDITIONAL([VARNISH5], [pkg-config --atleast-version=5 varnishapi && ! pkg-config --atleast-version=5.2 varnishapi])
-AM_CONDITIONAL([VARNISH6], [pkg-config --atleast-version=6 varnishapi && ! pkg-config --atleast-version=7 varnishapi])
-
 AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
   lib/modules/apache/Makefile
   lib/modules/cpu/Makefile
