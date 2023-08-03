@@ -104,13 +104,6 @@ Summary: Quanta agent system plugin
 Group: Applications/Internet
 Requires: quanta-agent-base = %{version}
 
-%package -n quanta-agent-varnish
-Summary: Quanta agent Varnish plugin
-Group: Applications/Internet
-BuildRequires: varnish-libs-devel
-Requires: varnish-libs >= 4.0.0
-Requires: quanta-agent-base = %{version}
-
 %description -n quanta-agent-base
 This package provides a daemon to monitor system health and reports to Quanta servers.
 
@@ -159,10 +152,6 @@ This package provides a Redis plugin for quanta-agent
 %description -n quanta-agent-system
 This package provides a system plugin for quanta-agent
 
-%description -n quanta-agent-varnish
-This package provides a Varnish plugin for quanta-agent
-
-
 %prep
 %setup
 
@@ -195,7 +184,6 @@ mv %{buildroot}/usr/lib64/postgresql.so %{buildroot}/usr/lib/quanta/modules/post
 mv %{buildroot}/usr/lib64/process.so %{buildroot}/usr/lib/quanta/modules/process.so
 mv %{buildroot}/usr/lib64/redis.so %{buildroot}/usr/lib/quanta/modules/redis.so
 mv %{buildroot}/usr/lib64/system.so %{buildroot}/usr/lib/quanta/modules/system.so
-mv %{buildroot}/usr/lib64/varnish.so %{buildroot}/usr/lib/quanta/modules/varnish.so
 
 # remove unused lib files
 rm -f %{buildroot}/usr/lib64/*.la
@@ -264,10 +252,6 @@ rm -f %{buildroot}/usr/lib64/*.a
 %files -n quanta-agent-system
 /usr/lib/quanta/modules/system.so
 %config(noreplace) /etc/quanta/modules.d/system.yml
-
-%files -n quanta-agent-varnish
-/usr/lib/quanta/modules/varnish.so
-%config(noreplace) /etc/quanta/modules.d/varnish.yml
 
 %post -n quanta-agent-base
 HOSTID=`ip link | grep link/ether | head -1 | awk '{print $2}' | tr -d ':'`

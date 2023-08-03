@@ -166,6 +166,5 @@ denied, in part or in full.
 
 This product makes use of the following libraries:
 
-- libvarnishapi
 - libmysqlclient
 - libcurl
