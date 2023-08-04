@@ -31,7 +31,7 @@ void monikor_metric_store_free(monikor_metric_store_t *store) {
 }
 
 static inline int _timecmp(const struct timeval *a, const struct timeval *b) {
-  if (a->tv_sec != b->tv_usec)
+  if (a->tv_sec != b->tv_sec)
     return a->tv_sec - b->tv_sec;
   else
    return a->tv_usec - b->tv_usec;
