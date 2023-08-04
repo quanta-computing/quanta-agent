@@ -18,7 +18,6 @@ monikor_SOURCES = config/config.c \
 			utils/net.c \
 			utils/read_file.c \
 			utils/strl.c \
-			utils/time.c \
 			modules/info_module.c \
 			modules/load_module.c \
 			modules/load_all_modules.c \
