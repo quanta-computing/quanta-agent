@@ -85,11 +85,12 @@ static void handle_server_response(monikor_curl_handler_t *handler, CURLcode res
       monikor_log(LOG_ERR, "Send metrics failed: %s\n", curl_easy_strerror(result));
     }
   } else if (http_code != 200) {
-    monikor_log(LOG_ERR, "Send metrics failed: %s\n", data->response);
+    monikor_log(LOG_ERR, "Send metrics failed with code %d: %s\n", http_code, data->response);
   } else {
     monikor_log(LOG_INFO, "Metrics successfully sent\n");
   }
-  if (result != CURLE_OK || http_code != 200) {
+  // Cache metrics only if we got a 5xx error as 4xx errors are for rejected push due to auth failures
+  if (result != CURLE_OK || http_code >= 500) {
     monikor_log(LOG_INFO, "Caching %zu metrics (%zuB)\n",
       data->metrics->size, data->metrics->data_size);
     monikor_metric_list_concat(data->mon->metrics->cache, data->metrics);
