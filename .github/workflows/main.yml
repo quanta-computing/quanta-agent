@@ -1,0 +1,60 @@
+name: Quanta Agent builder
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '**'
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  debian-builds:
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
+    environment: build
+    name: 'Building Quanta Agent for Debian ${{ matrix.debian-version }}'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        debian-version: [buster, bullseye, bookworm]
+
+    steps:
+    - name: Clone Quanta PHP Module repository
+      uses: actions/checkout@v3
+      with:
+        path: quanta-agent
+
+    - name: Clone Buildozer repository
+      uses: actions/checkout@v3
+      with:
+        ssh-key: ${{ secrets.BUILDOZER_DEPLOY_KEY }}
+        repository: quanta-computing/buildozer
+        ref: 'new-packages-worflow'
+        persist-credentials: true
+        path: tools
+
+    - name: Build the PHP package
+      run: |
+        cd tools
+        ./buildozer -t monikor -o debian -v ${{ matrix.debian-version }} -s ../quanta-agent/ -r ${{ matrix.debian-version }}
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: debian-${{ matrix.debian-version }}-monikor.tgz
+        path: tools/debian/${{ matrix.debian-version }}/pkg/
