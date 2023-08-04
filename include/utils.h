@@ -26,8 +26,6 @@ int monikor_http_get_with_headers(monikor_t *mon, const char *url, long timeout,
 monikor_io_handler_t *monikor_net_exchange(const char *host, const char *port, char *send,
 void (*callback)(char *response, void *data), void *data);
 
-int timecmp(const struct timeval *a, const struct timeval *b);
-
 // DEBUG stuff
 void dump_metric_list(monikor_metric_list_t *list);
 void dump_store_size(monikor_metric_store_t *store);
