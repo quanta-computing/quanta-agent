@@ -34,7 +34,7 @@ jobs:
         debian-version: [buster, bullseye, bookworm]
 
     steps:
-    - name: Clone Quanta PHP Module repository
+    - name: Clone Quanta Agent repository
       uses: actions/checkout@v3
       with:
         path: quanta-agent
