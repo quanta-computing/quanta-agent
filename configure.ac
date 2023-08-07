@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
-AC_INIT(quanta-agent, 1.2.3, support@quanta.io)
+AC_PREREQ([2.71])
+AC_INIT([quanta-agent],[1.2.3],[support@quanta.io])
 AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT
 
@@ -14,7 +14,7 @@ AC_ENABLE_SHARED
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Checks for libraries.
 
@@ -45,7 +45,7 @@ AC_CHECK_LIB([curl], [curl_easy_init])
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([yaml], [yaml_parser_initialize])
 
-AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
+AC_CONFIG_FILES([src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
   lib/modules/apache/Makefile
   lib/modules/cpu/Makefile
   lib/modules/disk/Makefile
@@ -59,4 +59,5 @@ AC_OUTPUT(src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Makefile
   lib/modules/process/Makefile
   lib/modules/redis/Makefile
   lib/modules/system/Makefile
-  )
+  ])
+AC_OUTPUT

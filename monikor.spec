@@ -13,7 +13,7 @@ Source: monikor-1.2.3.tgz
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0
 %define _missing_doc_files_terminate_build 0
-%global __requires_exclude_from %{arch_exclude_files_from_autoreq}|%{common_exclude_files_from_autoreq}|^.*libcurl\\.so\\.4.*$
+%global __requires_exclude_from ^.*libcurl\\.so.*$
 
 %description
 Quanta monitors systems and applications. This series of packages provides the
