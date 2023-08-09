@@ -28,6 +28,22 @@ monikor_metric_t *monikor_metric_clone(const monikor_metric_t *src) {
   metric->id = src->id;
   metric->flags = src->flags;
   metric->type = src->type;
+  switch(src->type) {
+    case MONIKOR_INTEGER:
+      metric->value._int = src->value._int;
+      break;
+    case MONIKOR_FLOAT:
+      metric->value._float = src->value._float;
+      break;
+    case MONIKOR_STRING:
+      if (src->value._string) {
+        if (!(metric->value._string = strdup(src->value._string))) {
+          monikor_metric_free(metric);
+          return NULL;
+        }
+      }
+      break;
+  }
   return metric;
 }
 
