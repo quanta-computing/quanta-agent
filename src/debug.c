@@ -3,7 +3,7 @@
 
 #include "monikor.h"
 
-void dump_metric(monikor_metric_t *metric) {
+void dump_metric(monikor_metric_t *metric, __attribute__((unused)) void *_data) {
   switch (metric->type) {
   case MONIKOR_INTEGER:
     monikor_log(LOG_DEBUG, "METRIC INT %s@%ld: %"PRIu64"\n",
@@ -37,7 +37,7 @@ void dump_store_size(monikor_metric_store_t *store) {
 }
 
 void dump_metric_list(monikor_metric_list_t *list) {
-  monikor_metric_list_apply(list, dump_metric);
+  monikor_metric_list_apply(list, dump_metric, NULL);
 }
 
 void dump_config_list_elm(char *s) {
