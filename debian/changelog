@@ -2,6 +2,8 @@ monikor (1.3.0) quanta; urgency=low
 
   * Fixed time comparison in metric store
   * Removed varnishlib-based varnish module
+  * libmonikor: Changed monikor_metric_list_apply to accept a data argument
+
 
 monikor (1.2.3) quanta; urgency=low
 

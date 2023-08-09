@@ -119,7 +119,7 @@ int monikor_metric_list_push(monikor_metric_list_t *list, monikor_metric_t *metr
 int monikor_metric_list_push_node(monikor_metric_list_t *list, monikor_metric_list_node_t *metric);
 monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list);
 
-void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *));
+void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *, void *), void *data);
 
 void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list_t *tail);
 
