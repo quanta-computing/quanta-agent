@@ -63,7 +63,8 @@ int monikor_metric_store_push_delta(monikor_metric_store_t *store, monikor_metri
 
 int monikor_metric_store_push_aggregate(monikor_metric_store_t *store, monikor_metric_t *metric) {
   for (monikor_metric_list_node_t *node = store->current->first; node; node = node->next) {
-    if (!strcmp(node->metric->name, metric->name)
+    if (node->metric->id == metric->id
+    && !strcmp(node->metric->name, metric->name)
     && !monikor_metric_add(node->metric, metric)) {
       monikor_metric_free(metric);
       return 0;
