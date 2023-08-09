@@ -41,7 +41,6 @@ int monikor_init(monikor_t *mon, char *config_path) {
   }
   if (monikor_init_modules(mon))
     return 1;
-  gettimeofday(&mon->last_clock, NULL);
   mon->flags = 0;
   return 0;
 }

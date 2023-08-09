@@ -33,7 +33,11 @@ struct monikor_s {
   monikor_metric_store_t *metrics;
   monikor_server_t server;
   monikor_io_handler_list_t io_handlers;
-  struct timeval last_clock;
+  struct {
+    struct timeval last_clock;
+    size_t backoff_count;
+    time_t next_update;
+  } update;
   uint8_t flags;
 };
 
@@ -52,6 +56,9 @@ int monikor_daemonize(monikor_t *mon);
 
 int monikor_load_all_modules(monikor_t *mon);
 void monikor_update(monikor_t *mon, struct timeval *clock);
+void monikor_update_init(monikor_t *mon);
+void monikor_update_success(monikor_t *mon);
+void monikor_update_backoff(monikor_t *mon);
 int monikor_poll_modules(monikor_t *mon, struct timeval *clock);
 int monikor_send_metrics(monikor_t *mon, monikor_metric_list_t *metrics);
 void monikor_send_all_metrics(monikor_t *mon);
