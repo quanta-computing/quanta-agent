@@ -41,6 +41,8 @@ static void _compute_int_delta(monikor_metric_t *a, monikor_metric_t *b, monikor
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b) {
   monikor_metric_t *result;
 
+  if (a->type != b->type)
+    return NULL;
   if (!(result = monikor_metric_clone(a)))
     return NULL;
   result->flags &= ~(MONIKOR_METRIC_DELTA | MONIKOR_METRIC_TIMEDELTA);
