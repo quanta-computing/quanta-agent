@@ -24,6 +24,7 @@ Summary: Quanta agent with no plugins
 Group: Applications/Internet
 BuildRequires : libcurl-devel
 BuildRequires : libyaml-devel
+BuildRequires : check-devel
 Requires: libmonikor = %{version}
 
 %package -n libmonikor
