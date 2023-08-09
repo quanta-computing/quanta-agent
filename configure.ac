@@ -17,6 +17,7 @@ AM_PROG_CC_C_O
 LT_INIT
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CHECK], [check >= 0.15.0])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h sys/statvfs.h sys/time.h syslog.h unistd.h])
@@ -59,5 +60,6 @@ AC_CONFIG_FILES([src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Make
   lib/modules/process/Makefile
   lib/modules/redis/Makefile
   lib/modules/system/Makefile
+  tests/Makefile
   ])
 AC_OUTPUT
