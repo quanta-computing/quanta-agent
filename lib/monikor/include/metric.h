@@ -101,6 +101,8 @@ monikor_metric_t *monikor_metric_float_id(const char *name, const struct timeval
   float value, uint8_t flags, uint16_t id);
 monikor_metric_t *monikor_metric_string(const char *name, const struct timeval *clock,
   const char *value);
+monikor_metric_t *monikor_metric_string_id(const char *name, const struct timeval *clock,
+  const char *value, uint16_t id);
 
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b);
 int monikor_metric_add(monikor_metric_t *dst, const monikor_metric_t *src);

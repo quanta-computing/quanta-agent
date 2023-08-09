@@ -96,6 +96,16 @@ const char *value) {
   return metric;
 }
 
+monikor_metric_t *monikor_metric_string_id(const char *name, const struct timeval *clock,
+const char *value, uint16_t id) {
+  monikor_metric_t *metric;
+
+  if (!(metric = monikor_metric_string(name, clock, value)))
+    return NULL;
+  metric->id = id;
+  return metric;
+}
+
 size_t monikor_metric_data_size(const monikor_metric_t *metric) {
   switch (metric->type) {
   case MONIKOR_INTEGER:
