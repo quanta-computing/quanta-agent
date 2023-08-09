@@ -87,3 +87,4 @@ debian/quanta-agent-process/
 debian/quanta-agent-redis/
 debian/quanta-agent-system/
 debian/quanta-agent/
+*.debhelper
