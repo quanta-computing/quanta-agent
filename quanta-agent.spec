@@ -23,6 +23,4 @@ This package provides a daemon to monitor system health and reports to Quanta se
 %prep
 %setup -c -T
 
-%files
-
 %install
