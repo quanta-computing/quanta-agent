@@ -1,7 +1,7 @@
 Maintainer: Matthieu ROSINSKI <support@quanta.io>
 Section: net
 Priority: extra
-Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, check-dev, libcurl3-dev, libyaml-dev, libpq-dev
+Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, check, libcurl3-dev, libyaml-dev, libpq-dev
 Standards-Version: 3.9.6
 Source: monikor
 
