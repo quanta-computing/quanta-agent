@@ -60,6 +60,7 @@ AC_CONFIG_FILES([src/Makefile lib/monikor/src/Makefile Makefile lib/modules/Make
   lib/modules/process/Makefile
   lib/modules/redis/Makefile
   lib/modules/system/Makefile
+  lib/modules/varnish/Makefile
   tests/Makefile
   ])
 AC_OUTPUT

@@ -11,4 +11,5 @@ SUBDIRS = apache \
   postgresql \
   process \
   redis \
-  system
+  system \
+  varnish
