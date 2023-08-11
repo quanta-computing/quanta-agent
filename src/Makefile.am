@@ -17,6 +17,7 @@ libmonikorexe_la_SOURCES = config/config.c \
 			config/config_parse_key.c \
 			config/config_parse_mapping.c \
 			config/config_parse_list.c \
+			utils/command.c \
 			utils/http.c \
 			utils/logger.c \
 			utils/net.c \
