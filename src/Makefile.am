@@ -7,6 +7,7 @@ monikorconfdir=$(sysconfdir)/monikor
 monikorconf_DATA=../etc/config.yml
 
 monikor_LDADD = $(top_builddir)/lib/monikor/src/libmonikor.la libmonikorexe.la
+monikor_LDFLAGS = -Wl,--export-dynamic -Wl,--whole-archive,./.libs/libmonikorexe.a,--no-whole-archive
 monikor_SOURCES = main.c
 
 libmonikorexe_la_LIBADD = $(top_builddir)/lib/monikor/src/libmonikor.la -lyaml -lcurl -ldl -lm
