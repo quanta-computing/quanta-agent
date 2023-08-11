@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include "io_handler.h"
 
@@ -28,6 +29,20 @@ void (*callback)(monikor_curl_handler_t *handler, CURLcode result), void *data) 
     return NULL;
   }
   curl_easy_setopt(handler->curl, CURLOPT_FOLLOWLOCATION, 1L);
+  handler->callback = callback;
+  handler->data = data;
+  handler->next = NULL;
+  handler->prev = NULL;
+  return handler;
+}
+
+monikor_process_handler_t *monikor_process_handler_new(pid_t pid,
+void (*callback)(monikor_process_handler_t *handler, int status), void *data) {
+  monikor_process_handler_t *handler;
+
+  if (!(handler = malloc(sizeof(*handler))))
+    return NULL;
+  handler->pid = pid;
   handler->callback = callback;
   handler->data = data;
   handler->next = NULL;
