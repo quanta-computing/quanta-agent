@@ -45,7 +45,7 @@ static int monikor_net_connect(monikor_net_handler_data_t *handler_data) {
 
   if (!getnameinfo(ai->ai_addr, ai->ai_addrlen, host, 512, port, 512, NI_NUMERICHOST|NI_NUMERICSERV))
     monikor_log(LOG_DEBUG, "Trying to connect to %s port %s...\n", host, port);
-  if ((sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1
+  if ((sock = socket(ai->ai_family, ai->ai_socktype | SOCK_CLOEXEC, ai->ai_protocol)) == -1
   || (flags = fcntl(sock, F_GETFL, 0)) == -1 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1
   || (connect(sock, ai->ai_addr, ai->ai_addrlen) == -1 && errno != EINPROGRESS)) {
     return -1;

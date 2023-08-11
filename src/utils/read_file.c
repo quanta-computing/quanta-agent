@@ -29,7 +29,7 @@ char *monikor_read_file(const char *filepath) {
   int fd;
   char *content;
 
-  if ((fd = open(filepath, O_RDONLY)) == -1)
+  if ((fd = open(filepath, O_RDONLY | O_CLOEXEC)) == -1)
     return NULL;
   content = monikor_read_fd(fd);
   close(fd);

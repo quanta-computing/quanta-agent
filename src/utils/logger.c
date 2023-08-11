@@ -41,7 +41,7 @@ void monikor_logger_init(int prio, const char *log_file) {
     _log_fd = 2;
   }
   else if (log_file) {
-    if ((_log_fd = open(log_file, O_WRONLY|O_APPEND|O_CREAT, 0644)) == -1) {
+    if ((_log_fd = open(log_file, O_WRONLY|O_APPEND|O_CREAT|O_CLOEXEC, 0644)) == -1) {
       fprintf(stderr, "Cannot open log file %s, fallbacking to syslog\n", log_file);
     }
   } else {

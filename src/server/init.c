@@ -42,7 +42,7 @@ static int monikor_server_bind(monikor_server_t *server) {
   addr.sun_family = AF_UNIX;
   strcpy(addr.sun_path, server->mon->config->listen.path);
   unlink(server->mon->config->listen.path);
-  if ((server->socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1
+  if ((server->socket = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0)) == -1
   || bind(server->socket, (struct sockaddr *)&addr, sizeof(addr))
   || chmod(server->mon->config->listen.path, server->mon->config->listen.mode)
   || chown(server->mon->config->listen.path, uid, gid)
