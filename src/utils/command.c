@@ -135,7 +135,7 @@ void monikor_command_free(monikor_process_handler_t *handler) {
 void monikor_command_register_io_handlers(monikor_t *mon, monikor_process_handler_t *handler) {
   command_exec_t *cmd = (command_exec_t *)handler->data;
 
-  monikor_register_processs(mon, handler);
+  monikor_register_process(mon, handler);
   monikor_register_io_handler(mon, cmd->output_handler);
 }
 
@@ -143,5 +143,5 @@ void monikor_command_unregister_io_handlers(monikor_t *mon, monikor_process_hand
   command_exec_t *cmd = (command_exec_t *)handler->data;
 
   monikor_unregister_io_handler(mon, cmd->output_handler);
-  monikor_unregister_processs(mon, handler);
+  monikor_unregister_process(mon, handler);
 }
