@@ -81,8 +81,8 @@ void monikor_register_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
 void monikor_unregister_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
 
 // Subprocesses handling
-void monikor_register_processs(monikor_t *mon, monikor_process_handler_t *handler);
-void monikor_unregister_processs(monikor_t *mon, monikor_process_handler_t *handler);
+void monikor_register_process(monikor_t *mon, monikor_process_handler_t *handler);
+void monikor_unregister_process(monikor_t *mon, monikor_process_handler_t *handler);
 void monikor_process_exited(monikor_t *mon, pid_t pid);
 
 #endif /* end of include guard: MONIKOR_H_ */

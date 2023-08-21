@@ -12,29 +12,37 @@ void monikor_unregister_io_handler(monikor_t *mon, monikor_io_handler_t *handler
   monikor_io_handler_list_remove(&mon->io_handlers, handler);
 }
 
-void monikor_register_processs(monikor_t *mon, monikor_process_handler_t *handler) {
+void monikor_register_process(monikor_t *mon, monikor_process_handler_t *handler) {
   monikor_io_handler_list_push_process(&mon->io_handlers, handler);
 }
 
-void monikor_unregister_processs(monikor_t *mon, monikor_process_handler_t *handler) {
+void monikor_unregister_process(monikor_t *mon, monikor_process_handler_t *handler) {
   monikor_io_handler_list_remove_process(&mon->io_handlers, handler);
 }
 
-void monikor_process_exited(monikor_t *mon, pid_t pid) {
+static int monikor_process_watched(monikor_t *mon, pid_t pid) {
   monikor_process_handler_t *handler;
-  int status;
 
   for (handler = mon->io_handlers.processes.first
   ; handler && handler->pid != pid
   ; handler = handler->next);
-  if (!handler) {
+  return handler != NULL;
+}
+
+void monikor_process_exited(monikor_t *mon, pid_t pid) {
+  monikor_process_handler_t *handler;
+  int status = 0;
+
+  if (!monikor_process_watched(mon, pid))
     return;
-  }
   if (waitpid(pid, &status, 0) == -1) {
-    monikor_log(LOG_WARNING, "monikor_process_exited: process %d, waitpid error: %s",
+    monikor_log(LOG_WARNING, "monikor_process_exited: process %d, waitpid error: %s\n",
       pid, strerror(errno));
   }
-  if (handler->callback) {
-    handler->callback(handler, status);
+  for (handler = mon->io_handlers.processes.first; handler; handler = handler->next) {
+    if (handler->pid != pid)
+      continue;
+    if (handler->callback)
+      handler->callback(handler, status);
   }
 }
