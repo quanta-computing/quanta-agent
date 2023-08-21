@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include "monikor.h"
 #include "utils.h"
@@ -78,8 +79,12 @@ static command_exec_t *start_command(const char *command, char *const argv[]) {
     goto err;
   }
   if (cmd->pid == 0) {
+    int null_fd = open("/dev/null", O_RDWR);
     close(pipefd[0]);
-    if (dup2(pipefd[1], STDOUT_FILENO) == -1
+    if (null_fd == -1
+    || dup2(null_fd, STDIN_FILENO) == -1
+    || dup2(null_fd, STDERR_FILENO) == -1
+    || dup2(pipefd[1], STDOUT_FILENO) == -1
     || execvp(command, argv) == -1)
       exit(1);
   } else {
