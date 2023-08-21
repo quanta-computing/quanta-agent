@@ -6,7 +6,7 @@
 #include "varnish.h"
 
 
-static char *varnish_init_timeout(monikor_config_dict_t *config) {
+static char *varnish_init_timeout(monikor_t *mon, monikor_config_dict_t *config) {
   char *timeout_s;
 
   timeout_s = monikor_config_dict_get_scalar(config, "varnish.varnishstat_timeout");
@@ -15,8 +15,14 @@ static char *varnish_init_timeout(monikor_config_dict_t *config) {
     // We got no digit or invalid characters, log error and return default
     if (!value) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "Invalid value '%s' for varnishstat_timeout, fallbacking to default timeout (%s)",
+        "Invalid value '%s' for varnishstat_timeout, fallbacking to default timeout (%s)\n",
         timeout_s, MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_TIMEOUT_ARG
+      );
+      return MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_TIMEOUT_ARG;
+    } else if (value > mon->config->poll_interval) {
+      monikor_log_mod(LOG_WARNING, MOD_NAME,
+        "varnishstat_timeout cannot be greater than poll interval (%d), fallbacking to default timeout (%s)\n",
+        mon->config->poll_interval, MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_TIMEOUT_ARG
       );
       return MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_TIMEOUT_ARG;
     }
@@ -36,7 +42,7 @@ void *varnish_init(monikor_t *mon, monikor_config_dict_t *config) {
   mod->varnishstat_path = monikor_config_dict_get_scalar(config, "varnish.varnishstat_path");
   if (!mod->varnishstat_path)
     mod->varnishstat_path = MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH;
-  mod->varnishstat_timeout_arg = varnish_init_timeout(config);
+  mod->varnishstat_timeout_arg = varnish_init_timeout(mon, config);
   mod->instance = monikor_config_dict_get_scalar(config, "varnish.instance");
   if (mod->instance && strlen(mod->instance) >= MONIKOR_VARNISH_MAX_INSTANCE_LENGTH) {
     mod->instance[MONIKOR_VARNISH_MAX_INSTANCE_LENGTH - 1] = 0;
@@ -51,23 +57,26 @@ void varnish_cleanup(monikor_t *mon, void *data) {
   varnish_module_t *mod = (varnish_module_t *)data;
 
   if (mod->cmd_handler) {
+    monikor_reap_process(mon, mod->cmd_handler->pid);
     monikor_command_unregister_io_handlers(mon, mod->cmd_handler);
     monikor_command_free(mod->cmd_handler);
   }
   free(mod);
 }
 
-static void init_varnishstat_argv(varnish_module_t *mod, char *argv[]) {
-  argv[0] = mod->varnishstat_path;
-  argv[1] = "-1";
-  argv[2] = "-t";
-  argv[3] = mod->varnishstat_timeout_arg;
-  argv[4] = NULL;
+static size_t init_varnishstat_argv(varnish_module_t *mod, char *argv[]) {
+  size_t argc = 0;
+
+  argv[argc++] = mod->varnishstat_path;
+  argv[argc++] = "-1";
+  argv[argc++] = "-t";
+  argv[argc++] = mod->varnishstat_timeout_arg;
   if (mod->instance) {
-    argv[4] = "-n";
-    argv[5] = mod->instance;
-    argv[6] = NULL;
+    argv[argc++] = "-n";
+    argv[argc++] = mod->instance;
   }
+  argv[argc] = NULL;
+  return argc;
 }
 
 int varnish_poll(monikor_t *mon, void *data) {
@@ -78,7 +87,8 @@ int varnish_poll(monikor_t *mon, void *data) {
     command_exec_t *cmd = (command_exec_t *)mod->cmd_handler->data;
     if (!monikor_command_finished(cmd->state)) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "previous varnishstat execution did not finished\n");
+        "previous varnishstat execution did not finished, reaping process %d\n", mod->cmd_handler->pid);
+      monikor_reap_process(mon, mod->cmd_handler->pid);
     }
     monikor_command_unregister_io_handlers(mon, mod->cmd_handler);
     monikor_command_free(mod->cmd_handler);
@@ -89,7 +99,7 @@ int varnish_poll(monikor_t *mon, void *data) {
     &varnish_poll_metrics, (void *)mod
   );
   if (!mod->cmd_handler) {
-    monikor_log_mod(LOG_ERR, MOD_NAME, "Cannot execute varnishstat: %s", strerror(errno));
+    monikor_log_mod(LOG_ERR, MOD_NAME, "cannot execute varnishstat: %s\n", strerror(errno));
     return -1;
   }
   monikor_log_mod(LOG_DEBUG, MOD_NAME,
