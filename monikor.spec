@@ -195,6 +195,8 @@ mv %{buildroot}/usr/lib64/postgresql.so %{buildroot}/usr/lib/quanta/modules/post
 mv %{buildroot}/usr/lib64/process.so %{buildroot}/usr/lib/quanta/modules/process.so
 mv %{buildroot}/usr/lib64/redis.so %{buildroot}/usr/lib/quanta/modules/redis.so
 mv %{buildroot}/usr/lib64/system.so %{buildroot}/usr/lib/quanta/modules/system.so
+mv %{buildroot}/usr/lib64/varnish.so %{buildroot}/usr/lib/quanta/modules/varnish.so
+
 
 # remove unused lib files
 rm -f %{buildroot}/usr/lib64/*.la
