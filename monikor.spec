@@ -311,6 +311,9 @@ rm -f %{buildroot}/usr/lib64/*.a
 %config(noreplace) /etc/quanta/modules.d/varnish.yml
 
 
+%files -n quanta-agent
+%files -n quanta-agent-all
+
 %post -n quanta-agent-base
 HOSTID=`ip link | grep link/ether | head -1 | awk '{print $2}' | tr -d ':'`
 if [ -f /etc/quanta/agent.yml ]; then
