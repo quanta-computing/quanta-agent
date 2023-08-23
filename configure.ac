@@ -17,7 +17,7 @@ AM_PROG_CC_C_O
 LT_INIT
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.10.0])
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.9])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h sys/statvfs.h sys/time.h syslog.h unistd.h])
