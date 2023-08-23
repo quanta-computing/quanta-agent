@@ -14,7 +14,7 @@ Description: Quanta monitoring agent with default plugins
 
 Package: quanta-agent-all
 Architecture: any
-Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nfs, quanta-agent-nginx, quanta-agent-postgresql, quanta-agent-redis
+Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nfs, quanta-agent-nginx, quanta-agent-postgresql, quanta-agent-redis, quanta-agent-varnish
 Description: Quanta monitoring agent with all plugins
  This metapackage provides the quanta-agent and all plugins to monitor your
  system
@@ -131,3 +131,10 @@ Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Versi
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta system monitoring agent
   This package provides a quanta-agent module to monitor system metrics
+
+Package: quanta-agent-varnish
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
+Pre-Depends: ${misc:Pre-Depends}
+Description: Quanta Varnish monitoring agent
+  This package provides a quanta-agent module to monitor Varnish metrics
