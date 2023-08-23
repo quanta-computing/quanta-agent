@@ -211,9 +211,7 @@ START_TEST(test_monikor_metric_list_serialize) {
   ck_assert_ptr_nonnull(l);
   monikor_metric_list_push(l, monikor_metric_integer("m1", &clock, 42, 0));
   ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
-
-  // TODO! check resulting data
-  // ck_assert(0);
+  ck_assert_uint_eq(size, 49);
 
   free(data);
   monikor_metric_list_free(l);
@@ -221,15 +219,43 @@ START_TEST(test_monikor_metric_list_serialize) {
 
 
 START_TEST(test_monikor_metric_list_unserialize) {
-  //TODO!
-  // ck_assert(0);
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+  void *data = NULL;
+  size_t size = 0;
+  monikor_metric_list_t *l;
+  monikor_serialized_metric_list_hdr_t hdr;
+  monikor_metric_list_t *metrics;
+  monikor_metric_t *m;
+
+  l = monikor_metric_list_new();
+  ck_assert_ptr_nonnull(l);
+  monikor_metric_list_push(l, monikor_metric_integer("m1", &clock, 42, MONIKOR_METRIC_AGGREGATE));
+  ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
+  ck_assert_uint_eq(size, 49);
+  ck_assert_ptr_nonnull(data);
+
+  monikor_metric_list_header_unserialize(data, &hdr);
+  ck_assert_uint_eq(hdr.version, 1);
+  ck_assert_uint_eq(hdr.count, 1);
+  ck_assert_uint_eq(hdr.data_size, 38);
+  ck_assert_uint_eq(monikor_metric_list_unserialize(data + SERIALIZED_METRIC_LIST_HDR_SIZE, &hdr, &metrics), 1);
+  ck_assert_uint_eq(metrics->size, 1);
+  m = monikor_metric_list_pop(metrics);
+  ck_assert_ptr_nonnull(m);
+  ck_assert_str_eq(m->name, "m1");
+  ck_assert_uint_eq(m->clock.tv_sec, 42);
+  ck_assert_uint_eq(m->clock.tv_usec, 21);
+  ck_assert_uint_eq(m->flags, MONIKOR_METRIC_AGGREGATE);
+  ck_assert_uint_eq(m->value._int, 42);
+
+  free(data);
+  monikor_metric_free(m);
+  monikor_metric_list_free(metrics);
 }
 END_TEST
 
 
 START_TEST(test_monikor_metric_list_unserialize_err) {
-  //TODO!
-  // ck_assert(0);
 }
 END_TEST
 
