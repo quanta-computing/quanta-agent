@@ -32,25 +32,23 @@ jobs:
       fail-fast: false
       matrix:
         os: [debian, centos, ubuntu]
-        include:
+        version:
+          - [buster, bullseye, bookworm]
+          - [7, 8, 9]
+          - [2204, 2210, 2304]
+        exclude:
           - os: debian
-            version: buster
+            version: [7, 8, 9]
           - os: debian
-            version: bullseye
-          - os: debian
-            version: bookworm
+            version: [2204, 2210, 2304]
           - os: centos
-            version: 7
+            version: [buster, bullseye, bookworm]
           - os: centos
-            version: 8
-          - os: centos
-            version: 9
+            version: [2204, 2210, 2304]
           - os: ubuntu
-            version: 2204_LTS
+            version: [buster, bullseye, bookworm]
           - os: ubuntu
-            version: 2210
-          - os: ubuntu
-            version: 2304
+            version: [7, 8, 9]
 
     steps:
     - name: Clone Quanta Agent repository
