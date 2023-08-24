@@ -129,7 +129,7 @@ jobs:
         omitNameDuringUpdate: true
         omitPrereleaseDuringUpdate: true
         omitDraftDuringUpdate: true
-        replaceArtifacts: true
+        replacesArtifacts: true
         updateOnlyUnreleased: true
         generateReleaseNotes: true
         artifacts: ./artifacts/**
