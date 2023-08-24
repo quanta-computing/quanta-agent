@@ -130,11 +130,11 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta system monitoring agent
-  This package provides a quanta-agent module to monitor system metrics
+ This package provides a quanta-agent module to monitor system metrics
 
 Package: quanta-agent-varnish
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta Varnish monitoring agent
-  This package provides a quanta-agent module to monitor Varnish metrics
+ This package provides a quanta-agent module to monitor Varnish metrics
