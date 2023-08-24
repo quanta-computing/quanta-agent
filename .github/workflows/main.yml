@@ -64,7 +64,7 @@ jobs:
     - name: Build monikor packages
       run: |
         cd tools
-        ./buildozer -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -s ../quanta-agent/ -r ${{ BUILDVERSION }}
+        ./buildozer -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -s ../quanta-agent/ -r ${BUILDVERSION}
 
     - name: Upload packages
       uses: actions/upload-artifact@v3
