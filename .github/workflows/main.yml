@@ -30,6 +30,15 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
+      - name: Get configure.ac
+        id: clone
+        uses: actions/checkout@v3
+        with:
+          path: quanta-agent
+          sparse-checkout: |
+            configure.ac
+          sparse-checkout-cone-mode: false
+
       - name: Detect build version
         id: version
         run: |
