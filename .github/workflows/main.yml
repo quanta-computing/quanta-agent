@@ -70,22 +70,6 @@ jobs:
         cd tools
         ./pelletesteuse -t monikor -o debian -v ${{ matrix.debian-version }} -r ${BUILDVERSION}
 
-    - name: Update Github release
-      uses: ncipollo/release-action@v1
-      with:
-        name: v${{ env.BUILDVERSION }}
-        commit: ${{ env.GITHUB_REF }}
-        tag: v${{ env.BUILDVERSION }}
-        draft: true
-        allowUpdates: true
-        artifactErrorsFailBuild: true
-        omitNameDuringUpdate: true
-        omitPrereleaseDuringUpdate: true
-        omitDraftDuringUpdate: true
-        replaceArtifacts: true
-        updateOnlyUnreleased: true
-        generateReleaseNotes: true
-
   centos-builds:
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
     environment: build
@@ -121,3 +105,31 @@ jobs:
       with:
         name: centos-${{ matrix.centos-version }}-monikor.tgz
         path: tools/centos/${{ matrix.centos-version }}/pkg/
+
+  github-release:
+    environment: build
+    name: 'Building Quanta Agent for Debian ${{ matrix.debian-version }}'
+    runs-on: ubuntu-latest
+    needs: [debian-builds, centos-buiilds]
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+
+    - name: Update Github release
+      uses: ncipollo/release-action@v1
+      with:
+        name: v${{ env.BUILDVERSION }}
+        commit: ${{ env.GITHUB_REF }}
+        tag: v${{ env.BUILDVERSION }}
+        draft: true
+        allowUpdates: true
+        artifactErrorsFailBuild: true
+        omitNameDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+        omitDraftDuringUpdate: true
+        replaceArtifacts: true
+        updateOnlyUnreleased: true
+        generateReleaseNotes: true
+        artifacts: ./artifacts/**
