@@ -29,13 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-  steps:
-    - name: Detect build version
-      id: version
-      run: |
-        buildver=`grep -F 'AC_INIT([quanta-agent],' ./quanta-agent/configure.ac | cut -d ',' -f 2 | tr -d '[]'`
-        echo "Detected quanta-agent version ${buildver}"
-        echo "version=${buildver}" >> "${GITHUB_OUTPUT}"
+    steps:
+      - name: Detect build version
+        id: version
+        run: |
+          buildver=`grep -F 'AC_INIT([quanta-agent],' ./quanta-agent/configure.ac | cut -d ',' -f 2 | tr -d '[]'`
+          echo "Detected quanta-agent version ${buildver}"
+          echo "version=${buildver}" >> "${GITHUB_OUTPUT}"
 
   builds:
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
