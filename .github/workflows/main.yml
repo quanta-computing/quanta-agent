@@ -110,7 +110,7 @@ jobs:
     environment: build
     name: 'Building Quanta Agent for Debian ${{ matrix.debian-version }}'
     runs-on: ubuntu-latest
-    needs: [debian-builds, centos-buiilds]
+    needs: [debian-builds, centos-builds]
     steps:
     - name: Download artifacts
       uses: actions/download-artifact@v3
