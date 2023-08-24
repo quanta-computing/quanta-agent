@@ -34,11 +34,11 @@ jobs:
         os: [debian, centos, ubuntu]
         include:
           - os: debian
-          version: [buster, bullseye, bookworm]
+            version: [buster, bullseye, bookworm]
           - os: centos
-          version: [7, 8, 9]
+            version: [7, 8, 9]
           - os: ubuntu
-          version: [2204_LTS, 2210, 2304]
+            version: [2204_LTS, 2210, 2304]
 
     steps:
     - name: Clone Quanta Agent repository
