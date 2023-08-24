@@ -49,7 +49,7 @@ jobs:
   builds:
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
     environment: build
-    name: '[${{ matrix.os }}][${{ matrix.version }}] - Quanta Agent Build'
+    name: '[${{ matrix.os }}][${{ matrix.version }}] - Quanta Agent Builds'
     runs-on: ubuntu-latest
     needs: detect-version
     strategy:
