@@ -77,6 +77,17 @@ jobs:
         cd tools
         ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${BUILDVERSION}
 
+  github-release:
+    environment: build
+    name: 'Building Quanta Agent for ${{ matrix.os }} ${{ matrix.version }}'
+    runs-on: ubuntu-latest
+    needs: [builds]
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+
     - name: Update Github release
       uses: ncipollo/release-action@v1
       with:
@@ -89,6 +100,7 @@ jobs:
         omitNameDuringUpdate: true
         omitPrereleaseDuringUpdate: true
         omitDraftDuringUpdate: true
-        replaceArtifacts: true
+        replacesArtifacts: true
         updateOnlyUnreleased: true
         generateReleaseNotes: true
+        artifacts: ./artifacts/**
