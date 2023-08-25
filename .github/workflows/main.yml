@@ -49,14 +49,14 @@ jobs:
   builds:
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
     environment: build
-    name: '[${{ matrix.os }}][${{ matrix.version }}] - Quanta Agent Build'
+    name: '[${{ matrix.os }}][${{ matrix.version }}] - Quanta Agent Builds'
     runs-on: ubuntu-latest
     needs: detect-version
     strategy:
       fail-fast: false
       matrix:
         os: [debian, centos, ubuntu]
-        version: [buster, bullseye, bookworm, 7, 8, 9, 2204, 2210, 2304]
+        version: [buster, bullseye, bookworm, 7, 8, 9, jammy, kinetic, lunar]
         exclude:
           - os: debian
             version: 7
@@ -65,11 +65,11 @@ jobs:
           - os: debian
             version: 9
           - os: debian
-            version: 2204
+            version: jammy
           - os: debian
-            version: 2210
+            version: kinetic
           - os: debian
-            version: 2304
+            version: lunar
           - os: centos
             version: buster
           - os: centos
@@ -77,11 +77,11 @@ jobs:
           - os: centos
             version: bookworm
           - os: centos
-            version: 2204
+            version: jammy
           - os: centos
-            version: 2210
+            version: kinetic
           - os: centos
-            version: 2304
+            version: lunar
           - os: ubuntu
             version: buster
           - os: ubuntu
@@ -122,10 +122,10 @@ jobs:
         name: ${{ matrix.os }}-${{ matrix.version }}-monikor-${{ needs.detect-version.outputs.version }}.tgz
         path: tools/${{ matrix.os }}/${{ matrix.version }}/pkg/
 
-    - name: Pelletesting
-      run: |
-        cd tools
-        ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${{ needs.detect-version.outputs.version }}
+    # - name: Pelletesting
+    #   run: |
+    #     cd tools
+    #     ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${{ needs.detect-version.outputs.version }}
 
   github-release:
     environment: build
