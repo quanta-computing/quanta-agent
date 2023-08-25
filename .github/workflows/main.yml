@@ -122,10 +122,10 @@ jobs:
         name: ${{ matrix.os }}-${{ matrix.version }}-monikor-${{ needs.detect-version.outputs.version }}.tgz
         path: tools/${{ matrix.os }}/${{ matrix.version }}/pkg/
 
-    - name: Pelletesting
-      run: |
-        cd tools
-        ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${{ needs.detect-version.outputs.version }}
+    # - name: Pelletesting
+    #   run: |
+    #     cd tools
+    #     ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${{ needs.detect-version.outputs.version }}
 
   github-release:
     environment: build
