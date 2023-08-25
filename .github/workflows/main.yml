@@ -137,7 +137,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         path: ./artifacts
-    - name: [debug] List artifacts
+
+    - name: List artifacts
       run: ls -lR ./artifacts
 
     - name: Update Github release
