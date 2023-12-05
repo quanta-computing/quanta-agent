@@ -34,6 +34,9 @@ static void handle_signal(monikor_io_handler_t *handler, uint8_t mode) {
   case SIGQUIT:
     monikor_exit(mon);
     break;
+  case SIGCHLD:
+    monikor_process_exited(mon, info.si_pid);
+    break;
   case SIGHUP:
     monikor_flag_reload(mon);
     break;
@@ -65,6 +68,7 @@ int monikor_register_signals(monikor_t *mon) {
   ||  sigaction(SIGQUIT, &sa, NULL) == -1
   ||  sigaction(SIGHUP , &sa, NULL) == -1
   ||  sigaction(SIGUSR1, &sa, NULL) == -1
+  ||  sigaction(SIGCHLD, &sa, NULL) == -1
   ||  sigaction(SIGUSR2, &sa, NULL) == -1)
     return -1;
   monikor_register_io_handler(mon, handler);

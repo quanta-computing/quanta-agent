@@ -11,7 +11,7 @@
 typedef struct monikor_s monikor_t;
 #endif
 
-#define MONIKOR_VERSION "1.2.3"
+#define MONIKOR_VERSION "1.3.0"
 
 #include "server.h"
 #include "strl.h"
@@ -33,7 +33,11 @@ struct monikor_s {
   monikor_metric_store_t *metrics;
   monikor_server_t server;
   monikor_io_handler_list_t io_handlers;
-  struct timeval last_clock;
+  struct {
+    struct timeval last_clock;
+    size_t backoff_count;
+    time_t next_update;
+  } update;
   uint8_t flags;
 };
 
@@ -52,6 +56,9 @@ int monikor_daemonize(monikor_t *mon);
 
 int monikor_load_all_modules(monikor_t *mon);
 void monikor_update(monikor_t *mon, struct timeval *clock);
+void monikor_update_init(monikor_t *mon);
+void monikor_update_success(monikor_t *mon);
+void monikor_update_backoff(monikor_t *mon);
 int monikor_poll_modules(monikor_t *mon, struct timeval *clock);
 int monikor_send_metrics(monikor_t *mon, monikor_metric_list_t *metrics);
 void monikor_send_all_metrics(monikor_t *mon);
@@ -72,5 +79,11 @@ void monikor_signal_cleanup(void);
 // IO handling
 void monikor_register_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
 void monikor_unregister_io_handler(monikor_t *mon, monikor_io_handler_t *handler);
+
+// Subprocesses handling
+void monikor_register_process(monikor_t *mon, monikor_process_handler_t *handler);
+void monikor_unregister_process(monikor_t *mon, monikor_process_handler_t *handler);
+int monikor_reap_process(monikor_t *mon, pid_t pid);
+void monikor_process_exited(monikor_t *mon, pid_t pid);
 
 #endif /* end of include guard: MONIKOR_H_ */

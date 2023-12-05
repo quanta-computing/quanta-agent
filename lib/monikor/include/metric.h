@@ -101,6 +101,8 @@ monikor_metric_t *monikor_metric_float_id(const char *name, const struct timeval
   float value, uint8_t flags, uint16_t id);
 monikor_metric_t *monikor_metric_string(const char *name, const struct timeval *clock,
   const char *value);
+monikor_metric_t *monikor_metric_string_id(const char *name, const struct timeval *clock,
+  const char *value, uint16_t id);
 
 monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metric_t *b);
 int monikor_metric_add(monikor_metric_t *dst, const monikor_metric_t *src);
@@ -119,7 +121,7 @@ int monikor_metric_list_push(monikor_metric_list_t *list, monikor_metric_t *metr
 int monikor_metric_list_push_node(monikor_metric_list_t *list, monikor_metric_list_node_t *metric);
 monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list);
 
-void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *));
+void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *, void *), void *data);
 
 void monikor_metric_list_concat(monikor_metric_list_t *head, monikor_metric_list_t *tail);
 

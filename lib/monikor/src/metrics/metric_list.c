@@ -112,9 +112,9 @@ monikor_metric_t *monikor_metric_list_pop(monikor_metric_list_t *list) {
   return metric;
 }
 
-void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *)) {
+void monikor_metric_list_apply(monikor_metric_list_t *list, void (*apply)(monikor_metric_t *, void *), void *data) {
   for (monikor_metric_list_node_t *cur = list->first; cur; cur = cur->next)
-    apply(cur->metric);
+    apply(cur->metric, data);
 }
 
 size_t monikor_metric_list_remove_if(monikor_metric_list_t *list,

@@ -1,7 +1,7 @@
 Maintainer: Matthieu ROSINSKI <support@quanta.io>
 Section: net
 Priority: extra
-Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, libcurl3-dev, libyaml-dev, libpq-dev
+Build-Depends: debhelper (>= 9), dh-exec, dh-autoreconf, autotools-dev, check, libcurl3-dev, libyaml-dev, libpq-dev
 Standards-Version: 3.9.6
 Source: monikor
 
@@ -14,7 +14,7 @@ Description: Quanta monitoring agent with default plugins
 
 Package: quanta-agent-all
 Architecture: any
-Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nfs, quanta-agent-nginx, quanta-agent-postgresql, quanta-agent-redis
+Depends: ${misc:Depends}, quanta-agent (= ${binary:Version}), quanta-agent-apache, quanta-agent-memcached, quanta-agent-mysql, quanta-agent-nfs, quanta-agent-nginx, quanta-agent-postgresql, quanta-agent-redis, quanta-agent-varnish
 Description: Quanta monitoring agent with all plugins
  This metapackage provides the quanta-agent and all plugins to monitor your
  system
@@ -130,4 +130,11 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Description: Quanta system monitoring agent
-  This package provides a quanta-agent module to monitor system metrics
+ This package provides a quanta-agent module to monitor system metrics
+
+Package: quanta-agent-varnish
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, quanta-agent-base (= ${binary:Version})
+Pre-Depends: ${misc:Pre-Depends}
+Description: Quanta Varnish monitoring agent
+ This package provides a quanta-agent module to monitor Varnish metrics

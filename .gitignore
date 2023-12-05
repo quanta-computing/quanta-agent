@@ -31,10 +31,15 @@
 /fork
 /client
 /pkg
+/tests/check_libmonikor
+/test-driver
 
 # Debug files
 *.dSYM/
 *.log
+*.trs
+*~
+core
 
 # Etags
 tags
@@ -83,3 +88,5 @@ debian/quanta-agent-process/
 debian/quanta-agent-redis/
 debian/quanta-agent-system/
 debian/quanta-agent/
+debian/debhelper-build-stamp
+*.debhelper

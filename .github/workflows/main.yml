@@ -1,0 +1,159 @@
+name: Quanta Agent builder
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '**'
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  detect-version:
+    environment: build
+    name: 'Detect agent version'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Get configure.ac
+        id: clone
+        uses: actions/checkout@v3
+        with:
+          path: quanta-agent
+          sparse-checkout: |
+            configure.ac
+          sparse-checkout-cone-mode: false
+
+      - name: Detect build version
+        id: version
+        run: |
+          buildver=`grep -F 'AC_INIT([quanta-agent],' ./quanta-agent/configure.ac | cut -d ',' -f 2 | tr -d '[]'`
+          echo "Detected quanta-agent version ${buildver}"
+          echo "version=${buildver}" >> "${GITHUB_OUTPUT}"
+
+  builds:
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'release')
+    environment: build
+    name: '[${{ matrix.os }}][${{ matrix.version }}] - Quanta Agent Builds'
+    runs-on: ubuntu-latest
+    needs: detect-version
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [debian, centos, ubuntu]
+        version: [buster, bullseye, bookworm, 7, 8, 9, jammy, kinetic, lunar]
+        exclude:
+          - os: debian
+            version: 7
+          - os: debian
+            version: 8
+          - os: debian
+            version: 9
+          - os: debian
+            version: jammy
+          - os: debian
+            version: kinetic
+          - os: debian
+            version: lunar
+          - os: centos
+            version: buster
+          - os: centos
+            version: bullseye
+          - os: centos
+            version: bookworm
+          - os: centos
+            version: jammy
+          - os: centos
+            version: kinetic
+          - os: centos
+            version: lunar
+          - os: ubuntu
+            version: buster
+          - os: ubuntu
+            version: bullseye
+          - os: ubuntu
+            version: bookworm
+          - os: ubuntu
+            version: 7
+          - os: ubuntu
+            version: 8
+          - os: ubuntu
+            version: 9
+
+
+    steps:
+    - name: Clone Quanta Agent repository
+      uses: actions/checkout@v3
+      with:
+        path: quanta-agent
+
+    - name: Clone Buildozer repository
+      uses: actions/checkout@v3
+      with:
+        ssh-key: ${{ secrets.BUILDOZER_DEPLOY_KEY }}
+        repository: quanta-computing/buildozer
+        ref: 'new-packages-worflow'
+        persist-credentials: true
+        path: tools
+
+    - name: Build monikor packages
+      run: |
+        cd tools
+        ./buildozer -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -s ../quanta-agent/ -r ${{ needs.detect-version.outputs.version }}
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-${{ matrix.version }}-monikor-${{ needs.detect-version.outputs.version }}.tgz
+        path: tools/${{ matrix.os }}/${{ matrix.version }}/pkg/
+
+    # - name: Pelletesting
+    #   run: |
+    #     cd tools
+    #     ./pelletesteuse -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -r ${{ needs.detect-version.outputs.version }}
+
+  github-release:
+    environment: build
+    name: 'Create Github release'
+    runs-on: ubuntu-latest
+    needs: [detect-version, builds]
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+
+    - name: List artifacts
+      run: ls -lR ./artifacts
+
+    - name: Update Github release
+      uses: ncipollo/release-action@v1
+      with:
+        name: v${{ needs.detect-version.outputs.version }}
+        commit: ${{ env.GITHUB_REF }}
+        tag: v${{ needs.detect-version.outputs.version }}
+        draft: true
+        allowUpdates: true
+        artifactErrorsFailBuild: true
+        omitNameDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+        omitDraftDuringUpdate: true
+        replacesArtifacts: true
+        updateOnlyUnreleased: true
+        generateReleaseNotes: true
+        artifacts: ./artifacts/*

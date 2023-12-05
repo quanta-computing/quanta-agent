@@ -1,29 +1,64 @@
 Name:	monikor
-Version: 1.2.3
+Version: 1.3.0
 Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
-Vendor: Quanta-Computing
+Vendor: Quanta IO
 Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
 URL: http://www.quanta.io
 License: toto
-Source: monikor-1.2.3.tgz
+Source: monikor-1.3.0.tgz
 
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0
 %define _missing_doc_files_terminate_build 0
-%global __requires_exclude_from %{arch_exclude_files_from_autoreq}|%{common_exclude_files_from_autoreq}|^.*libcurl\\.so\\.4.*$
+%global __requires_exclude_from ^.*libcurl\\.so.*$
 
 %description
 Quanta monitors systems and applications. This series of packages provides the
 correct tools to collect and send metrics to Quanta servers.
+
+%package -n quanta-agent
+Summary: Quanta agent with basic plugins
+Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+Requires: quanta-agent-cpu = %{version}
+Requires: quanta-agent-disk = %{version}
+Requires: quanta-agent-network = %{version}
+Requires: quanta-agent-memory = %{version}
+Requires: quanta-agent-network = %{version}
+Requires: quanta-agent-process = %{version}
+Requires: quanta-agent-system = %{version}
+
+
+%package -n quanta-agent-all
+Summary: Quanta agent with all plugins
+Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+Requires: quanta-agent-cpu = %{version}
+Requires: quanta-agent-disk = %{version}
+Requires: quanta-agent-network = %{version}
+Requires: quanta-agent-memory = %{version}
+Requires: quanta-agent-network = %{version}
+Requires: quanta-agent-process = %{version}
+Requires: quanta-agent-system = %{version}
+Requires: quanta-agent-apache = %{version}
+Requires: quanta-agent-nginx = %{version}
+Requires: quanta-agent-memcached = %{version}
+Requires: quanta-agent-redis = %{version}
+Requires: quanta-agent-mysql = %{version}
+Requires: quanta-agent-postgresql = %{version}
+Requires: quanta-agent-varnish = %{version}
+Requires: quanta-agent-nfs = %{version}
+
 
 %package -n quanta-agent-base
 Summary: Quanta agent with no plugins
 Group: Applications/Internet
 BuildRequires : libcurl-devel
 BuildRequires : libyaml-devel
+BuildRequires : check-devel
 Requires: libmonikor = %{version}
 
 %package -n libmonikor
@@ -104,6 +139,12 @@ Summary: Quanta agent system plugin
 Group: Applications/Internet
 Requires: quanta-agent-base = %{version}
 
+%package -n quanta-agent-varnish
+Summary: Quanta agent Varnish plugin
+Group: Applications/Internet
+Requires: quanta-agent-base = %{version}
+
+
 %description -n quanta-agent-base
 This package provides a daemon to monitor system health and reports to Quanta servers.
 
@@ -152,6 +193,16 @@ This package provides a Redis plugin for quanta-agent
 %description -n quanta-agent-system
 This package provides a system plugin for quanta-agent
 
+%description -n quanta-agent-varnish
+This package provides a Varnish plugin for quanta-agent
+
+%description -n quanta-agent
+This package provides a daemon to monitor system health and reports to Quanta servers.
+
+%description -n quanta-agent-all
+This package provides a daemon to monitor system health and reports to Quanta servers.
+
+
 %prep
 %setup
 
@@ -184,6 +235,8 @@ mv %{buildroot}/usr/lib64/postgresql.so %{buildroot}/usr/lib/quanta/modules/post
 mv %{buildroot}/usr/lib64/process.so %{buildroot}/usr/lib/quanta/modules/process.so
 mv %{buildroot}/usr/lib64/redis.so %{buildroot}/usr/lib/quanta/modules/redis.so
 mv %{buildroot}/usr/lib64/system.so %{buildroot}/usr/lib/quanta/modules/system.so
+mv %{buildroot}/usr/lib64/varnish.so %{buildroot}/usr/lib/quanta/modules/varnish.so
+
 
 # remove unused lib files
 rm -f %{buildroot}/usr/lib64/*.la
@@ -252,6 +305,14 @@ rm -f %{buildroot}/usr/lib64/*.a
 %files -n quanta-agent-system
 /usr/lib/quanta/modules/system.so
 %config(noreplace) /etc/quanta/modules.d/system.yml
+
+%files -n quanta-agent-varnish
+/usr/lib/quanta/modules/varnish.so
+%config(noreplace) /etc/quanta/modules.d/varnish.yml
+
+
+%files -n quanta-agent
+%files -n quanta-agent-all
 
 %post -n quanta-agent-base
 HOSTID=`ip link | grep link/ether | head -1 | awk '{print $2}' | tr -d ':'`

@@ -17,7 +17,7 @@
 
 #include <monikor/metric.h>
 
-static void dump_metric(monikor_metric_t *metric) {
+static void dump_metric(monikor_metric_t *metric, __attribute__((unused)) void *data) {
   switch (metric->type) {
   case MONIKOR_INTEGER:
     printf("METRIC INT %s@%ld: %"PRIu64"\n",
@@ -71,7 +71,7 @@ static void handle_client(int fd) {
     rd += read(fd, data + rd, header.data_size - rd);
   } while (rd < header.data_size);
   monikor_metric_list_unserialize(data, &header, &metrics);
-  monikor_metric_list_apply(metrics, &dump_metric);
+  monikor_metric_list_apply(metrics, &dump_metric, NULL);
   monikor_metric_list_free(metrics);
   printf("-------------------------------------\n\n");
 }

@@ -21,7 +21,7 @@ int monikor_server_handle_connection(monikor_server_t *server) {
       struct sockaddr_un addr;
       socklen_t addrlen = sizeof(addr);
 
-      if ((server->clients[i].socket = accept(server->socket, (struct sockaddr *)&addr, &addrlen)) == -1)
+      if ((server->clients[i].socket = accept4(server->socket, (struct sockaddr *)&addr, &addrlen, SOCK_CLOEXEC)) == -1)
         return -1;
       if (!(handler = monikor_server_handler_new(server, &server->clients[i]))) {
         if (server->clients[i].socket != -1)

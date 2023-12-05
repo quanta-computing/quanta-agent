@@ -1,3 +1,12 @@
+monikor (1.3.0) quanta; urgency=low
+
+  * Fixed time comparison in metric store
+  * Removed varnishlib-based varnish module
+  * Added exponential backoff when server replies with 4xx errors
+  * libmonikor: Changed monikor_metric_list_apply to accept a data argument
+  * libmonikor: added monikor_metric_string_id to create a string metric with an id
+  * libmonikor: monikor_metric_clone now also clones the metric value
+
 monikor (1.2.3) quanta; urgency=low
 
   * Fix crash in Nginx module when status endpoint returns an empty response
