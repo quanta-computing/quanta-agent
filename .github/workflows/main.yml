@@ -117,7 +117,7 @@ jobs:
         ./buildozer -t monikor -o ${{ matrix.os }} -v ${{ matrix.version }} -s ../quanta-agent/ -r ${{ needs.detect-version.outputs.version }}
 
     - name: Upload packages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3
       with:
         name: ${{ matrix.os }}-${{ matrix.version }}-monikor-${{ needs.detect-version.outputs.version }}.tgz
         path: tools/${{ matrix.os }}/${{ matrix.version }}/pkg/
