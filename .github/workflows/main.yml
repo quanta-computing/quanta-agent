@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Get configure.ac
         id: clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           path: quanta-agent
           sparse-checkout: |
@@ -98,12 +98,12 @@ jobs:
 
     steps:
     - name: Clone Quanta Agent repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       with:
         path: quanta-agent
 
     - name: Clone Buildozer repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       with:
         ssh-key: ${{ secrets.BUILDOZER_DEPLOY_KEY }}
         repository: quanta-computing/buildozer
