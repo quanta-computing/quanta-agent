@@ -134,7 +134,7 @@ jobs:
     needs: [detect-version, builds]
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
       with:
         path: ./artifacts
 
@@ -142,7 +142,7 @@ jobs:
       run: ls -lR ./artifacts
 
     - name: Update Github release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
       with:
         name: v${{ needs.detect-version.outputs.version }}
         commit: ${{ env.GITHUB_REF }}
