@@ -1,0 +1,23 @@
+name: "libmonikor"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Metric library for quanta-agent
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+  deb:
+    depends:
+
+contents:
+  - src: /tmp/staging/usr/lib64/libmonikor.so*
+    dst: /usr/lib64/

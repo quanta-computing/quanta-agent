@@ -1,0 +1,31 @@
+name: "quanta-agent-postgresql"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon Experience Monitoring PostgreSQL plugin
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - quanta-agent-base = ${VERSION}
+      - postgresql-libs
+  deb:
+    depends:
+      - quanta-agent-base (= ${VERSION})
+      - libpq5
+
+contents:
+  - src: /tmp/staging/usr/lib/quanta/modules/postgresql.so
+    dst: /usr/lib/quanta/modules/postgresql.so
+
+  - src: /tmp/staging/etc/quanta/modules.d/postgresql.yml
+    dst: /etc/quanta/modules.d/postgresql.yml
+    type: config|noreplace

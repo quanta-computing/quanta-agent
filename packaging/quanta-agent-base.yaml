@@ -1,0 +1,43 @@
+name: "quanta-agent-base"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon Experience Monitoring agent with no plugins
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - libmonikor = ${VERSION}
+  deb:
+    depends:
+      - libmonikor (= ${VERSION})
+
+scripts:
+  postinstall: packaging/scripts/quanta-agent-base.postinstall.sh
+  postremove: packaging/scripts/quanta-agent-base.postremove.sh
+
+contents:
+  - src: /tmp/staging/usr/bin/quanta-agent
+    dst: /usr/bin/quanta-agent
+    file_info:
+      mode: 0755
+
+  - src: /tmp/staging/etc/init.d/quanta-agent
+    dst: /etc/init.d/quanta-agent
+    file_info:
+      mode: 0755
+
+  - src: /tmp/staging/etc/quanta/agent.yml
+    dst: /etc/quanta/agent.yml
+    type: config|noreplace
+
+  - dst: /etc/quanta/modules.d/
+    type: dir

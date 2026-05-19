@@ -1,0 +1,236 @@
+name: build-and-release-quanta-agent
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  JF_URL: https://packages.centreon.com
+  JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+jobs:
+  determine-os-matrix:
+    name: determine os matrix
+    runs-on: ubuntu-24.04
+    outputs:
+      operating_systems_matrix: ${{ steps.determine_os_matrix.outputs.operating_systems_matrix }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Determine OS matrix
+        id: determine_os_matrix
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const alma8_amd = {
+              "distrib_name": "alma8",
+              "distrib_separator": ".",
+              "distrib_family": "el8",
+              "distrib_number": "8",
+              "distrib_codename": "alma8",
+              "package_extension": "rpm",
+              "arch": "amd"
+            };
+            const alma9_amd = {
+              "distrib_name": "alma9",
+              "distrib_separator": ".",
+              "distrib_family": "el9",
+              "distrib_number": "9",
+              "distrib_codename": "alma9",
+              "package_extension": "rpm",
+              "arch": "amd"
+            };
+            const alma10_amd = {
+              "distrib_name": "alma10",
+              "distrib_separator": ".",
+              "distrib_family": "el10",
+              "distrib_number": "10",
+              "distrib_codename": "alma10",
+              "package_extension": "rpm",
+              "arch": "amd"
+            };
+            const debian12_amd = {
+              "distrib_name": "deb12u1",
+              "distrib_separator": "+",
+              "distrib_family": "debian",
+              "distrib_number": "12",
+              "distrib_codename": "bookworm",
+              "package_extension": "deb",
+              "arch": "amd"
+            };
+            const debian12_arm = {
+              "distrib_name": "deb12u1",
+              "distrib_separator": "+",
+              "distrib_family": "debian",
+              "distrib_number": "12",
+              "distrib_codename": "bookworm",
+              "package_extension": "deb",
+              "arch": "arm"
+            };
+            const debian13_amd = {
+              "distrib_name": "deb13u1",
+              "distrib_separator": "+",
+              "distrib_family": "debian",
+              "distrib_number": "13",
+              "distrib_codename": "trixie",
+              "package_extension": "deb",
+              "arch": "amd"
+            };
+            const ubuntu2404_amd = {
+              "distrib_name": "0ubuntu.24.04",
+              "distrib_separator": "-",
+              "distrib_family": "ubuntu",
+              "distrib_number": "24.04",
+              "distrib_codename": "noble",
+              "package_extension": "deb",
+              "arch": "amd"
+            };
+
+            const operating_systems_matrix = [alma8_amd, alma9_amd, alma10_amd, debian12_amd, debian12_arm, debian13_amd, ubuntu2404_amd];
+
+            core.setOutput('operating_systems_matrix', JSON.stringify({ include: operating_systems_matrix }));
+
+  package:
+    name: package ${{ matrix.distrib_name }}
+    runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    needs: [determine-os-matrix]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
+    container:
+      image: ${{ matrix.arch == 'arm' && format('ghcr.io/centreon/delivery-tooling/packaging/latest-{0}-arm', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging/latest-{0}', matrix.distrib_codename) }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
+            dnf install -y libcurl-devel libyaml-devel check check-devel
+          else
+            apt-get update && apt-get install -y libcurl4-openssl-dev libyaml-dev check
+          fi
+
+      - name: Import gpg key
+        shell: bash
+        env:
+          RPM_GPG_SIGNING_KEY: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+        run: echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg
+
+      - name: Build
+        shell: bash
+        run: |
+          autoreconf -f -i
+          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
+            ./configure --prefix=/usr --libdir=/usr/lib64
+          else
+            ./configure --prefix=/usr
+          fi
+          make
+
+      - name: Stage
+        shell: bash
+        run: |
+          make install DESTDIR=/tmp/staging
+
+          mkdir -p /tmp/staging/etc/quanta/modules.d \
+                   /tmp/staging/usr/lib/quanta/modules \
+                   /tmp/staging/etc/init.d
+
+          install -m 755 misc/monikor.centos.init /tmp/staging/etc/init.d/quanta-agent
+          mv /tmp/staging/usr/bin/monikor /tmp/staging/usr/bin/quanta-agent
+          mv /tmp/staging/etc/monikor/config.yml /tmp/staging/etc/quanta/agent.yml
+          mv /tmp/staging/etc/monikor/modules.d/*.yml /tmp/staging/etc/quanta/modules.d/
+
+          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
+            libdir=/tmp/staging/usr/lib64
+          else
+            libdir=/tmp/staging/usr/lib
+          fi
+
+          for module in apache cpu disk memcached memory mysqlstat network nfs nginx postgresql process redis system varnish; do
+            [ -f "${libdir}/${module}.so" ] && \
+              mv "${libdir}/${module}.so" "/tmp/staging/usr/lib/quanta/modules/${module}.so" || true
+          done
+
+          rm -f ${libdir}/*.la ${libdir}/*.a
+
+      - name: Package ${{ matrix.package_extension }} files
+        shell: bash
+        env:
+          RPM_GPG_SIGNING_KEY_ID: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          RPM_GPG_SIGNING_PASSPHRASE: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          PACKAGE_EXTENSION: ${{ matrix.package_extension }}
+          DISTRIB_NAME: ${{ matrix.distrib_name }}
+          DISTRIB_SEPARATOR: ${{ matrix.distrib_separator }}
+          ARCH: ${{ matrix.arch }}
+          COMMIT_HASH: ${{ github.sha }}
+        run: |
+          export VERSION=$(grep 'AC_INIT' configure.ac | sed "s/.*\[\([0-9.]*\)\].*/\1/")
+          export RELEASE="1"
+          export DIST="${DISTRIB_SEPARATOR}${DISTRIB_NAME}"
+
+          export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
+          export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
+          export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
+
+          chmod +x packaging/scripts/*.sh
+
+          for FILE in packaging/*.yaml; do
+            sed -i "s/@COMMIT_HASH@/${COMMIT_HASH}/g" "$FILE"
+            nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
+          done
+
+      - name: Cache packages
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ./*.${{ matrix.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: ${{ matrix.arch != '' && format('packages-{0}-{1}', matrix.distrib_name, matrix.arch) || format('packages-{0}', matrix.distrib_name) }}
+          path: ./*.${{ matrix.package_extension }}
+          merge-multiple: true
+
+  dockerize:
+    name: dockerize ${{ matrix.distrib_name }}
+    runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    needs: [determine-os-matrix, package]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
+    steps:
+      - name: Not yet implemented
+        run: echo "dockerize not yet implemented"
+
+  delivery:
+    name: delivery ${{ matrix.distrib_name }}
+    runs-on: ubuntu-24.04
+    needs: [determine-os-matrix, dockerize]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
+    steps:
+      - name: Not yet implemented
+        run: echo "delivery not yet implemented"

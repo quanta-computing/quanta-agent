@@ -1,0 +1,29 @@
+name: "quanta-agent-memcached"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon Experience Monitoring Memcached plugin
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - quanta-agent-base = ${VERSION}
+  deb:
+    depends:
+      - quanta-agent-base (= ${VERSION})
+
+contents:
+  - src: /tmp/staging/usr/lib/quanta/modules/memcached.so
+    dst: /usr/lib/quanta/modules/memcached.so
+
+  - src: /tmp/staging/etc/quanta/modules.d/memcached.yml
+    dst: /etc/quanta/modules.d/memcached.yml
+    type: config|noreplace

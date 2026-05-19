@@ -1,0 +1,107 @@
+#!/bin/bash
+# current agent version is 1.2.0
+
+usage() {
+  echo "Usage: $0 -t monikor -o debian|ubuntu|alma -v <os version> -s </path/to/package> -r <package version> [-d (debug mode)]" 1>&2
+  exit 1
+}
+
+while getopts ":i?:d?:h?:t:o:v:s:r:" i; do
+  case "${i}" in
+    h|\?)
+      usage
+      ;;
+    d)
+      debug=1
+      ;;
+    t)
+      type=${OPTARG}
+      [[ "${type}" == "monikor" || "${type}" =~ php[0-9]{2}-quanta-mon || "${type}" =~ php[0-9]{2}-remi-quanta-mon ]] || usage
+      ;;
+    o)
+      os=${OPTARG}
+      [[ "${os}" == "debian" || "${os}" == "ubuntu" || "${os}" == "alma" ]] || usage
+      ;;
+    v)
+      version=${OPTARG}
+      ;;
+    r)
+      package_version=${OPTARG}
+      ;;
+    s)
+      source=${OPTARG}
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+if [ -z "${type}" ] \
+  || [ -z "${os}" ] \
+  || [ -z "${version}" ] \
+  || [ -z "${source}" ] \
+  || [ -z "${package_version}" ]
+then
+  usage
+fi
+
+if [ ! -d $source ]; then
+  echo "ERROR: Wrong source path, ${source} does not exist"
+  exit 1
+fi
+
+localdir=`git rev-parse --show-toplevel`
+outdir=${os}-${version}_${type}-${package_version}
+sourcedir=${type}-${package_version}
+configpath=${localdir}/${os}/${version}/${type}
+tmp=${localdir}/tmp
+dockerfile=${configpath}/Dockerfile
+overridesdir=${configpath}/overrides
+entrypoint=${os}.sh
+
+###################
+## BUILDING PART ##
+###################
+
+# cleanup tmp files
+rm -rf ${tmp}/${sourcedir}
+
+echo "======>>> Copying source (${source}) and overrides to local path..."
+rsync -ahv --delete \
+  --exclude '.git/*' --exclude '*.o' --exclude '*.a' \
+  ${source}/ ${tmp}/${sourcedir}/
+if [ -d "${overridesdir}" ]; then
+  rsync -ahv ${overridesdir}/ ${tmp}/${sourcedir}/
+fi
+
+echo "======>>> Started building docker image to package [${type}] for ${os}/${version}..."
+if [ ! -f $dockerfile ]; then
+  echo "ERROR: Wrong os or version, ${dockerfile} does not exist"
+  exit 1
+fi
+
+image=`docker build -q . -f ${dockerfile} | cut -d ':' -f 2`
+ret=$?
+if [ ! $ret -eq 0 ] || [ -z "$image" ] ; then
+  echo "ERROR: Failed to build docker image, exiting..."
+  exit 1
+fi
+
+if [ -z "${debug}" ]; then
+  echo "======>>> Started building packages"
+  exec docker run --rm \
+    -v "${localdir}":/sources \
+    -e SOURCEDIR=${sourcedir} \
+    -e OUTDIR=${outdir} \
+    --entrypoint ${entrypoint} \
+    ${image}
+else
+  echo "======>>> Running debug shell"
+  exec docker run -it --rm \
+    -v "${localdir}":/sources \
+    -e SOURCEDIR=${sourcedir} \
+    -e OUTDIR=${outdir} \
+    -p 8080:80 \
+    ${image}
+fi

@@ -1,0 +1,29 @@
+name: "quanta-agent-nfs"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon Experience Monitoring NFS plugin
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - quanta-agent-base = ${VERSION}
+  deb:
+    depends:
+      - quanta-agent-base (= ${VERSION})
+
+contents:
+  - src: /tmp/staging/usr/lib/quanta/modules/nfs.so
+    dst: /usr/lib/quanta/modules/nfs.so
+
+  - src: /tmp/staging/etc/quanta/modules.d/nfs.yml
+    dst: /etc/quanta/modules.d/nfs.yml
+    type: config|noreplace
