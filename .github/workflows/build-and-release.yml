@@ -126,9 +126,9 @@ jobs:
         run: |
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
             [ "${{ matrix.distrib_number }}" = "8" ] && dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
-            dnf install -y autoconf automake libtool pkgconfig libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
+            dnf install -y gcc make autoconf automake libtool pkgconfig libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
           else
-            apt-get update && apt-get install -y autoconf automake libtool pkg-config libcurl4-openssl-dev libyaml-dev check default-libmysqlclient-dev libpq-dev
+            apt-get update && apt-get install -y gcc make autoconf automake libtool pkg-config libcurl4-openssl-dev libyaml-dev check default-libmysqlclient-dev libpq-dev
           fi
 
       - name: Import GPG signing key
