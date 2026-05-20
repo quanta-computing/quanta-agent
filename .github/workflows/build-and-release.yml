@@ -136,36 +136,30 @@ jobs:
           RPM_GPG_SIGNING_KEY: ${{ secrets.RPM_GPG_SIGNING_KEY }}
         run: echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg
 
-      - name: Build
+      - name: Build make and compile quanta agent libraries
+        id: compile
         shell: bash
         run: |
           autoreconf -f -i
-          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
-            ./configure --prefix=/usr --libdir=/usr/lib64
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            LIBDIR="usr/lib64"
+            ./configure --prefix=/usr --libdir=/$LIBDIR
           else
+            LIBDIR="usr/lib"
             ./configure --prefix=/usr
           fi
+          echo "LIBDIR=$LIBDIR" >> $GITHUB_OUTPUT
           make
-
-      - name: Stage
-        shell: bash
-        run: |
           make install DESTDIR=/tmp/staging
 
           mkdir -p /tmp/staging/etc/quanta/modules.d \
-                   /tmp/staging/usr/lib/quanta/modules \
+                   /tmp/staging/${LIBDIR}/quanta/modules \
                    /tmp/staging/etc/init.d
 
           install -m 755 misc/monikor.centos.init /tmp/staging/etc/init.d/quanta-agent
           mv /tmp/staging/usr/bin/monikor /tmp/staging/usr/bin/quanta-agent
           mv /tmp/staging/etc/monikor/config.yml /tmp/staging/etc/quanta/agent.yml
           mv /tmp/staging/etc/monikor/modules.d/*.yml /tmp/staging/etc/quanta/modules.d/
-
-          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
-            LIBDIR="usr/lib64"
-          else
-            LIBDIR="usr/lib"
-          fi
 
           for module in apache cpu disk memcached memory mysqlstat network nfs nginx postgresql process redis system varnish; do
             [ -f "/tmp/staging/${LIBDIR}/${module}.so" ] && mv "/tmp/staging/${LIBDIR}/${module}.so" "/tmp/staging/${LIBDIR}/quanta/modules/${module}.so" || true
@@ -176,6 +170,7 @@ jobs:
       - name: Package ${{ matrix.package_extension }} files
         shell: bash
         env:
+          LIBDIR: ${{ steps.compile.outputs.LIBDIR }}
           RPM_GPG_SIGNING_KEY_ID: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           RPM_GPG_SIGNING_PASSPHRASE: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           PACKAGE_EXTENSION: ${{ matrix.package_extension }}
@@ -191,12 +186,6 @@ jobs:
           export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
           export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
           export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
-
-          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
-            LIBDIR="usr/lib64"
-          else
-            LIBDIR="usr/lib"
-          fi
 
           chmod +x packaging/scripts/*.sh
 
