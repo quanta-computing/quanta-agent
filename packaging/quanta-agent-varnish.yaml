@@ -24,7 +24,7 @@ scripts:
   postinstall: packaging/scripts/quanta-agent-varnish.postinstall.sh
 
 contents:
-  - src: /tmp/staging/@LIBDIR@/quanta/modules/varnish.so
+  - src: /tmp/staging/@LIBDIR@/varnish.so
     dst: /@LIBDIR@/quanta/modules/varnish.so
 
   - src: /tmp/staging/etc/quanta/modules.d/varnish.yml

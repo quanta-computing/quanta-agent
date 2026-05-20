@@ -31,12 +31,12 @@ contents:
     file_info:
       mode: 0755
 
-  - src: /tmp/staging/usr/lib/systemd/system/quanta-agent.service
+  - src: /tmp/staging/@LIBDIR/systemd/system/quanta-agent.service
     dst: /etc/systemd/system/quanta-agent.service
     file_info:
       mode: 0644
     packager: rpm
-  - src: /tmp/staging/usr/lib/systemd/system/quanta-agent.service
+  - src: /tmp/staging/@LIBDIR/systemd/system/quanta-agent.service
     dst: /lib/systemd/system/quanta-agent.service
     file_info:
       mode: 0644
