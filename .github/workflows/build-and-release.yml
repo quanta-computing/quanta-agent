@@ -148,10 +148,10 @@ jobs:
           autoreconf -f -i
           if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
             LIBDIR="usr/lib64"
-            ./configure --prefix=/usr --libdir=/$LIBDIR
+            ./configure --prefix=/usr --sysconfdir=/etc --libdir=/$LIBDIR
           else
             LIBDIR="usr/lib"
-            ./configure --prefix=/usr
+            ./configure --prefix=/usr --sysconfdir=/etc
           fi
           echo "LIBDIR=$LIBDIR" >> $GITHUB_OUTPUT
           make

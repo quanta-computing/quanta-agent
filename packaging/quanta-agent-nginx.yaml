@@ -21,8 +21,8 @@ overrides:
       - quanta-agent-base (= ${VERSION})
 
 contents:
-  - src: /tmp/staging/@LIBDIR@/nginx.so
-    dst: /@LIBDIR@/quanta/modules/nginx.so
+  - src: /tmp/staging/usr/lib/quanta/modules/nginx.so
+    dst: /usr/lib/quanta/modules/nginx.so
 
   - src: /tmp/staging/etc/quanta/modules.d/nginx.yml
     dst: /etc/quanta/modules.d/nginx.yml

@@ -21,8 +21,8 @@ overrides:
       - quanta-agent-base (= ${VERSION})
 
 contents:
-  - src: /tmp/staging/@LIBDIR@/redis.so
-    dst: /@LIBDIR@/quanta/modules/redis.so
+  - src: /tmp/staging/usr/lib/quanta/modules/redis.so
+    dst: /usr/lib/quanta/modules/redis.so
 
   - src: /tmp/staging/etc/quanta/modules.d/redis.yml
     dst: /etc/quanta/modules.d/redis.yml
