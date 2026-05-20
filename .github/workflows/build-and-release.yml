@@ -126,9 +126,9 @@ jobs:
         run: |
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
             [ "${{ matrix.distrib_number }}" = "8" ] && dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
-            dnf install -y autoconf automake libtool libcurl-devel libyaml-devel check check-devel
+            dnf install -y autoconf automake libtool libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
           else
-            apt-get update && apt-get install -y autoconf automake libtool libcurl4-openssl-dev libyaml-dev check
+            apt-get update && apt-get install -y autoconf automake libtool libcurl4-openssl-dev libyaml-dev check default-libmysqlclient-dev libpq-dev
           fi
 
       - name: Import GPG signing key
@@ -141,6 +141,10 @@ jobs:
         id: compile
         shell: bash
         run: |
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            mkdir -p /usr/include/postgresql
+            ln -sf /usr/include/libpq-fe.h /usr/include/postgresql/libpq-fe.h
+          fi
           autoreconf -f -i
           if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
             LIBDIR="usr/lib64"
