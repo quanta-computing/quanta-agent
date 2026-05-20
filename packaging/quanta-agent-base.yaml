@@ -21,6 +21,7 @@ overrides:
       - libmonikor (= ${VERSION})
 
 scripts:
+  preremove: packaging/scripts/quanta-agent-base.preremove.sh
   postinstall: packaging/scripts/quanta-agent-base.postinstall.sh
   postremove: packaging/scripts/quanta-agent-base.postremove.sh
 
@@ -30,11 +31,16 @@ contents:
     file_info:
       mode: 0755
 
-  - src: /tmp/staging/etc/init.d/quanta-agent
-    dst: /etc/init.d/quanta-agent
+  - src: /tmp/staging/usr/lib/systemd/system/quanta-agent.service
+    dst: /etc/systemd/system/quanta-agent.service
     file_info:
-      mode: 0755
+      mode: 0644
     packager: rpm
+  - src: /tmp/staging/usr/lib/systemd/system/quanta-agent.service
+    dst: /lib/systemd/system/quanta-agent.service
+    file_info:
+      mode: 0644
+    packager: deb
 
   - src: /tmp/staging/etc/quanta/agent.yml
     dst: /etc/quanta/agent.yml

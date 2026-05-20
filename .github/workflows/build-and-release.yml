@@ -108,14 +108,14 @@ jobs:
             core.setOutput('operating_systems_matrix', JSON.stringify({ include: operating_systems_matrix }));
 
   package:
-    name: package ${{ matrix.distrib_name }}
+    name: package ${{ matrix.distrib_codename }}
     runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     needs: [determine-os-matrix]
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
     container:
-      image: ${{ matrix.arch == 'arm' && format('ghcr.io/centreon/delivery-tooling/packaging/latest-{0}-arm', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging/latest-{0}', matrix.distrib_codename) }}
+      image: ${{ matrix.arch == 'arm' && format('ghcr.io/centreon/delivery-tooling/packaging-nfpm-{0}-arm64:latest', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging-nfpm-{0}-arm64:latest', matrix.distrib_codename) }}
 
     steps:
       - name: Checkout sources
@@ -153,20 +153,18 @@ jobs:
           make install DESTDIR=/tmp/staging
 
           mkdir -p /tmp/staging/etc/quanta/modules.d \
-                   /tmp/staging/${LIBDIR}/quanta/modules \
-                   /tmp/staging/etc/init.d
-          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-            install -m 755 misc/monikor.alma.init /tmp/staging/etc/init.d/quanta-agent
-          fi
+                   /tmp/staging/usr/lib/quanta/modules \
+                   /tmp/staging/usr/lib/systemd/system
+          install -m 644 misc/quanta-agent.service /tmp/staging/usr/lib/systemd/system/quanta-agent.service
           mv /tmp/staging/usr/bin/monikor /tmp/staging/usr/bin/quanta-agent
           mv /tmp/staging/etc/monikor/config.yml /tmp/staging/etc/quanta/agent.yml
           mv /tmp/staging/etc/monikor/modules.d/*.yml /tmp/staging/etc/quanta/modules.d/
 
           for module in apache cpu disk memcached memory mysqlstat network nfs nginx postgresql process redis system varnish; do
-            [ -f "/tmp/staging/${LIBDIR}/${module}.so" ] && mv "/tmp/staging/${LIBDIR}/${module}.so" "/tmp/staging/${LIBDIR}/quanta/modules/${module}.so" || true
+            [[ -f "/tmp/staging/${LIBDIR}/${module}.so" ]] && mv "/tmp/staging/${LIBDIR}/${module}.so" "/tmp/staging/usr/lib/quanta/modules/${module}.so" || true
           done
 
-          rm -f ${libdir}/*.la ${libdir}/*.a
+          rm -f /tmp/staging/${LIBDIR}/*.la /tmp/staging/${LIBDIR}/*.a
 
       - name: Package ${{ matrix.package_extension }} files
         shell: bash
@@ -183,6 +181,7 @@ jobs:
           export VERSION=$(grep 'AC_INIT' configure.ac | sed "s/.*\[\([0-9.]*\)\].*/\1/")
           export RELEASE="1"
           export DIST="${DISTRIB_SEPARATOR}${DISTRIB_NAME}"
+          [ "$PACKAGE_EXTENSION" = "rpm" ] && DEVEL_SUFFIX="devel" || DEVEL_SUFFIX="dev"
 
           export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
           export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
@@ -193,6 +192,7 @@ jobs:
           for FILE in packaging/*.yaml; do
             sed -i "s/@COMMIT_HASH@/${COMMIT_HASH}/g" "$FILE"
             sed -i "s/@LIBDIR@/${LIBDIR}/g" "$FILE"
+            sed -i "s/@DEVEL_SUFFIX@/${DEVEL_SUFFIX}/g" "$FILE"
             nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
           done
 
@@ -210,7 +210,7 @@ jobs:
           merge-multiple: true
 
   dockerize:
-    name: dockerize ${{ matrix.distrib_name }}
+    name: dockerize ${{ matrix.distrib_codename }}
     runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     needs: [determine-os-matrix, package]
     strategy:
@@ -221,7 +221,7 @@ jobs:
         run: echo "dockerize not yet implemented"
 
   delivery:
-    name: delivery ${{ matrix.distrib_name }}
+    name: delivery ${{ matrix.distrib_codename }}
     runs-on: ubuntu-24.04
     needs: [determine-os-matrix, dockerize]
     strategy:

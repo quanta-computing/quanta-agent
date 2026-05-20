@@ -1,4 +1,4 @@
-name: "libmonikor-devel"
+name: "libmonikor-@DEVEL_SUFFIX@"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
