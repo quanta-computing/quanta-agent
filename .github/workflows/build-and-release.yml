@@ -183,7 +183,8 @@ jobs:
           ARCH: ${{ matrix.arch }}
           COMMIT_HASH: ${{ github.sha }}
         run: |
-          export VERSION=`grep -F 'AC_INIT([quanta-agent],' ./quanta-agent/configure.ac | cut -d ',' -f 2 | tr -d '[]'`
+          source .version
+          export VERSION=${VERSION}
           export RELEASE="1"
           export DIST="${DISTRIB_SEPARATOR}${DISTRIB_NAME}"
           [ "$PACKAGE_EXTENSION" = "rpm" ] && DEVEL_SUFFIX="devel" || DEVEL_SUFFIX="dev"
