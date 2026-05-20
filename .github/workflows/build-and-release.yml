@@ -108,7 +108,7 @@ jobs:
             core.setOutput('operating_systems_matrix', JSON.stringify({ include: operating_systems_matrix }));
 
   package:
-    name: package ${{ matrix.distrib_codename }}
+    name: package ${{ matrix.distrib_codename }} ${{ matrix.arch }}
     runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     needs: [determine-os-matrix]
     strategy:
