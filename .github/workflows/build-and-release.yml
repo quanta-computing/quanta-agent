@@ -206,14 +206,14 @@ jobs:
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ./*.${{ matrix.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          pattern: ${{ matrix.arch != '' && format('packages-{0}-{1}', matrix.distrib_name, matrix.arch) || format('packages-{0}', matrix.distrib_name) }}
+          name: packages-${{ github.run_id }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
           path: ./*.${{ matrix.package_extension }}
-          merge-multiple: true
+          retention-days: 7
 
   dockerize:
     name: dockerize ${{ matrix.distrib_codename }}
