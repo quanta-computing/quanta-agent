@@ -23,8 +23,8 @@ overrides:
       - libpq5
 
 contents:
-  - src: /tmp/staging/usr/lib/quanta/modules/postgresql.so
-    dst: /usr/lib/quanta/modules/postgresql.so
+  - src: /tmp/staging/@LIBDIR@/quanta/modules/postgresql.so
+    dst: /@LIBDIR@/quanta/modules/postgresql.so
 
   - src: /tmp/staging/etc/quanta/modules.d/postgresql.yml
     dst: /etc/quanta/modules.d/postgresql.yml

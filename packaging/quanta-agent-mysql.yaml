@@ -23,8 +23,8 @@ overrides:
       - libmysqlclient21
 
 contents:
-  - src: /tmp/staging/usr/lib/quanta/modules/mysqlstat.so
-    dst: /usr/lib/quanta/modules/mysqlstat.so
+  - src: /tmp/staging/@LIBDIR@/quanta/modules/mysqlstat.so
+    dst: /@LIBDIR@/quanta/modules/mysqlstat.so
 
   - src: /tmp/staging/etc/quanta/modules.d/mysqlstat.yml
     dst: /etc/quanta/modules.d/mysqlstat.yml

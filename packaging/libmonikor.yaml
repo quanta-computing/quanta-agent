@@ -19,5 +19,5 @@ overrides:
     depends:
 
 contents:
-  - src: /tmp/staging/usr/lib64/libmonikor.so*
-    dst: /usr/lib64/
+  - src: /tmp/staging/@LIBDIR@/libmonikor.so*
+    dst: /@LIBDIR@/

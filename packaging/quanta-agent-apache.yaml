@@ -21,8 +21,8 @@ overrides:
       - quanta-agent-base (= ${VERSION})
 
 contents:
-  - src: /tmp/staging/usr/lib/quanta/modules/apache.so
-    dst: /usr/lib/quanta/modules/apache.so
+  - src: /tmp/staging/@LIBDIR@/quanta/modules/apache.so
+    dst: /@LIBDIR/quanta/modules/apache.so
 
   - src: /tmp/staging/etc/quanta/modules.d/apache.yml
     dst: /etc/quanta/modules.d/apache.yml

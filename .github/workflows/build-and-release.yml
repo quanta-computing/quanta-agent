@@ -130,7 +130,7 @@ jobs:
             apt-get update && apt-get install -y libcurl4-openssl-dev libyaml-dev check
           fi
 
-      - name: Import gpg key
+      - name: Import GPG signing key
         shell: bash
         env:
           RPM_GPG_SIGNING_KEY: ${{ secrets.RPM_GPG_SIGNING_KEY }}
@@ -162,14 +162,13 @@ jobs:
           mv /tmp/staging/etc/monikor/modules.d/*.yml /tmp/staging/etc/quanta/modules.d/
 
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
-            libdir=/tmp/staging/usr/lib64
+            LIBDIR="usr/lib64"
           else
-            libdir=/tmp/staging/usr/lib
+            LIBDIR="usr/lib"
           fi
 
           for module in apache cpu disk memcached memory mysqlstat network nfs nginx postgresql process redis system varnish; do
-            [ -f "${libdir}/${module}.so" ] && \
-              mv "${libdir}/${module}.so" "/tmp/staging/usr/lib/quanta/modules/${module}.so" || true
+            [ -f "/tmp/staging/${LIBDIR}/${module}.so" ] && mv "/tmp/staging/${LIBDIR}/${module}.so" "/tmp/staging/${LIBDIR}/quanta/modules/${module}.so" || true
           done
 
           rm -f ${libdir}/*.la ${libdir}/*.a
@@ -193,10 +192,17 @@ jobs:
           export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
           export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
 
+          if [ "${{ matrix.package_extension }}" = "rpm" ]; then
+            LIBDIR="usr/lib64"
+          else
+            LIBDIR="usr/lib"
+          fi
+
           chmod +x packaging/scripts/*.sh
 
           for FILE in packaging/*.yaml; do
             sed -i "s/@COMMIT_HASH@/${COMMIT_HASH}/g" "$FILE"
+            sed -i "s/@LIBDIR@/${LIBDIR}/g" "$FILE"
             nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
           done
 
