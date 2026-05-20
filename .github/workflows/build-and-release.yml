@@ -196,9 +196,9 @@ jobs:
           chmod +x packaging/scripts/*.sh
 
           for FILE in packaging/*.yaml; do
-            sed -i "s/@COMMIT_HASH@/${COMMIT_HASH}/g" "$FILE"
-            sed -i "s/@LIBDIR@/${LIBDIR}/g" "$FILE"
-            sed -i "s/@DEVEL_SUFFIX@/${DEVEL_SUFFIX}/g" "$FILE"
+            sed -i "s|@COMMIT_HASH@|${COMMIT_HASH}|g" "$FILE"
+            sed -i "s|@LIBDIR@|${LIBDIR}|g" "$FILE"
+            sed -i "s|@DEVEL_SUFFIX@|${DEVEL_SUFFIX}|g" "$FILE"
             nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
           done
 
