@@ -126,9 +126,9 @@ jobs:
         run: |
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
             [ "${{ matrix.distrib_number }}" = "8" ] && dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
-            dnf install -y autoconf automake libtool libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
+            dnf install -y autoconf automake libtool pkgconfig libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
           else
-            apt-get update && apt-get install -y autoconf automake libtool libcurl4-openssl-dev libyaml-dev check default-libmysqlclient-dev libpq-dev
+            apt-get update && apt-get install -y autoconf automake libtool pkg-config libcurl4-openssl-dev libyaml-dev check default-libmysqlclient-dev libpq-dev
           fi
 
       - name: Import GPG signing key
@@ -183,7 +183,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
           COMMIT_HASH: ${{ github.sha }}
         run: |
-          export VERSION=$(grep 'AC_INIT' configure.ac | sed "s/.*\[\([0-9.]*\)\].*/\1/")
+          export VERSION=`grep -F 'AC_INIT([quanta-agent],' ./quanta-agent/configure.ac | cut -d ',' -f 2 | tr -d '[]'`
           export RELEASE="1"
           export DIST="${DISTRIB_SEPARATOR}${DISTRIB_NAME}"
           [ "$PACKAGE_EXTENSION" = "rpm" ] && DEVEL_SUFFIX="devel" || DEVEL_SUFFIX="dev"
