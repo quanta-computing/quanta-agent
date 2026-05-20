@@ -155,8 +155,9 @@ jobs:
           mkdir -p /tmp/staging/etc/quanta/modules.d \
                    /tmp/staging/${LIBDIR}/quanta/modules \
                    /tmp/staging/etc/init.d
-
-          install -m 755 misc/monikor.centos.init /tmp/staging/etc/init.d/quanta-agent
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            install -m 755 misc/monikor.alma.init /tmp/staging/etc/init.d/quanta-agent
+          fi
           mv /tmp/staging/usr/bin/monikor /tmp/staging/usr/bin/quanta-agent
           mv /tmp/staging/etc/monikor/config.yml /tmp/staging/etc/quanta/agent.yml
           mv /tmp/staging/etc/monikor/modules.d/*.yml /tmp/staging/etc/quanta/modules.d/

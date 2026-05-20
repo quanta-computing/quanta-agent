@@ -34,6 +34,7 @@ contents:
     dst: /etc/init.d/quanta-agent
     file_info:
       mode: 0755
+    packager: rpm
 
   - src: /tmp/staging/etc/quanta/agent.yml
     dst: /etc/quanta/agent.yml
