@@ -126,9 +126,9 @@ jobs:
         run: |
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
             [ "${{ matrix.distrib_number }}" = "8" ] && dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
-            dnf install -y libcurl-devel libyaml-devel check check-devel
+            dnf install -y autoconf automake libtool libcurl-devel libyaml-devel check check-devel
           else
-            apt-get update && apt-get install -y libcurl4-openssl-dev libyaml-dev check
+            apt-get update && apt-get install -y autoconf automake libtool libcurl4-openssl-dev libyaml-dev check
           fi
 
       - name: Import GPG signing key
