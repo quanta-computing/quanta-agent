@@ -279,6 +279,7 @@ jobs:
             UPLOAD_REPO_PATH="pool/${{ env.VERSION }}/$STABILITY/cxm-agent/"
             DEB_ARCH=$([[ "${{ matrix.arch }}" == "arm" ]] && echo "arm64" || echo "amd64")
             DEB_PROP="${{ matrix.distrib_codename }}-${{ env.VERSION }}/main/${DEB_ARCH}"
+            jf rt delete "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH/*${{ matrix.distrib_name }}*$DEB_ARCH*.deb"
             jf rt upload "*.deb" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --deb "$DEB_PROP" --detailed-summary
             curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
               -X POST "${{ env.JF_URL }}/artifactory/api/deb/reindex/${ROOT_REPO_PATH}?async=1"
