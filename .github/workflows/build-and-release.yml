@@ -46,7 +46,7 @@ jobs:
               "distrib_number": "8",
               "distrib_codename": "alma8",
               "package_extension": "rpm",
-              "arch": "amd"
+              "arch": "amd64"
             };
             const alma9_amd = {
               "distrib_name": "alma9",
@@ -55,7 +55,7 @@ jobs:
               "distrib_number": "9",
               "distrib_codename": "alma9",
               "package_extension": "rpm",
-              "arch": "amd"
+              "arch": "amd64"
             };
             const alma10_amd = {
               "distrib_name": "alma10",
@@ -64,7 +64,7 @@ jobs:
               "distrib_number": "10",
               "distrib_codename": "alma10",
               "package_extension": "rpm",
-              "arch": "amd"
+              "arch": "amd64"
             };
             const debian12_amd = {
               "distrib_name": "deb12u1",
@@ -73,7 +73,7 @@ jobs:
               "distrib_number": "12",
               "distrib_codename": "bookworm",
               "package_extension": "deb",
-              "arch": "amd"
+              "arch": "amd64"
             };
             const debian12_arm = {
               "distrib_name": "deb12u1",
@@ -82,7 +82,7 @@ jobs:
               "distrib_number": "12",
               "distrib_codename": "bookworm",
               "package_extension": "deb",
-              "arch": "arm"
+              "arch": "arm64"
             };
             const debian13_amd = {
               "distrib_name": "deb13u1",
@@ -91,7 +91,7 @@ jobs:
               "distrib_number": "13",
               "distrib_codename": "trixie",
               "package_extension": "deb",
-              "arch": "amd"
+              "arch": "amd64"
             };
             const ubuntu2404_amd = {
               "distrib_name": "0ubuntu.24.04",
@@ -100,7 +100,7 @@ jobs:
               "distrib_number": "24.04",
               "distrib_codename": "noble",
               "package_extension": "deb",
-              "arch": "amd"
+              "arch": "amd64"
             };
 
             const operating_systems_matrix = [alma8_amd, alma9_amd, alma10_amd, debian12_amd, debian12_arm, debian13_amd, ubuntu2404_amd];
@@ -109,7 +109,7 @@ jobs:
 
   package:
     name: package ${{ matrix.distrib_codename }} ${{ matrix.arch }}
-    runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     needs: [determine-os-matrix]
     outputs:
       VERSION: ${{ steps.compile.outputs.VERSION }}
@@ -117,12 +117,12 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
     container:
-      image: ${{ matrix.arch == 'arm' && format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}-arm64', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}', matrix.distrib_codename) }}
+      image: ${{ matrix.arch == 'arm64' && format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}-arm64', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}', matrix.distrib_codename) }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Install build dependencies
+      - name: Install build dependencies on packaging dockerfile
         shell: bash
         run: |
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
@@ -220,8 +220,8 @@ jobs:
           retention-days: 7
 
   dockerize:
-    name: dockerize ${{ matrix.distrib_codename }}
-    runs-on: ${{ matrix.arch == 'arm' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    name: dockerize ${{ matrix.distrib_codename }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     needs: [determine-os-matrix, package]
     strategy:
       fail-fast: false
@@ -231,7 +231,7 @@ jobs:
         run: echo "dockerize not yet implemented"
 
   delivery:
-    name: delivery ${{ matrix.distrib_codename }}
+    name: delivery ${{ matrix.distrib_codename }} ${{ matrix.arch }}
     runs-on: ubuntu-24.04
     needs: [determine-os-matrix, dockerize, package]
     strategy:
@@ -259,17 +259,16 @@ jobs:
         run: |
           set -euo pipefail
 
-
           if [[ ${{ matrix.package_extension }} == "rpm" ]]; then
             ROOT_REPO_PATH="rpm-cxm"
-            UPLOAD_REPO_PATH="${{ env.VERSION }}/${{ matrix.distrib_family }}/x86_64/quanta-agent/"
+            UPLOAD_REPO_PATH="${{ env.VERSION }}/${{ matrix.distrib_name }}/x86_64/quanta-agent/"
             jf rt upload "*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --detailed-summary
           else
             ROOT_REPO_PATH=$([[ "${{ matrix.distrib_family }}" == "debian" ]] && echo "apt-cxm" || echo "ubuntu-cxm")
-            UPLOAD_REPO_PATH="pool/${{ env.VERSION }}/${{ matrix.distrib_family }}/quanta-agent/"
+            UPLOAD_REPO_PATH="pool/${{ env.VERSION }}/quanta-agent/"
             DEB_ARCH=$([[ "${{ matrix.arch }}" == "arm" ]] && echo "arm64" || echo "amd64")
             DEB_PROP="${{ matrix.distrib_codename }}-${{ env.VERSION }}/main/${DEB_ARCH}"
-            jf rt upload "$file" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --deb "$DEB_PROP" --detailed-summary
+            jf rt upload "*.deb" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --deb "$DEB_PROP" --detailed-summary
             curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
               -X POST "${{ env.JF_URL }}/artifactory/api/deb/reindex/${ROOT_REPO_PATH}?async=1"
           fi
