@@ -269,7 +269,7 @@ jobs:
 
           if [[ ${{ matrix.package_extension }} == "rpm" ]]; then
             ROOT_REPO_PATH="rpm-cxm"
-            UPLOAD_REPO_PATH="${{ env.VERSION }}/${{ matrix.distrib_name }}/x86_64/cxm-agent/"
+            UPLOAD_REPO_PATH="${{ env.VERSION }}/${{ matrix.distrib_family }}/x86_64/cxm-agent/"
             jf rt upload "*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --detailed-summary
           else
             ROOT_REPO_PATH=$([[ "${{ matrix.distrib_family }}" == "debian" ]] && echo "apt-cxm" || echo "ubuntu-cxm")
