@@ -189,7 +189,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
           COMMIT_HASH: ${{ github.sha }}
         run: |
-          [ "${{ github.ref_name }}" == "master" ] && RELEASE="1" || RELEASE="$(date +%s).$(echo ${{ github.sha }} | cut -c -7)"
+          [ "${{ github.ref_name }}" == "master" ] && export RELEASE="1" || export RELEASE="$(date +%s).$(echo ${{ github.sha }} | cut -c -7)"
           export ARCH=$ARCH
 
           if [ "$PACKAGE_EXTENSION" = "rpm" ]; then
@@ -268,11 +268,7 @@ jobs:
           set -euo pipefail
 
           # Will get harmonized later with CIM stability management, it was confirmed that the current version on master branch is the one that's delivered to the client
-          if [[ ${{ github.ref_name }} == "master" ]]; then
-            STABILITY="stable"
-          else
-            STABILITY="unstable"
-          fi
+          [ ${{ github.ref_name }} == "master" ] && STABILITY="stable" || STABILITY="unstable"
 
           if [[ ${{ matrix.package_extension }} == "rpm" ]]; then
             ROOT_REPO_PATH="rpm-cxm"
