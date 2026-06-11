@@ -1,4 +1,4 @@
-name: "quanta-agent-all"
+﻿name: "quanta-agent-all"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
@@ -32,20 +32,20 @@ overrides:
       - quanta-agent-varnish = ${VERSION}
   deb:
     depends:
-      - quanta-agent-base (= ${VERSION})
-      - quanta-agent-cpu (= ${VERSION})
-      - quanta-agent-disk (= ${VERSION})
-      - quanta-agent-memory (= ${VERSION})
-      - quanta-agent-network (= ${VERSION})
-      - quanta-agent-process (= ${VERSION})
-      - quanta-agent-system (= ${VERSION})
-      - quanta-agent-apache (= ${VERSION})
-      - quanta-agent-memcached (= ${VERSION})
-      - quanta-agent-mysql (= ${VERSION})
-      - quanta-agent-nfs (= ${VERSION})
-      - quanta-agent-nginx (= ${VERSION})
-      - quanta-agent-postgresql (= ${VERSION})
-      - quanta-agent-redis (= ${VERSION})
-      - quanta-agent-varnish (= ${VERSION})
+      - quanta-agent-base (>= ${VERSION})
+      - quanta-agent-cpu (>= ${VERSION})
+      - quanta-agent-disk (>= ${VERSION})
+      - quanta-agent-memory (>= ${VERSION})
+      - quanta-agent-network (>= ${VERSION})
+      - quanta-agent-process (>= ${VERSION})
+      - quanta-agent-system (>= ${VERSION})
+      - quanta-agent-apache (>= ${VERSION})
+      - quanta-agent-memcached (>= ${VERSION})
+      - quanta-agent-mysql (>= ${VERSION})
+      - quanta-agent-nfs (>= ${VERSION})
+      - quanta-agent-nginx (>= ${VERSION})
+      - quanta-agent-postgresql (>= ${VERSION})
+      - quanta-agent-redis (>= ${VERSION})
+      - quanta-agent-varnish (>= ${VERSION})
 
 contents: []

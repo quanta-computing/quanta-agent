@@ -1,4 +1,4 @@
-name: "libmonikor"
+﻿name: "libmonikor"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"

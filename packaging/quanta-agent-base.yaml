@@ -1,4 +1,4 @@
-name: "quanta-agent-base"
+﻿name: "quanta-agent-base"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
@@ -18,7 +18,7 @@ overrides:
       - libmonikor = ${VERSION}
   deb:
     depends:
-      - libmonikor (= ${VERSION})
+      - libmonikor (>= ${VERSION})
 
 scripts:
   preremove: packaging/scripts/quanta-agent-base.preremove.sh

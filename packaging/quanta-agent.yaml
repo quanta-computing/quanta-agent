@@ -1,4 +1,4 @@
-name: "quanta-agent"
+﻿name: "quanta-agent"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
@@ -24,12 +24,12 @@ overrides:
       - quanta-agent-system = ${VERSION}
   deb:
     depends:
-      - quanta-agent-base (= ${VERSION})
-      - quanta-agent-cpu (= ${VERSION})
-      - quanta-agent-disk (= ${VERSION})
-      - quanta-agent-memory (= ${VERSION})
-      - quanta-agent-network (= ${VERSION})
-      - quanta-agent-process (= ${VERSION})
-      - quanta-agent-system (= ${VERSION})
+      - quanta-agent-base (>= ${VERSION})
+      - quanta-agent-cpu (>= ${VERSION})
+      - quanta-agent-disk (>= ${VERSION})
+      - quanta-agent-memory (>= ${VERSION})
+      - quanta-agent-network (>= ${VERSION})
+      - quanta-agent-process (>= ${VERSION})
+      - quanta-agent-system (>= ${VERSION})
 
 contents: []
