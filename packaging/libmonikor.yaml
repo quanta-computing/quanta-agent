@@ -15,8 +15,12 @@ license: "Apache-2.0"
 overrides:
   rpm:
     depends:
+      - "libcurl"
+      - "libyaml"
   deb:
     depends:
+      - "libcurl4 | libcurl4t64"
+      - "libyaml-0-2"
 
 contents:
   - src: /tmp/staging/@LIBDIR@/libmonikor.so*

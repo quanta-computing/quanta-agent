@@ -16,7 +16,7 @@ overrides:
   rpm:
     depends:
       - quanta-agent-base = ${VERSION}
-      - mysql-libs
+      - mariadb-libs
   deb:
     depends:
       - quanta-agent-base (>= ${VERSION})
