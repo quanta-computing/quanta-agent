@@ -128,10 +128,8 @@ jobs:
           if [ "${{ matrix.package_extension }}" = "rpm" ]; then
             if [[ "${{ matrix.distrib_number }}" = "8" ]]; then
               dnf config-manager --set-enabled powertools
-            elif [[ "${{ matrix.distrib_number }}" = "9" ]]; then
-              dnf config-manager --set-enabled crb
             else
-              crb enable
+              dnf config-manager --set-enabled crb
             fi
             dnf install -y gcc make autoconf automake libtool pkgconfig libcurl-devel libyaml-devel check check-devel mariadb-devel postgresql-devel
           else

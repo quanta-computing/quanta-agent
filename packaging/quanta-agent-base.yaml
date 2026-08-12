@@ -12,6 +12,13 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+deb:
+  predepends:
+    - debconf-2.0
+  scripts:
+    templates: packaging/scripts/quanta-agent-base.templates
+    config: packaging/scripts/quanta-agent-base.config
+
 overrides:
   rpm:
     depends:
@@ -19,11 +26,6 @@ overrides:
   deb:
     depends:
       - libmonikor (>= ${VERSION})
-    predepends:
-      - debconf-2.0
-    scripts:
-      templates: packaging/scripts/quanta-agent-base.templates
-      config: packaging/scripts/quanta-agent-base.config
 
 scripts:
   preremove: packaging/scripts/quanta-agent-base.preremove.sh
