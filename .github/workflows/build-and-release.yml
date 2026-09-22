@@ -89,6 +89,24 @@ jobs:
               "package_extension": "deb",
               "arch": "amd64"
             };
+            const debian13_arm = {
+              "distrib_name": "deb13u1",
+              "distrib_separator": "+",
+              "distrib_family": "debian",
+              "distrib_number": "13",
+              "distrib_codename": "trixie",
+              "package_extension": "deb",
+              "arch": "arm64"
+            };
+            const ubuntu2204_amd = {
+              "distrib_name": "0ubuntu.22.04",
+              "distrib_separator": "-",
+              "distrib_family": "ubuntu",
+              "distrib_number": "22.04",
+              "distrib_codename": "jammy",
+              "package_extension": "deb",
+              "arch": "amd64"
+            };
             const ubuntu2404_amd = {
               "distrib_name": "0ubuntu.24.04",
               "distrib_separator": "-",
@@ -99,7 +117,7 @@ jobs:
               "arch": "amd64"
             };
 
-            const operating_systems_matrix = [alma8_amd, alma9_amd, alma10_amd, debian12_amd, debian12_arm, debian13_amd, ubuntu2404_amd];
+            const operating_systems_matrix = [alma8_amd, alma9_amd, alma10_amd, debian12_amd, debian12_arm, debian13_amd, debian13_arm, ubuntu2204_amd, ubuntu2404_amd];
 
             core.setOutput('operating_systems_matrix', JSON.stringify({ include: operating_systems_matrix }));
 
@@ -252,8 +270,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
 
       - name: Use cache ${{ matrix.package_extension }} files
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
