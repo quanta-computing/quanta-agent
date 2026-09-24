@@ -18,7 +18,7 @@ PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 assert_not_in_stable() {
   local file=$1 arch=$2 base name version release stable_repository repository_version count
   # unstable is never promoted to stable: a rebuilt package may reuse a version
-  # already published there (unversioned plugins/connectors packages)
+  # already published there
   [[ "${STABILITY:-}" == "unstable" ]] && return 0
   base=$(basename "$file" .rpm)
   base=${base%.$arch}

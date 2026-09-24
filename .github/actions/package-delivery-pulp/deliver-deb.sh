@@ -57,7 +57,7 @@ fetch_stable_packages_index() {
 assert_not_in_stable() {
   local file=$1 name version arch arches a packages
   # unstable is never promoted to stable: a rebuilt package may reuse a version
-  # already published there (unversioned plugins/connectors packages)
+  # already published there
   [[ "${STABILITY:-}" == "unstable" ]] && return 0
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
