@@ -18,15 +18,8 @@ inputs:
     description: "Type of release (hotfix, release)"
     required: false
     default: ""
-  is_cloud:
-    description: "Release context (cloud or not cloud)"
-    required: true
-  delivery_type:
-    description: "Delivery to feature or standard repository"
-    required: false
-    default: "standard"
   repository_name:
-    description: "Target repository family: standard, standard-internal, business, business-internal or plugins"
+    description: "Target repository family: standard, business or plugins"
     required: false
     default: "standard"
 outputs:
@@ -39,39 +32,18 @@ outputs:
   package_distrib_name:
     description: "Distribution suffix in package name"
     value: ${{ steps.parse-distrib.outputs.package_distrib_name }}
-  skip_delivery:
-    description: "Whether the delivery must be skipped"
-    value: ${{ steps.properties.outputs.skip_delivery }}
   repository_prefix:
     description: "Repository name prefix of rpm repositories (one repository per architecture)"
     value: ${{ steps.properties.outputs.repository_prefix }}
   base_path_prefix:
     description: "Base path prefix of rpm distributions (one distribution per architecture)"
     value: ${{ steps.properties.outputs.base_path_prefix }}
-  legacy_base_path_prefix:
-    description: "Legacy (front) rpm base path prefix, used by the content verifications"
-    value: ${{ steps.properties.outputs.legacy_base_path_prefix }}
-  legacy_testing_base_path_prefix:
-    description: "Legacy (front) testing rpm base path prefix"
-    value: ${{ steps.properties.outputs.legacy_testing_base_path_prefix }}
-  legacy_stable_base_path_prefix:
-    description: "Legacy (front) stable rpm base path prefix"
-    value: ${{ steps.properties.outputs.legacy_stable_base_path_prefix }}
   repository_name:
     description: "Repository name of the deb repository"
     value: ${{ steps.properties.outputs.repository_name }}
   base_path:
     description: "Base path of the deb distribution"
     value: ${{ steps.properties.outputs.base_path }}
-  legacy_base_path:
-    description: "Legacy (front) deb base path, used by the content verifications"
-    value: ${{ steps.properties.outputs.legacy_base_path }}
-  legacy_testing_base_path:
-    description: "Legacy (front) testing deb base path"
-    value: ${{ steps.properties.outputs.legacy_testing_base_path }}
-  legacy_stable_base_path:
-    description: "Legacy (front) stable deb base path"
-    value: ${{ steps.properties.outputs.legacy_stable_base_path }}
   suite:
     description: "Apt suite of the deb delivery"
     value: ${{ steps.properties.outputs.suite }}
@@ -99,12 +71,6 @@ outputs:
   stable_suite:
     description: "Apt suite of stable deb packages"
     value: ${{ steps.properties.outputs.stable_suite }}
-  stable_legacy_suite:
-    description: "Plain-codename suite of the dedicated 24.x stable legacy repositories (empty otherwise)"
-    value: ${{ steps.properties.outputs.stable_legacy_suite }}
-  stable_legacy_repository_name:
-    description: "Dedicated 24.x stable legacy repository fed by the promote mirror (empty otherwise)"
-    value: ${{ steps.properties.outputs.stable_legacy_repository_name }}
   stable_repository_name:
     description: "Repository holding the stable deb packages (one deb repository per stability)"
     value: ${{ steps.properties.outputs.stable_repository_name }}
@@ -146,8 +112,5 @@ runs:
         VERSION: ${{ inputs.version }}
         STABILITY: ${{ inputs.stability }}
         RELEASE_TYPE: ${{ inputs.release_type }}
-        IS_CLOUD: ${{ inputs.is_cloud }}
-        DELIVERY_TYPE: ${{ inputs.delivery_type }}
         REPOSITORY_TYPE: ${{ inputs.repository_name }}
-        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
       run: ${{ github.action_path }}/properties.sh
