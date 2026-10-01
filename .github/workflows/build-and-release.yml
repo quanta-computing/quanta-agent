@@ -256,7 +256,7 @@ jobs:
 
   delivery:
     name: delivery ${{ matrix.distrib_codename }} ${{ matrix.arch }}
-    runs-on: ubuntu-24.04
+    runs-on: centreon-ubuntu-22.04
     needs: [determine-os-matrix, dockerize, package]
     strategy:
       fail-fast: false
