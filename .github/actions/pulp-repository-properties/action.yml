@@ -8,10 +8,10 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   version:
-    description: "Packaged major version"
+    description: "Packaged version (only used in the deb pool path)"
     required: true
   stability:
-    description: "The package stability (stable, testing, unstable)"
+    description: "The package stability (unstable, stable)"
     required: true
 outputs:
   package_extension:

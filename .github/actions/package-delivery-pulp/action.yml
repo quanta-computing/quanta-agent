@@ -8,13 +8,13 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   version:
-    description: "Packaged major version"
+    description: "Packaged version (only used in the deb pool path)"
     required: true
   cache_key:
     description: "The cached package key"
     required: true
   stability:
-    description: "The package stability (stable, testing, unstable)"
+    description: "The package stability (unstable, stable)"
     required: true
   verify:
     description: "Verify the delivered packages afterwards (presence, metadata resolution, fetchability)"
@@ -40,8 +40,10 @@ runs:
       run: |
         set -euo pipefail
 
-        if [[ "$STABILITY" != "testing" && "$STABILITY" != "unstable" ]]; then
-          echo "::error::stability must be one of: testing, unstable (got '$STABILITY')"
+        # cxm has no testing tier and no promotion flow: master delivers straight
+        # to stable (the stable write is granted to refs/heads/master only)
+        if [[ "$STABILITY" != "unstable" && "$STABILITY" != "stable" ]]; then
+          echo "::error::stability must be one of: unstable, stable (got '$STABILITY')"
           exit 1
         fi
 

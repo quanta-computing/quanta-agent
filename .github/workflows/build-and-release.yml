@@ -16,8 +16,6 @@ on:
 
 env:
   PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  JF_URL: https://packages.centreon.com
-  JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
 jobs:
   determine-os-matrix:
@@ -263,40 +261,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.determine-os-matrix.outputs.operating_systems_matrix) }}
-    env:
-      JF_URL: https://packages.centreon.com
-      JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      VERSION: ${{ needs.package.outputs.VERSION }}
+    permissions:
+      contents: read
+      # required by setup-pulp-cli to mint the GitHub OIDC token pulp authenticates with
+      id-token: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Use cache ${{ matrix.package_extension }} files
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ./*.${{ matrix.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
-          fail-on-cache-miss: true
-
-      - name: Deliver ${{ matrix.package_extension }} package
+      # Will get harmonized later with CIM stability management, it was confirmed that the current version on master branch is the one that's delivered to the client
+      - name: Resolve stability
+        id: stability
         shell: bash
         run: |
-          set -euo pipefail
+          [ "${{ github.ref_name }}" == "master" ] && echo "stability=stable" >> "$GITHUB_OUTPUT" || echo "stability=unstable" >> "$GITHUB_OUTPUT"
 
-          # Will get harmonized later with CIM stability management, it was confirmed that the current version on master branch is the one that's delivered to the client
-          [ ${{ github.ref_name }} == "master" ] && STABILITY="stable" || STABILITY="unstable"
-
-          if [[ ${{ matrix.package_extension }} == "rpm" ]]; then
-            ROOT_REPO_PATH="rpm-cxm"
-            UPLOAD_REPO_PATH="${{ env.VERSION }}/${{ matrix.distrib_family }}/$STABILITY/x86_64/cxm-agent/"
-            jf rt upload "*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --detailed-summary
-          else
-            ROOT_REPO_PATH=$([[ "${{ matrix.distrib_family }}" == "debian" ]] && echo "apt-cxm" || echo "ubuntu-cxm")
-            UPLOAD_REPO_PATH="pool/${{ env.VERSION }}/$STABILITY/cxm-agent/"
-            DEB_ARCH=$([[ "${{ matrix.arch }}" == "arm" ]] && echo "arm64" || echo "amd64")
-            DEB_PROP="${{ matrix.distrib_codename }}/main/${DEB_ARCH}"
-            jf rt delete "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH/*${{ matrix.distrib_name }}*$DEB_ARCH*.deb"
-            jf rt upload "*.deb" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --deb "$DEB_PROP" --detailed-summary
-            curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
-              -X POST "${{ env.JF_URL }}/artifactory/api/deb/reindex/${ROOT_REPO_PATH}?async=1"
-          fi
+      - name: Deliver ${{ matrix.package_extension }} packages to pulp
+        uses: ./.github/actions/package-delivery-pulp
+        with:
+          module_name: cxm-agent
+          # pulp names the rpm repositories after the el family (el9), the deb suites after the codename
+          distrib: ${{ matrix.package_extension == 'rpm' && matrix.distrib_family || matrix.distrib_codename }}
+          version: ${{ needs.package.outputs.VERSION }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
+          stability: ${{ steps.stability.outputs.stability }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}

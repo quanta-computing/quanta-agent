@@ -32,26 +32,28 @@ STABLE_BASE_PATH=""
 STABLE_SUITE=""
 POOL_PATH=""
 
+# the cxm Domain is not versioned (delivery-tooling create-repos, repo_type=cxm):
+# no version in the rpm repository names/base paths, plain-codename deb suites.
+# The package version only remains in the deb pool path, as on artifactory.
 if [[ "$DISTRIB_FAMILY" == "el" ]]; then
-  REPOSITORY_PREFIX="rpm-$VERSION-$DISTRIB-$STABILITY"
-  BASE_PATH_PREFIX="rpm/$VERSION/$DISTRIB/$STABILITY"
-  STABLE_REPOSITORY_PREFIX="rpm-$VERSION-$DISTRIB-stable"
+  REPOSITORY_PREFIX="rpm-$DISTRIB-$STABILITY"
+  BASE_PATH_PREFIX="rpm/$DISTRIB/$STABILITY"
+  STABLE_REPOSITORY_PREFIX="rpm-$DISTRIB-stable"
 else
-  # one deb repository per stability (base path = repository name), shared by
-  # every major version: the version lives in the suite name only
-  # (e.g. "trixie-26.09-stable")
+  # one deb repository per stability (base path = repository name), the
+  # stability lives in the repository name only: the suite is the codename
   REPOSITORY_NAME="${DEB_PREFIX}${STABILITY}"
   BASE_PATH="$REPOSITORY_NAME"
-  SUITE="$DISTRIB-$VERSION-$STABILITY"
+  SUITE="$DISTRIB"
   STABLE_BASE_PATH="${DEB_PREFIX}stable"
-  STABLE_SUITE="$DISTRIB-$VERSION-stable"
+  STABLE_SUITE="$DISTRIB"
   POOL_PATH="pool/$VERSION/$STABILITY/$MODULE_NAME"
 fi
 
 # stable and non-stable repositories share the Domain; the write boundary
 # between them is the repository name, enforced server-side by name-scoped
 # grants.
-DOMAIN="standard"
+DOMAIN="cxm"
 
 echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
 echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
