@@ -280,7 +280,6 @@ jobs:
         uses: ./.github/actions/package-delivery-pulp
         with:
           module_name: cxm-agent
-          # pulp names the rpm repositories after the el family (el9), the deb suites after the codename
           distrib: ${{ matrix.package_extension == 'rpm' && matrix.distrib_family || matrix.distrib_codename }}
           version: ${{ needs.package.outputs.VERSION }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
