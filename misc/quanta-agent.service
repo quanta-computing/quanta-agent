@@ -1,0 +1,14 @@
+[Unit]
+Description=Quanta monitoring agent
+After=network.target
+
+[Service]
+Type=forking
+User=quanta-agent
+ExecStart=/usr/bin/quanta-agent /etc/quanta/agent.yml
+PIDFile=/var/run/quanta/agent.pid
+RuntimeDirectory=quanta
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target

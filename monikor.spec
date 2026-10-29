@@ -218,7 +218,7 @@ mkdir -p %{buildroot}/etc/quanta/modules.d
 mkdir -p %{buildroot}/usr/lib/quanta/modules
 mkdir -p %{buildroot}/etc/init.d
 
-install -m 755 misc/monikor.centos.init %{buildroot}/etc/init.d/quanta-agent
+install -m 755 misc/monikor.alma.init %{buildroot}/etc/init.d/quanta-agent
 mv %{buildroot}/usr/bin/monikor %{buildroot}/usr/bin/quanta-agent
 mv %{buildroot}/etc/monikor/config.yml %{buildroot}/etc/quanta/agent.yml
 mv %{buildroot}/etc/monikor/modules.d/*.yml %{buildroot}/etc/quanta/modules.d/.
