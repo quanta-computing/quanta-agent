@@ -273,8 +273,14 @@ jobs:
       - name: Resolve stability
         id: stability
         shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          [ "${{ github.ref_name }}" == "master" ] && echo "stability=stable" >> "$GITHUB_OUTPUT" || echo "stability=unstable" >> "$GITHUB_OUTPUT"
+          if [ "$REF_NAME" = "master" ]; then
+            echo "stability=stable" >> "$GITHUB_OUTPUT"
+          else
+            echo "stability=unstable" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Deliver ${{ matrix.package_extension }} packages to pulp
         uses: ./.github/actions/package-delivery-pulp
