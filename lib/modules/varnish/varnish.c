@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 #include "monikor.h"
@@ -49,6 +51,9 @@ void *varnish_init(monikor_t *mon, monikor_config_dict_t *config) {
       mod->varnishstat_path, MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH);
     mod->varnishstat_path = MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH;
   }
+  if (access(mod->varnishstat_path, X_OK) == -1)
+    monikor_log_mod(LOG_WARNING, MOD_NAME, "varnishstat_path '%s' is not executable: %s\n",
+      mod->varnishstat_path, strerror(errno));
   mod->varnishstat_timeout_arg = varnish_init_timeout(mon, config);
   mod->instance = monikor_config_dict_get_scalar(config, "varnish.instance");
   if (mod->instance && strlen(mod->instance) >= MONIKOR_VARNISH_MAX_INSTANCE_LENGTH) {
