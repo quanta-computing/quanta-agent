@@ -1,0 +1,25 @@
+﻿name: "libmonikor-@DEVEL_SUFFIX@"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Development headers for libmonikor
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - libmonikor = ${VERSION}
+  deb:
+    depends:
+      - libmonikor (>= ${VERSION})
+
+contents:
+  - src: /tmp/staging/usr/include/monikor/metric.h
+    dst: /usr/include/monikor/metric.h
