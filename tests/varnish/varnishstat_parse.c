@@ -1,13 +1,4 @@
-/*
-** varnishstat-parse: runs the varnish module's parser over a saved `varnishstat -1` output and
-** prints the Quanta metrics it extracts, one `name value` per line, in the module's table order.
-**
-**   varnishstat -1 > capture.txt            # on the customer's server
-**   tests/varnishstat-parse capture.txt     # or `varnishstat -1 | tests/varnishstat-parse`
-**
-** Use it to check a real capture before adding it as a fixture: the printed list is the
-** `.expected` file format.
-*/
+// varnishstat-parse [file]: prints the metrics the varnish module extracts from a varnishstat -1 output
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
