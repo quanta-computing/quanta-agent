@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Determine OS matrix
         id: determine_os_matrix
@@ -132,7 +132,7 @@ jobs:
       image: ${{ matrix.arch == 'arm64' && format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}-arm64', matrix.distrib_codename) || format('ghcr.io/centreon/delivery-tooling/packaging:latest-{0}', matrix.distrib_codename) }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install build dependencies on packaging dockerfile
         shell: bash
@@ -267,7 +267,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Will get harmonized later with CIM stability management, it was confirmed that the current version on master branch is the one that's delivered to the client
       - name: Resolve stability
