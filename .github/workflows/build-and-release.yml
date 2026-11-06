@@ -224,6 +224,11 @@ jobs:
           chmod +x packaging/scripts/*.sh
 
           for FILE in packaging/*.yaml; do
+            if [[ "$RPM_SIGNING_KEY_ID" == "" ]]; then
+              sed -i "/signature:/d" "$FILE"
+              sed -i "/RPM_SIGNING_KEY_FILE/d" "$FILE"
+              sed -i "/RPM_SIGNING_KEY_ID/d" "$FILE"
+            fi
             sed -i "s|@COMMIT_HASH@|${COMMIT_HASH}|g" "$FILE"
             sed -i "s|@LIBDIR@|${LIBDIR}|g" "$FILE"
             sed -i "s|@DEVEL_SUFFIX@|${DEVEL_SUFFIX}|g" "$FILE"
