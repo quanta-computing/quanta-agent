@@ -14,7 +14,7 @@ hostid: __YOUR_HOSTID__
 quanta_token: __YOUR_QUANTA_TOKEN__
 
 server:
-  url: "https://metrics.quanta.io/push"
+  url: "https://metrics.exp.mycentreon.com/push"
   timeout: 10
 
 cache:
