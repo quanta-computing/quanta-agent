@@ -1,3 +1,17 @@
+monikor (1.3.1) quanta; urgency=low
+
+  * Varnish module: match counters as whole tokens (requests_per_second was reading
+    client_req_400, sess_drop was reading sess_dropped) and read the value right after
+    the counter name (half of the metrics were truncated or read from the wrong column)
+  * Varnish module: report the child process uptime (MAIN.uptime), not the manager's
+  * Subprocesses are started without a PATH lookup (execv) and the forked child exits with
+    _exit on failure; the default varnishstat path is /usr/bin/varnishstat and a non-absolute
+    varnishstat_path falls back to it with a warning
+  * Added a varnish parser test suite with varnishstat -1 fixtures for Varnish 4.1, 6.0 and 7.6
+    and a tests/varnishstat-parse tool to check a real capture
+
+ -- Matthieu ROSINSKI <support@quanta.io>  Wed, 05 Nov 2026 18:00:00 +0100
+
 monikor (1.3.0) quanta; urgency=low
 
   * Fixed time comparison in metric store
