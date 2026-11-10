@@ -12,6 +12,11 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+rpm:
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}
+
 overrides:
   rpm:
     depends:
