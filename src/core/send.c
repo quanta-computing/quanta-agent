@@ -149,7 +149,8 @@ void monikor_send_all_metrics(monikor_t *mon) {
     return;
   }
   monikor_metric_store_uncache(mon->metrics);
-  while (mon->metrics->current->size && metrics->data_size < mon->config->server.max_send_size) {
+  while (mon->metrics->current->size && metrics->data_size < mon->config->server.max_send_size
+  && metrics->size < METRIC_LIST_MAX_COUNT) {
     monikor_metric_list_push(metrics, monikor_metric_list_pop(mon->metrics->current));
   }
   if (monikor_send_metrics(mon, metrics)) {

@@ -55,6 +55,9 @@ int monikor_metric_list_serialize(const monikor_metric_list_t *metrics, void **d
   uint8_t *serialized;
   size_t serialized_length;
 
+  *data = NULL;
+  if (metrics->size > METRIC_LIST_MAX_COUNT)
+    return 1;
   serialized_length = serialized_list_size(metrics);
   if (!(serialized = malloc(serialized_length)))
     return 1;
