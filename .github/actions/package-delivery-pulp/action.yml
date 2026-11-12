@@ -40,7 +40,7 @@ runs:
       run: |
         set -euo pipefail
 
-        # cxm has no testing tier and no promotion flow: master delivers straight
+        # the experience Domain has no testing tier and no promotion flow: master delivers straight
         # to stable (the stable write is granted to refs/heads/master only)
         if [[ "$STABILITY" != "unstable" && "$STABILITY" != "stable" ]]; then
           echo "::error::stability must be one of: unstable, stable (got '$STABILITY')"
@@ -57,7 +57,7 @@ runs:
         stability: ${{ inputs.stability }}
 
     - name: Restore packages from cache
-      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ./*.${{ steps.pulp-properties.outputs.package_extension }}
         key: ${{ inputs.cache_key }}

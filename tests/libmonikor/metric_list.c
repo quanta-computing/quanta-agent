@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include <sys/time.h>
 #include <check.h>
 #include "../../lib/monikor/include/metric.h"
@@ -218,6 +221,30 @@ START_TEST(test_monikor_metric_list_serialize) {
 }
 
 
+START_TEST(test_monikor_metric_list_serialize_max_count) {
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+  monikor_metric_list_t *l;
+  monikor_serialized_metric_list_hdr_t hdr;
+  void *data;
+  size_t size;
+
+  l = monikor_metric_list_new();
+  ck_assert_ptr_nonnull(l);
+  for (size_t i = 0; i < METRIC_LIST_MAX_COUNT; i++)
+    monikor_metric_list_push(l, monikor_metric_integer("m", &clock, i, 0));
+  ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
+  monikor_metric_list_header_unserialize(data, &hdr);
+  ck_assert_uint_eq(hdr.count, METRIC_LIST_MAX_COUNT);
+  free(data);
+
+  monikor_metric_list_push(l, monikor_metric_integer("m", &clock, 0, 0));
+  ck_assert_int_ne(monikor_metric_list_serialize(l, &data, &size), 0);
+  ck_assert_ptr_null(data);
+  monikor_metric_list_free(l);
+}
+END_TEST
+
+
 START_TEST(test_monikor_metric_list_unserialize) {
   struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
   void *data = NULL;
@@ -255,7 +282,108 @@ START_TEST(test_monikor_metric_list_unserialize) {
 END_TEST
 
 
+static size_t unserialize_tampered(monikor_metric_t *m, uint16_t count, uint64_t data_size,
+int name_size, uint64_t metric_data_size) {
+  monikor_metric_list_t *l;
+  monikor_serialized_metric_list_hdr_t hdr;
+  monikor_metric_list_t *metrics;
+  void *data;
+  uint8_t *payload;
+  size_t size;
+  size_t ret;
+
+  l = monikor_metric_list_new();
+  ck_assert_ptr_nonnull(l);
+  monikor_metric_list_push(l, m);
+  ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
+  monikor_metric_list_free(l);
+  monikor_metric_list_header_unserialize(data, &hdr);
+  hdr.count = count;
+  if (data_size < hdr.data_size)
+    hdr.data_size = data_size;
+  // exact-size copy so any read past data_size leaves the allocation
+  payload = malloc(hdr.data_size);
+  ck_assert_ptr_nonnull(payload);
+  memcpy(payload, (uint8_t *)data + SERIALIZED_METRIC_LIST_HDR_SIZE, hdr.data_size);
+  if (name_size >= 0)
+    *((uint16_t *)(payload + METRIC_HDR_NAME_SIZE_OFF)) = htons((uint16_t)name_size);
+  if (metric_data_size)
+    *((uint64_t *)(payload + METRIC_HDR_DATA_SIZE_OFF)) = htonll(metric_data_size);
+  ret = monikor_metric_list_unserialize(payload, &hdr, &metrics);
+  ck_assert_ptr_nonnull(metrics);
+  ck_assert_uint_eq(metrics->size, ret);
+  monikor_metric_list_free(metrics);
+  free(payload);
+  free(data);
+  return ret;
+}
+
 START_TEST(test_monikor_metric_list_unserialize_err) {
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+
+  // sanity: untampered integer and string records are accepted
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    1, UINT64_MAX, -1, 0), 1);
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_string("m1", &clock, "value"),
+    1, UINT64_MAX, -1, 0), 1);
+  // buffer shorter than the record header
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    1, 1, -1, 0), 0);
+  // buffer one byte short of the record
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    1, SERIALIZED_METRIC_HDR_SIZE + 2 + sizeof(uint64_t) - 1, -1, 0), 0);
+  // name_size past the end of the buffer
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    1, UINT64_MAX, 65535, 0), 0);
+  // string data_size past the end of the buffer
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_string("m1", &clock, "value"),
+    1, UINT64_MAX, -1, UINT64_MAX), 0);
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_string("m1", &clock, "value"),
+    1, UINT64_MAX, -1, 6), 0);
+  // integer data_size that is not 8 bytes
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    1, UINT64_MAX, -1, 4), 0);
+  // count larger than the records actually present
+  ck_assert_uint_eq(unserialize_tampered(monikor_metric_integer("m1", &clock, 42, 0),
+    2, UINT64_MAX, -1, 0), 1);
+}
+END_TEST
+
+
+START_TEST(test_monikor_metric_list_unserialize_id) {
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+  void *data = NULL;
+  size_t size = 0;
+  void *dirty[64];
+  monikor_metric_list_t *l;
+  monikor_serialized_metric_list_hdr_t hdr;
+  monikor_metric_list_t *metrics;
+  monikor_metric_t *m;
+
+  l = monikor_metric_list_new();
+  ck_assert_ptr_nonnull(l);
+  for (int i = 0; i < 32; i++)
+    monikor_metric_list_push(l, monikor_metric_integer("m1", &clock, 42, MONIKOR_METRIC_DELTA));
+  ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
+  monikor_metric_list_free(l);
+  monikor_metric_list_header_unserialize(data, &hdr);
+  // leave plenty of freed metric-sized chunks full of garbage (past the tcache) to be reused
+  for (size_t i = 0; i < sizeof(dirty) / sizeof(*dirty); i++) {
+    dirty[i] = malloc(sizeof(monikor_metric_t));
+    ck_assert_ptr_nonnull(dirty[i]);
+    for (size_t j = 0; j < sizeof(monikor_metric_t); j++)
+      ((uint8_t *)dirty[i])[j] = 0xa5;
+  }
+  for (size_t i = 0; i < sizeof(dirty) / sizeof(*dirty); i++)
+    free(dirty[i]);
+  ck_assert_uint_eq(monikor_metric_list_unserialize(data + SERIALIZED_METRIC_LIST_HDR_SIZE, &hdr, &metrics), 32);
+  while ((m = monikor_metric_list_pop(metrics))) {
+    ck_assert_uint_eq(m->id, 0);
+    monikor_metric_free(m);
+  }
+
+  free(data);
+  monikor_metric_list_free(metrics);
 }
 END_TEST
 
@@ -297,11 +425,13 @@ Suite *libmonikor_metric_list_suite(void) {
 
   TCase *tc_metric_list_serialize = tcase_create("monikor_metric_list_serialize");
   tcase_add_test(tc_metric_list_serialize, test_monikor_metric_list_serialize);
+  tcase_add_test(tc_metric_list_serialize, test_monikor_metric_list_serialize_max_count);
   suite_add_tcase(s, tc_metric_list_serialize);
 
   TCase *tc_metric_list_unserialize = tcase_create("monikor_metric_list_unserialize");
   tcase_add_test(tc_metric_list_unserialize, test_monikor_metric_list_unserialize);
   tcase_add_test(tc_metric_list_unserialize, test_monikor_metric_list_unserialize_err);
+  tcase_add_test(tc_metric_list_unserialize, test_monikor_metric_list_unserialize_id);
   suite_add_tcase(s, tc_metric_list_unserialize);
 
   return s;

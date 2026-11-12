@@ -48,8 +48,11 @@ int nfs_fetch_metrics(monikor_t *mon, struct timeval *clock) {
   char *proc;
   int n;
 
-  if (!(nfsstat = monikor_read_file("/proc/net/rpc/nfs"))
-  || !(proc = strstr(nfsstat, "proc3"))) {
+  if (!(nfsstat = monikor_read_file("/proc/net/rpc/nfs"))) {
+    return 0;
+  }
+  if (!(proc = strstr(nfsstat, "proc3"))) {
+    free(nfsstat);
     return 0;
   }
   n = fetch_metrics(mon, clock, proc);

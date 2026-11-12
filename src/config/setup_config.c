@@ -97,7 +97,7 @@ static int get_interval(monikor_config_dict_t *config, const char *name) {
   char *interval;
 
   interval = monikor_config_dict_get_scalar(config, name);
-  if (_is_number(interval))
+  if (_is_number(interval) && atoi(interval) > 0)
     return atoi(interval);
   else {
     if (interval)
@@ -229,10 +229,11 @@ static int monikor_setup_hostid(monikor_config_t *cfg) {
 
 static int monikor_setup_cache_size(monikor_config_t *cfg) {
   char *size;
+  unsigned long long mb;
 
   size = monikor_config_dict_get_scalar(cfg->full_config, "cache.max_size_mb");
-  if (_is_number(size))
-    cfg->cache.max_size = atoi(size) * 1024 * 1024;
+  if (_is_number(size) && (mb = strtoull(size, NULL, 10)) <= SIZE_MAX / (1024 * 1024))
+    cfg->cache.max_size = (size_t)mb * 1024 * 1024;
   else {
     if (size)
       monikor_log(LOG_WARNING, "Wrong value '%s' for cache.max_size_mb, using default.\n", size);

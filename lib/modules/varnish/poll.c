@@ -1,3 +1,6 @@
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <sys/time.h>
 
@@ -54,7 +57,7 @@ static const struct {
   {"esi_errors", "varnish.esi.errors", MONIKOR_METRIC_DELTA},
   {"esi_warnings", "varnish.esi.warnings", MONIKOR_METRIC_DELTA},
 
-  {"uptime", "varnish.uptime", 0},
+  {"MAIN.uptime", "varnish.uptime", 0},
 
   {NULL, NULL, 0}
 };
@@ -62,30 +65,45 @@ static const struct {
 #define VARNISH_SMA_TRANSIENT ".Transient."
 #define VARNISH_SMA_TRANSIENT_LEN (sizeof(VARNISH_SMA_TRANSIENT) - 1)
 
+// Matches a counter as a whole token (after `.` or a line start, before whitespace), skipping the Transient storage
+static const char *varnish_find_counter(const char *output, const char *counter) {
+  size_t len = strlen(counter);
+  const char *found = output;
+
+  while ((found = strstr(found, counter))) {
+    int token_start = found == output || found[-1] == '.' || found[-1] == '\n';
+    int transient = (size_t)(found - output) >= VARNISH_SMA_TRANSIENT_LEN
+      && !strncmp(found - VARNISH_SMA_TRANSIENT_LEN, VARNISH_SMA_TRANSIENT, VARNISH_SMA_TRANSIENT_LEN);
+
+    if (token_start && !transient && isspace((unsigned char)found[len]))
+      return found + len;
+    found += len;
+  }
+  return NULL;
+}
+
 size_t varnish_fetch_metrics(varnish_module_t *mod, const char *output) {
   size_t n_metrics = 0;
-  char *found;
   char metric_name[256];
   struct timeval clock;
 
   gettimeofday(&clock, NULL);
   for (size_t i = 0; metrics[i].name; i++) {
-    if ((found = strstr(output, metrics[i].varnish_name))
-    && ((found - VARNISH_SMA_TRANSIENT_LEN < output)
-        || strncmp(found - VARNISH_SMA_TRANSIENT_LEN, VARNISH_SMA_TRANSIENT,
-            VARNISH_SMA_TRANSIENT_LEN))) {
-      char *endval;
-      char *val = found + strlen(metrics[i].name);
-      uint64_t value = strtoull(val, &endval, 10);
-      if (val == endval)
-        continue;
-      if (mod->instance)
-        sprintf(metric_name, "%s.%s", metrics[i].name, mod->instance);
-      else
-        sprintf(metric_name, "%s", metrics[i].name);
-      n_metrics += monikor_metric_push(mod->mon, monikor_metric_integer(
-        metric_name, &clock, value, metrics[i].flags));
-    }
+    const char *val = varnish_find_counter(output, metrics[i].varnish_name);
+    char *endval;
+    uint64_t value;
+
+    if (!val)
+      continue;
+    value = strtoull(val, &endval, 10);
+    if (val == endval)
+      continue;
+    if (mod->instance)
+      snprintf(metric_name, sizeof(metric_name), "%s.%s", metrics[i].name, mod->instance);
+    else
+      snprintf(metric_name, sizeof(metric_name), "%s", metrics[i].name);
+    n_metrics += monikor_metric_push(mod->mon, monikor_metric_integer(
+      metric_name, &clock, value, metrics[i].flags));
   }
 
   return n_metrics;
@@ -96,14 +114,17 @@ void varnish_poll_metrics(command_exec_t *cmd) {
   size_t n_metrics;
 
   if (monikor_command_failed(cmd->state)) {
-    if (WIFEXITED(cmd->status)) {
+    if (WIFEXITED(cmd->status) && WEXITSTATUS(cmd->status) == MNK_COMMAND_EXEC_EXIT_CANNOT_EXEC) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "Varnishstat failed: process exited with code %d\n", WEXITSTATUS(cmd->status));
+        "cannot execute %s: check varnishstat_path\n", mod->varnishstat_path);
+    } else if (WIFEXITED(cmd->status)) {
+      monikor_log_mod(LOG_WARNING, MOD_NAME,
+        "Varnishstat failed: %s exited with code %d\n", mod->varnishstat_path, WEXITSTATUS(cmd->status));
     } else if (WIFSIGNALED(cmd->status)) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "Varnishstat failed: process killed with signal %d\n", WTERMSIG(cmd->status));
+        "Varnishstat failed: %s killed with signal %d\n", mod->varnishstat_path, WTERMSIG(cmd->status));
     } else {
-      monikor_log_mod(LOG_WARNING, MOD_NAME, "Varnishstat failed");
+      monikor_log_mod(LOG_WARNING, MOD_NAME, "Varnishstat failed: %s\n", mod->varnishstat_path);
     }
   } else {
     n_metrics = varnish_fetch_metrics(mod, cmd->output);

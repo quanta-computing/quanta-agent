@@ -32,8 +32,12 @@ int monikor_logger_level(void) {
 ** until we read the config and setup the logger properly again.
 ** if log_file is not NULL, we try to open the file.
 ** We always fallback to syslogging if anything goes wrong
+** Any previously opened log file is closed first, so this can be called again on reload.
 */
 void monikor_logger_init(int prio, const char *log_file) {
+  int open_errno = 0;
+
+  monikor_logger_cleanup();
   if (prio != MONIKOR_LOG_DEFAULT)
     _monikor_log_level = prio;
   if (prio == MONIKOR_LOG_DEFAULT
@@ -42,6 +46,7 @@ void monikor_logger_init(int prio, const char *log_file) {
   }
   else if (log_file) {
     if ((_log_fd = open(log_file, O_WRONLY|O_APPEND|O_CREAT|O_CLOEXEC, 0644)) == -1) {
+      open_errno = errno;
       fprintf(stderr, "Cannot open log file %s, fallbacking to syslog\n", log_file);
     }
   } else {
@@ -50,6 +55,10 @@ void monikor_logger_init(int prio, const char *log_file) {
   if (_log_fd == -1) {
     closelog();
     openlog(GET_PROG_SHORTNAME(), LOG_PID, LOG_DAEMON);
+    /* On reload stderr is /dev/null: say in syslog why the configured file is not used */
+    if (open_errno)
+      monikor_log(LOG_WARNING, "Cannot open log file %s: %s, falling back to syslog\n",
+        log_file, strerror(open_errno));
   }
 }
 

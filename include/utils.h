@@ -24,6 +24,8 @@ typedef struct _http_response_t {
 #define MNK_COMMAND_EXEC_STATE_FINISHED (MNK_COMMAND_EXEC_STATE_PROCESS_DONE + MNK_COMMAND_EXEC_STATE_READ_DONE)
 #define monikor_command_finished(state) ((state & MNK_COMMAND_EXEC_STATE_FINISHED) == MNK_COMMAND_EXEC_STATE_FINISHED)
 #define monikor_command_failed(state) (state & MNK_COMMAND_EXEC_STATE_FAILED)
+// Child exit status when the command could not be executed (shell convention)
+#define MNK_COMMAND_EXEC_EXIT_CANNOT_EXEC 127
 
 typedef struct _command_exec {
   uint8_t state;
@@ -50,6 +52,7 @@ int monikor_http_get_with_headers(monikor_t *mon, const char *url, long timeout,
 
 monikor_io_handler_t *monikor_net_exchange(const char *host, const char *port, char *send,
 void (*callback)(char *response, void *data), void *data);
+void monikor_net_exchange_free(monikor_io_handler_t *handler);
 
 monikor_process_handler_t *monikor_command_exec(const char *command, char *const argv[],
   void (*callback)(command_exec_t *output), void *data);

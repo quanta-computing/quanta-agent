@@ -32,10 +32,10 @@ static void handle_signal(monikor_io_handler_t *handler, uint8_t mode) {
   case SIGINT:
   case SIGTERM:
   case SIGQUIT:
-    monikor_exit(mon);
+    monikor_exit(mon, EXIT_SUCCESS);
     break;
   case SIGCHLD:
-    monikor_process_exited(mon, info.si_pid);
+    monikor_reap_exited_children(mon);
     break;
   case SIGHUP:
     monikor_flag_reload(mon);
@@ -60,7 +60,7 @@ int monikor_register_signals(monikor_t *mon) {
    if (!handler)
     return -1;
   sig_writefd = pipefds[1];
-  sa.sa_flags = SA_RESTART | SA_SIGINFO;
+  sa.sa_flags = SA_RESTART | SA_SIGINFO | SA_NOCLDSTOP;
   sa.sa_sigaction = &handle_sigaction;
   sigfillset(&sa.sa_mask);
   if (sigaction(SIGTERM, &sa, NULL) == -1

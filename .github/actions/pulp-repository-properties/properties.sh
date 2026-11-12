@@ -32,7 +32,7 @@ STABLE_BASE_PATH=""
 STABLE_SUITE=""
 POOL_PATH=""
 
-# the cxm Domain is not versioned (delivery-tooling create-repos, repo_type=cxm):
+# the experience Domain is not versioned (delivery-tooling create-repos, repo_type=experience):
 # no version in the rpm repository names/base paths, plain-codename deb suites.
 # The package version only remains in the deb pool path, as on artifactory.
 if [[ "$DISTRIB_FAMILY" == "el" ]]; then
@@ -53,7 +53,7 @@ fi
 # stable and non-stable repositories share the Domain; the write boundary
 # between them is the repository name, enforced server-side by name-scoped
 # grants.
-DOMAIN="cxm"
+DOMAIN="experience"
 
 echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
 echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
