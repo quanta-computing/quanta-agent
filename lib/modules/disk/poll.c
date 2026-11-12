@@ -7,6 +7,9 @@
 #include "monikor.h"
 #include "disk.h"
 
+// /sys/block/<dev>/stat always counts 512-byte sectors (Documentation/block/stat.rst)
+#define DISK_STAT_SECTOR_SIZE 512
+
 static const char * dev_metrics[] = {
   "", "", "bytes.read", "",
   "", "", "bytes.write", "",
@@ -14,8 +17,8 @@ static const char * dev_metrics[] = {
   NULL
 };
 
-static int process_one_disk_dev_stat(monikor_t *mon, struct timeval *clock, char *dev, char *stats,
-uint64_t sector_size) {
+static int process_one_disk_dev_stat(monikor_t *mon, struct timeval *clock, char *dev,
+char *stats) {
   uint64_t val;
   char *stat;
   char *next;
@@ -33,7 +36,7 @@ uint64_t sector_size) {
     if (!*dev_metrics[i])
       continue;
     if (!strncmp(dev_metrics[i], "bytes.", 6))
-      val *= sector_size;
+      val *= DISK_STAT_SECTOR_SIZE;
     strcpy(metric_base_end, dev_metrics[i]);
     monikor_metric_push(mon,
       monikor_metric_integer(metric_name, clock, val, MONIKOR_METRIC_TIMEDELTA));
@@ -52,23 +55,18 @@ static int is_monitored_device(const char *dev) {
 static int fetch_one_disk_dev_metrics(monikor_t *mon, struct timeval *clock, char *part) {
   char *dev;
   char *stats = NULL;
-  char *sector_size = NULL;
   char file_name[256];
   int n = 0;
 
   if (!(dev = strrchr(part, ' '))
   || !is_monitored_device(dev + 1))
     goto end;
-  sprintf(file_name, "/sys/block/%s/queue/hw_sector_size", dev + 1);
-  if (!(sector_size = monikor_read_file(file_name)))
-    goto end;
   sprintf(file_name, "/sys/block/%s/stat", dev + 1);
   if (!(stats = monikor_read_file(file_name)))
     goto end;
-  n = process_one_disk_dev_stat(mon, clock, dev + 1, stats, strtoull(sector_size, NULL, 10));
+  n = process_one_disk_dev_stat(mon, clock, dev + 1, stats);
 
 end:
-  free(sector_size);
   free(stats);
   return n;
 }
