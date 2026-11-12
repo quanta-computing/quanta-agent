@@ -45,11 +45,47 @@ char *stats) {
   return n;
 }
 
+// Chainable matchers: each returns a pointer past its match, or NULL
+static const char *skip_prefix(const char *s, const char *prefix) {
+  size_t len;
+
+  if (!s)
+    return NULL;
+  len = strlen(prefix);
+  return strncmp(s, prefix, len) ? NULL : s + len;
+}
+
+static const char *skip_range(const char *s, char first, char last) {
+  const char *start = s;
+
+  if (!s)
+    return NULL;
+  while (*s >= first && *s <= last)
+    s++;
+  return s == start ? NULL : s;
+}
+
+static int is_end(const char *s) {
+  return s && !*s;
+}
+
+static const char *letter_disk_prefixes[] = {
+  "sd", "hd", "vd", "xvd", NULL
+};
+
+// Whole disks only: /proc/partitions also lists partitions and virtual devices
 static int is_monitored_device(const char *dev) {
-  return (dev[0] == 'h' || dev[0] == 's')
-    && dev[1] == 'd'
-    && (dev[2] >= 'a' && dev[2] <= 'z')
-    && !dev[3];
+  const char *nvme_ns;
+
+  for (size_t i = 0; letter_disk_prefixes[i]; i++) {
+    if (is_end(skip_range(skip_prefix(dev, letter_disk_prefixes[i]), 'a', 'z')))
+      return 1;
+  }
+  if (is_end(skip_range(skip_prefix(dev, "md"), '0', '9')))
+    return 1;
+  // nvme<controller>n<namespace>
+  nvme_ns = skip_prefix(skip_range(skip_prefix(dev, "nvme"), '0', '9'), "n");
+  return is_end(skip_range(nvme_ns, '0', '9'));
 }
 
 static int fetch_one_disk_dev_metrics(monikor_t *mon, struct timeval *clock, char *part) {
