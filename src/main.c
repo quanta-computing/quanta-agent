@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
     usage();
   if (monikor_init(&mon, argv[1]))
     return 1;
-  monikor_run(&mon);
+  if (monikor_run(&mon))
+    monikor_exit(&mon, EXIT_FAILURE);
   return 0;
 }
