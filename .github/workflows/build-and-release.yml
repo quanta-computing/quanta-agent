@@ -18,7 +18,15 @@ env:
   PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
+  # The whole workflow (9 packaging jobs, dockerize, pulp delivery) runs only on a push to
+  # master, a manual dispatch, or a pull request labeled "release". Every other job needs this
+  # one, so gating it gates them all; other pull request events only trigger the lint and
+  # security workflows.
   determine-os-matrix:
+    if: >-
+      github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'release')
     name: determine os matrix
     runs-on: ubuntu-24.04
     outputs:
