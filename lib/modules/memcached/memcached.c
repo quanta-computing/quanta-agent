@@ -36,10 +36,7 @@ void memcached_cleanup(monikor_t *mon, void *data) {
 
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    free(mod->io_handler->data);
-    if (mod->io_handler->fd != -1)
-      close(mod->io_handler->fd);
-    free(mod->io_handler);
+    monikor_net_exchange_free(mod->io_handler);
   }
   free(mod);
 }
@@ -51,9 +48,7 @@ int memcached_poll(monikor_t *mon, void *data) {
     return -1;
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    if (mod->io_handler->fd != -1)
-      close(mod->io_handler->fd);
-    free(mod->io_handler);
+    monikor_net_exchange_free(mod->io_handler);
     mod->io_handler = NULL;
   }
   mod->io_handler = monikor_net_exchange(mod->host, mod->port, "stats\nstats slabs\nquit\n",
