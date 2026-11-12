@@ -6,7 +6,8 @@
 #include "monikor.h"
 #include "redis.h"
 
-#define INFO_COMMAND "INFO\r\n"
+// QUIT makes redis close the connection, which marks the end of the reply
+#define INFO_COMMAND "INFO\r\nQUIT\r\n"
 static char *info_command = NULL;
 
 void *redis_init(monikor_t *mon, monikor_config_dict_t *config) {
@@ -47,10 +48,7 @@ void redis_cleanup(monikor_t *mon, void *data) {
 
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    if (mod->io_handler->fd != -1)
-      close(mod->io_handler->fd);
-    free(mod->io_handler->data);
-    free(mod->io_handler);
+    monikor_net_exchange_free(mod->io_handler);
   }
   free(info_command);
   free(mod);
@@ -63,9 +61,7 @@ int redis_poll(monikor_t *mon, void *data) {
     return -1;
   if (mod->io_handler) {
     monikor_unregister_io_handler(mon, mod->io_handler);
-    if (mod->io_handler->fd != -1)
-      close(mod->io_handler->fd);
-    free(mod->io_handler);
+    monikor_net_exchange_free(mod->io_handler);
     mod->io_handler = NULL;
   }
   mod->io_handler = monikor_net_exchange(mod->host, mod->port,
