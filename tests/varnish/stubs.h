@@ -4,11 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*
-** The varnish module is linked into the tests with these stand-ins for the agent core: metrics
-** are recorded instead of being stored and sent, log lines go to stderr only when
-** VARNISH_TEST_VERBOSE is set.
-*/
+// Stand-ins for the agent core: metrics are recorded, logs go to stderr only with VARNISH_TEST_VERBOSE
 
 #define RECORDED_METRICS_MAX 128
 

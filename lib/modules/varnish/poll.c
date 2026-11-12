@@ -65,18 +65,7 @@ static const struct {
 #define VARNISH_SMA_TRANSIENT ".Transient."
 #define VARNISH_SMA_TRANSIENT_LEN (sizeof(VARNISH_SMA_TRANSIENT) - 1)
 
-/*
-** Finds a counter in the `varnishstat -1` output and returns a pointer to its value column, or
-** NULL when the counter is absent. A line looks like:
-**
-**   MAIN.client_req                 1234567        12.34 Good client requests received
-**
-** The counter name only matches as a whole token: preceded by the section separator (`.`) or a
-** line start, and followed by whitespace. A plain substring search would resolve `client_req`
-** to `MAIN.client_req_400` (printed first by every Varnish since 4.1), `sess_drop` to
-** `sess_dropped`, or a word of a description. Counters of the Transient storage are skipped so
-** that memory metrics describe the main storage, whichever order varnishstat lists them in.
-*/
+// Matches a counter as a whole token (after `.` or a line start, before whitespace), skipping the Transient storage
 static const char *varnish_find_counter(const char *output, const char *counter) {
   size_t len = strlen(counter);
   const char *found = output;

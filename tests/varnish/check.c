@@ -1,9 +1,4 @@
-/*
-** Varnish module parser tests. The fixtures under fixtures/ are `varnishstat -1` outputs (one per
-** Varnish generation: 4.1, 6.0, 7.6) with the metrics the module must extract from each listed
-** in the matching .expected file (`name value` per line). Every expected metric must come out
-** with that value and nothing else must come out.
-*/
+// Varnish parser tests: each fixture must yield exactly the metrics of its .expected file
 #include <check.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,7 +94,6 @@ START_TEST(test_instance_suffix) {
 }
 END_TEST
 
-// Regression: a plain substring search resolved client_req to client_req_400, printed first
 START_TEST(test_counter_is_matched_as_a_whole_token) {
   const char *output =
     "MAIN.client_req_400             5         0.00 Client requests received, subject to 400 errors\n"
@@ -114,7 +108,6 @@ START_TEST(test_counter_is_matched_as_a_whole_token) {
 }
 END_TEST
 
-// Regression: the value was read at an offset derived from the Quanta metric name length
 START_TEST(test_value_is_read_right_after_the_counter_name) {
   const char *output = "MAIN.backend_unhealthy 98765 1.00 Backend conn. not attempted\n";
   const recorded_metric_t *rec;
@@ -127,7 +120,6 @@ START_TEST(test_value_is_read_right_after_the_counter_name) {
 END_TEST
 
 START_TEST(test_counter_with_a_suffix_does_not_match) {
-  // Varnish 7 only has sess_dropped, not sess_drop
   const char *output = "MAIN.sess_dropped              42         0.00 Sessions dropped for thread\n";
 
   ck_assert_uint_eq(parse(output, NULL), 0);
