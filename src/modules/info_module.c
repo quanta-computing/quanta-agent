@@ -91,16 +91,17 @@ static void set_instance_id_as_hostid(monikor_t *mon, char *id) {
   if (strlen(id) && strcmp(id, instance_id)) {
     strncpy(instance_id, id, 255);
     instance_id[255] = 0;
-    if (!mon->config->hostid)
-      mon->config->hostid = instance_id;
   }
+  // a reload installs a fresh config whose hostid is NULL again
+  if (*instance_id && !mon->config->hostid)
+    mon->config->hostid = instance_id;
 }
 
 static void handle_cloud_instance_id(http_response_t *status, CURLcode result) {
   monikor_t *mon = (monikor_t *)status->userdata;
   struct timeval clock;
 
-  if (result != CURLE_OK || status->code != 200) {
+  if (result != CURLE_OK || status->code != 200 || !status->data) {
     monikor_log(LOG_ERR, "cannot get cloud instance ID");
     free(status->data);
     free(status);
