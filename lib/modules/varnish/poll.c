@@ -114,14 +114,17 @@ void varnish_poll_metrics(command_exec_t *cmd) {
   size_t n_metrics;
 
   if (monikor_command_failed(cmd->state)) {
-    if (WIFEXITED(cmd->status)) {
+    if (WIFEXITED(cmd->status) && WEXITSTATUS(cmd->status) == MNK_COMMAND_EXEC_EXIT_CANNOT_EXEC) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "Varnishstat failed: process exited with code %d\n", WEXITSTATUS(cmd->status));
+        "cannot execute %s: check varnishstat_path\n", mod->varnishstat_path);
+    } else if (WIFEXITED(cmd->status)) {
+      monikor_log_mod(LOG_WARNING, MOD_NAME,
+        "Varnishstat failed: %s exited with code %d\n", mod->varnishstat_path, WEXITSTATUS(cmd->status));
     } else if (WIFSIGNALED(cmd->status)) {
       monikor_log_mod(LOG_WARNING, MOD_NAME,
-        "Varnishstat failed: process killed with signal %d\n", WTERMSIG(cmd->status));
+        "Varnishstat failed: %s killed with signal %d\n", mod->varnishstat_path, WTERMSIG(cmd->status));
     } else {
-      monikor_log_mod(LOG_WARNING, MOD_NAME, "Varnishstat failed");
+      monikor_log_mod(LOG_WARNING, MOD_NAME, "Varnishstat failed: %s\n", mod->varnishstat_path);
     }
   } else {
     n_metrics = varnish_fetch_metrics(mod, cmd->output);
