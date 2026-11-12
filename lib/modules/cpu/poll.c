@@ -36,9 +36,12 @@ static size_t cpu_fetch_metrics(float *values, size_t n_metrics) {
   long tps = sysconf(_SC_CLK_TCK);
   long nb_cpu_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
-  if (!(proc_stat = monikor_read_file("/proc/stat"))
-  || !(cpu_info = get_proc_stat_cpu_info(proc_stat)))
+  if (!(proc_stat = monikor_read_file("/proc/stat")))
     return 0;
+  if (!(cpu_info = get_proc_stat_cpu_info(proc_stat))) {
+    free(proc_stat);
+    return 0;
+  }
   start = end = strchr(cpu_info, ' ');
   for (i = 0; i < n_metrics && end; i++) {
     for (; *start == ' '; start++);
