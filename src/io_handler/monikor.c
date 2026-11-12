@@ -21,26 +21,24 @@ void monikor_unregister_process(monikor_t *mon, monikor_process_handler_t *handl
   monikor_io_handler_list_remove_process(&mon->io_handlers, handler);
 }
 
-static int monikor_process_watched(monikor_t *mon, pid_t pid) {
-  monikor_process_handler_t *handler;
+void monikor_reap_exited_children(monikor_t *mon) {
+  pid_t pid;
+  int status;
 
-  for (handler = mon->io_handlers.processes.first
-  ; handler && handler->pid != pid
-  ; handler = handler->next);
-  return handler != NULL;
+  // SIGCHLD does not queue: one signal may stand for several exited children
+  while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    monikor_process_exited(mon, pid, status);
+  if (pid == -1 && errno != ECHILD)
+    monikor_log(LOG_WARNING, "monikor_reap_exited_children: waitpid error: %s\n", strerror(errno));
 }
 
-void monikor_process_exited(monikor_t *mon, pid_t pid) {
+void monikor_process_exited(monikor_t *mon, pid_t pid, int status) {
   monikor_process_handler_t *handler;
-  int status = 0;
+  monikor_process_handler_t *next;
 
-  if (!monikor_process_watched(mon, pid))
-    return;
-  if (waitpid(pid, &status, 0) == -1) {
-    monikor_log(LOG_WARNING, "monikor_process_exited: process %d, waitpid error: %s\n",
-      pid, strerror(errno));
-  }
-  for (handler = mon->io_handlers.processes.first; handler; handler = handler->next) {
+  // callbacks may unregister and free their own handler (reap_process_callback)
+  for (handler = mon->io_handlers.processes.first; handler; handler = next) {
+    next = handler->next;
     if (handler->pid != pid)
       continue;
     if (handler->callback)
