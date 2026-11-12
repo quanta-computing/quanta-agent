@@ -97,7 +97,7 @@ static int get_interval(monikor_config_dict_t *config, const char *name) {
   char *interval;
 
   interval = monikor_config_dict_get_scalar(config, name);
-  if (_is_number(interval))
+  if (_is_number(interval) && atoi(interval) > 0)
     return atoi(interval);
   else {
     if (interval)
