@@ -11,8 +11,10 @@ int monikor_parse_config_file(FILE *fh, monikor_config_dict_t *cfg) {
     return 1;
   yaml_parser_set_input_file(&parser, fh);
   while (42) {
-    if (!yaml_parser_parse(&parser, &ev))
+    if (!yaml_parser_parse(&parser, &ev)) {
+      yaml_parser_delete(&parser);
       return 1;
+    }
     if (ev.type == YAML_STREAM_END_EVENT) {
       yaml_event_delete(&ev);
       break;
@@ -28,13 +30,17 @@ int monikor_parse_config_file(FILE *fh, monikor_config_dict_t *cfg) {
         break;
 
       case YAML_MAPPING_START_EVENT:
-        if (config_parse_mapping(&parser, cfg))
+        if (config_parse_mapping(&parser, cfg)) {
+          yaml_event_delete(&ev);
+          yaml_parser_delete(&parser);
           return 1;
+        }
         break;
 
       default:
         printf("Error, caught event %d\n", ev.type);
         yaml_event_delete(&ev);
+        yaml_parser_delete(&parser);
         return 1;
         break;
     }

@@ -8,8 +8,7 @@ int monikor_init_modules(monikor_t *mon) {
 
   mod_size = (1 + mon->config->modules.modules->size) * sizeof(*mon->modules.modules);
   mon->modules.count = 0;
-  if (!(mon->modules.modules = malloc(mod_size))
-  || !(mon->metrics = monikor_metric_store_new())) {
+  if (!(mon->modules.modules = malloc(mod_size))) {
     monikor_log(LOG_CRIT, "Cannot allocate memory\n");
     return 1;
   }
@@ -38,6 +37,10 @@ int monikor_init(monikor_t *mon, char *config_path) {
     return 1;
   if (monikor_register_signals(mon)) {
     monikor_log(LOG_CRIT, "Cannot register signal handlers\n");
+    return 1;
+  }
+  if (!(mon->metrics = monikor_metric_store_new())) {
+    monikor_log(LOG_CRIT, "Cannot allocate memory\n");
     return 1;
   }
   if (monikor_init_modules(mon))

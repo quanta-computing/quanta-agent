@@ -50,7 +50,7 @@ int monikor_init_modules(monikor_t *mon);
 void monikor_cleanup(monikor_t *mon);
 void monikor_cleanup_modules(monikor_t *mon);
 int monikor_run(monikor_t *mon);
-void monikor_exit(monikor_t *mon);
+void monikor_exit(monikor_t *mon, int status);
 int monikor_reload(monikor_t *mon);
 int monikor_daemonize(monikor_t *mon);
 
