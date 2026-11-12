@@ -15,7 +15,7 @@ static void set_interval_and_clock(monikor_t *mon,monikor_mod_t *mod) {
     mod->poll_interval = mon->config->poll_interval;
   } else {
     mod->poll_interval = (int)strtol(interval, &end, 10);
-    if (*end || mod->poll_interval < 0) {
+    if (*end || mod->poll_interval <= 0) {
       monikor_log(LOG_WARNING, "Wrong interval value '%s' in %s module configuration\n",
         interval, mod->name);
       mod->poll_interval = mon->config->poll_interval;
