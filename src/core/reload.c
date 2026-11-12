@@ -16,7 +16,7 @@ int monikor_reload(monikor_t *mon) {
   monikor_cleanup_modules(mon);
   monikor_config_free(mon->config);
   mon->config = config;
-  monikor_logger_init(mon->config->logger.level, NULL);
+  monikor_logger_init(mon->config->logger.level, mon->config->logger.file);
   if (monikor_init_modules(mon))
     return 1;
   mon->flags &= ~MONIKOR_FLAG_RELOAD;
