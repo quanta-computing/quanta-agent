@@ -10,6 +10,9 @@ int monikor_reload(monikor_t *mon) {
   monikor_log(LOG_DEBUG, "Reloading configuration and modules\n");
   if (!(config = monikor_load_config(mon->config->config_path)))
     return 1;
+  // Keep module libraries mapped: in-flight async callbacks (http, command) still point into them
+  for (size_t i = 0; i < mon->modules.count; i++)
+    mon->modules.modules[i]->dhandle = NULL;
   monikor_cleanup_modules(mon);
   monikor_config_free(mon->config);
   mon->config = config;
