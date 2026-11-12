@@ -9,7 +9,6 @@ void *mysqlstat_init(monikor_t *mon, monikor_config_dict_t *cfg) {
   monikor_mysql_config_t *config;
   char *port;
 
-  (void)mon;
   if (!(config = malloc(sizeof(*config))))
     return NULL;
   config->host = monikor_config_dict_get_scalar(cfg, "mysql.host");
@@ -27,6 +26,9 @@ void *mysqlstat_init(monikor_t *mon, monikor_config_dict_t *cfg) {
     config->port = 0;
   else
     config->port = atoi(port);
+  config->timeout = MONIKOR_MYSQL_TIMEOUT;
+  if (mon->config->poll_interval > 0 && mon->config->poll_interval < MONIKOR_MYSQL_TIMEOUT)
+    config->timeout = (unsigned int)mon->config->poll_interval;
   return (void *)config;
 }
 

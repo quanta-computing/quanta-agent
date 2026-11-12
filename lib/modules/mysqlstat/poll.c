@@ -31,6 +31,10 @@ static MYSQL *_mysql_connect(monikor_mysql_config_t *config) {
     monikor_log_mod(LOG_ERR, MOD_NAME, "Cannot allocate memory\n");
     return NULL;
   }
+  // libmysqlclient defaults to no timeout: a hung server would block the whole agent
+  mysql_options(dbh, MYSQL_OPT_CONNECT_TIMEOUT, &config->timeout);
+  mysql_options(dbh, MYSQL_OPT_READ_TIMEOUT, &config->timeout);
+  mysql_options(dbh, MYSQL_OPT_WRITE_TIMEOUT, &config->timeout);
   err = mysql_real_connect(dbh, config->host, config->user, config->password, NULL, config->port,
     NULL, CLIENT_MULTI_STATEMENTS);
   if (!err) {
