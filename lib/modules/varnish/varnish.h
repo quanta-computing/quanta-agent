@@ -19,6 +19,7 @@ typedef struct {
   monikor_process_handler_t *cmd_handler;
 } varnish_module_t;
 
+size_t varnish_fetch_metrics(varnish_module_t *mod, const char *output);
 void varnish_poll_metrics(command_exec_t *cmd);
 
 #endif /* end of include guard: varnish_H_ */

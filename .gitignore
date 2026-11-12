@@ -32,6 +32,8 @@
 /client
 /pkg
 /tests/check_libmonikor
+/tests/check_varnish
+/tests/varnishstat-parse
 /test-driver
 
 # Debug files
