@@ -53,6 +53,7 @@ void redis_cleanup(monikor_t *mon, void *data) {
     free(mod->io_handler);
   }
   free(info_command);
+  info_command = NULL;
   free(mod);
 }
 

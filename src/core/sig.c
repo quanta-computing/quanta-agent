@@ -32,7 +32,7 @@ static void handle_signal(monikor_io_handler_t *handler, uint8_t mode) {
   case SIGINT:
   case SIGTERM:
   case SIGQUIT:
-    monikor_exit(mon);
+    monikor_exit(mon, EXIT_SUCCESS);
     break;
   case SIGCHLD:
     monikor_process_exited(mon, info.si_pid);
