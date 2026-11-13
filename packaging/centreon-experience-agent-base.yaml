@@ -1,4 +1,4 @@
-﻿name: "quanta-agent-base"
+﻿name: "centreon-experience-agent-base"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
@@ -16,21 +16,27 @@ deb:
   predepends:
     - debconf-2.0
   scripts:
-    templates: packaging/scripts/quanta-agent-base.templates
-    config: packaging/scripts/quanta-agent-base.config
+    templates: packaging/scripts/centreon-experience-agent-base.templates
+    config: packaging/scripts/centreon-experience-agent-base.config
 
 overrides:
   rpm:
     depends:
       - libmonikor = ${VERSION}
+    replaces:
+      - quanta-agent-base
   deb:
+    replaces:
+      - quanta-agent-base
+    conflicts:
+      - quanta-agent-base
     depends:
       - libmonikor (>= ${VERSION})
 
 scripts:
-  preremove: packaging/scripts/quanta-agent-base.preremove.sh
-  postinstall: packaging/scripts/quanta-agent-base.postinstall.sh
-  postremove: packaging/scripts/quanta-agent-base.postremove.sh
+  preremove: packaging/scripts/centreon-experience-agent-base.preremove.sh
+  postinstall: packaging/scripts/centreon-experience-agent-base.postinstall.sh
+  postremove: packaging/scripts/centreon-experience-agent-base.postremove.sh
 
 contents:
   - src: /tmp/staging/usr/bin/quanta-agent

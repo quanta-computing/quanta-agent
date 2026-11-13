@@ -1,0 +1,41 @@
+﻿name: "centreon-experience-agent"
+arch: "${ARCH}"
+platform: "linux"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+version_schema: "none"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon Experience Monitoring agent with default plugins
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - centreon-experience-agent-base = ${VERSION}
+      - centreon-experience-agent-cpu = ${VERSION}
+      - centreon-experience-agent-disk = ${VERSION}
+      - centreon-experience-agent-memory = ${VERSION}
+      - centreon-experience-agent-network = ${VERSION}
+      - centreon-experience-agent-process = ${VERSION}
+      - centreon-experience-agent-system = ${VERSION}
+    replaces:
+      - quanta-agent
+  deb:
+    replaces:
+      - quanta-agent
+    conflicts:
+      - quanta-agent
+    depends:
+      - centreon-experience-agent-base (>= ${VERSION})
+      - centreon-experience-agent-cpu (>= ${VERSION})
+      - centreon-experience-agent-disk (>= ${VERSION})
+      - centreon-experience-agent-memory (>= ${VERSION})
+      - centreon-experience-agent-network (>= ${VERSION})
+      - centreon-experience-agent-process (>= ${VERSION})
+      - centreon-experience-agent-system (>= ${VERSION})
+
+contents: []

@@ -1,4 +1,4 @@
-﻿name: "quanta-agent-disk"
+﻿name: "centreon-experience-agent-disk"
 arch: "${ARCH}"
 platform: "linux"
 version: "${VERSION}"
@@ -15,10 +15,16 @@ license: "Apache-2.0"
 overrides:
   rpm:
     depends:
-      - quanta-agent-base = ${VERSION}
+      - centreon-experience-agent-base = ${VERSION}
+    replaces:
+      - quanta-agent-disk
   deb:
+    replaces:
+      - quanta-agent-disk
+    conflicts:
+      - quanta-agent-disk
     depends:
-      - quanta-agent-base (>= ${VERSION})
+      - centreon-experience-agent-base (>= ${VERSION})
 
 contents:
   - src: /tmp/staging/usr/lib/quanta/modules/disk.so
