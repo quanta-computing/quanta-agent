@@ -19,6 +19,7 @@ typedef struct {
 
 #define MONIKOR_CLIENT_INACTIVE_SOCKET -1
 #define MONIKOR_SRV_MAX_CLIENTS 10
+#define MONIKOR_SRV_MAX_DATA_SIZE (16 * 1024 * 1024)
 
 typedef struct {
   int socket;

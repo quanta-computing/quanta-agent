@@ -15,6 +15,10 @@ static int set_fd_sets(monikor_io_handler_list_t *list, fd_set *rdfds, fd_set *w
   for (monikor_io_handler_t *handler = list->first; handler; handler = handler->next) {
     if (handler->fd == -1)
       continue;
+    if (handler->fd >= FD_SETSIZE) {
+      monikor_log(LOG_ERR, "io handler fd %d exceeds FD_SETSIZE (%d), ignoring it\n", handler->fd, FD_SETSIZE);
+      continue;
+    }
     if (handler->mode & MONIKOR_IO_HANDLER_RD)
       FD_SET(handler->fd, rdfds);
     else if (handler->mode & MONIKOR_IO_HANDLER_WR)
@@ -93,7 +97,7 @@ int monikor_io_handler_poll(monikor_io_handler_list_t *list, struct timeval *tim
   handler = list->first;
   while (handler) {
     next = handler->next;
-    if (handler->fd != -1) {
+    if (handler->fd != -1 && handler->fd < FD_SETSIZE) {
       uint8_t mode = (FD_ISSET(handler->fd, &rdfds) ? MONIKOR_IO_HANDLER_RD : 0)
         | (FD_ISSET(handler->fd, &wrfds) ? MONIKOR_IO_HANDLER_WR : 0);
       if (mode && handler->callback) {

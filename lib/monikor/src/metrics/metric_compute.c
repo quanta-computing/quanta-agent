@@ -43,6 +43,10 @@ monikor_metric_t *monikor_metric_compute_delta(monikor_metric_t *a, monikor_metr
 
   if (a->type != b->type)
     return NULL;
+  /* A rate over a null or negative interval (clock stepped back) is meaningless */
+  if ((a->flags & MONIKOR_METRIC_TIMEDELTA) == MONIKOR_METRIC_TIMEDELTA
+  && _compute_metrics_interval(a, b) <= 0.0)
+    return NULL;
   if (!(result = monikor_metric_clone(a)))
     return NULL;
   result->flags &= ~(MONIKOR_METRIC_DELTA | MONIKOR_METRIC_TIMEDELTA);
