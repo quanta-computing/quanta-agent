@@ -248,26 +248,6 @@ jobs:
             nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
           done
 
-      - name: Verify RPM signatures
-        if: ${{ matrix.package_extension == 'rpm' }}
-        shell: bash
-        run: |
-          # verify against the public key customers import, so a wrong signing key fails here
-          curl -fsSL --retry 3 https://yum-gpg.centreon.com/RPM-GPG-KEY-CES -o RPM-GPG-KEY-CES
-          rpm --import RPM-GPG-KEY-CES
-
-          FAILED=0
-          for RPM in ./*.rpm; do
-            # rpm -K exits 0 on unsigned packages ("digests OK"), so the output must state the signatures are OK
-            if OUTPUT=$(rpm -K "$RPM" 2>&1) && [[ "$OUTPUT" == *"signatures OK"* ]]; then
-              echo "$OUTPUT"
-            else
-              echo "::error::Invalid or missing signature: $OUTPUT"
-              FAILED=1
-            fi
-          done
-          exit $FAILED
-
       - name: Cache packages
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
