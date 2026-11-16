@@ -14,6 +14,9 @@ on:
       - labeled
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -149,10 +152,14 @@ jobs:
           fi
 
       - name: Import GPG signing key
+        if: ${{ matrix.package_extension == 'rpm' }}
         shell: bash
         env:
           RPM_GPG_SIGNING_KEY: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-        run: echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg
+        run: |
+          # create the private key file owner-only from the start, never world-readable
+          (umask 077 && echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg)
+          chmod 600 key.gpg
 
       - name: Build make and compile quanta agent libraries
         id: compile
@@ -217,23 +224,49 @@ jobs:
            export DEVEL_SUFFIX="dev"
           fi
 
-          export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
-          export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
-          export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
+          # nfpm only signs when rpm.signature.key_file is not empty, so it stays
+          # empty for deb packages and every rpm package must get a key
+          export RPM_SIGNING_KEY_FILE=""
+          export RPM_SIGNING_KEY_ID=""
+          if [ "$PACKAGE_EXTENSION" = "rpm" ]; then
+            # key.gpg is written by the import step, empty when the secret is
+            if [[ -z "$RPM_GPG_SIGNING_KEY_ID" || ! -s key.gpg ]]; then
+              echo "::error::RPM packages must be signed: RPM_GPG_SIGNING_KEY and RPM_GPG_SIGNING_KEY_ID must both be set"
+              exit 1
+            fi
+            export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
+            export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
+            export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
+          fi
 
           chmod +x packaging/scripts/*.sh
 
           for FILE in packaging/*.yaml; do
-            if [[ "$RPM_SIGNING_KEY_ID" == "" ]]; then
-              sed -i "/signature:/d" "$FILE"
-              sed -i "/RPM_SIGNING_KEY_FILE/d" "$FILE"
-              sed -i "/RPM_SIGNING_KEY_ID/d" "$FILE"
-            fi
             sed -i "s|@COMMIT_HASH@|${COMMIT_HASH}|g" "$FILE"
             sed -i "s|@LIBDIR@|${LIBDIR}|g" "$FILE"
             sed -i "s|@DEVEL_SUFFIX@|${DEVEL_SUFFIX}|g" "$FILE"
             nfpm package --config "$FILE" --packager "$PACKAGE_EXTENSION"
           done
+
+      - name: Verify RPM signatures
+        if: ${{ matrix.package_extension == 'rpm' }}
+        shell: bash
+        run: |
+          # verify against the public key customers import, so a wrong signing key fails here
+          curl -fsSL --retry 3 https://yum-gpg.centreon.com/RPM-GPG-KEY-CES -o RPM-GPG-KEY-CES
+          rpm --import RPM-GPG-KEY-CES
+
+          FAILED=0
+          for RPM in ./*.rpm; do
+            # rpm -K exits 0 on unsigned packages ("digests OK"), so the output must state the signatures are OK
+            if OUTPUT=$(rpm -K "$RPM" 2>&1) && [[ "$OUTPUT" == *"signatures OK"* ]]; then
+              echo "$OUTPUT"
+            else
+              echo "::error::Invalid or missing signature: $OUTPUT"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
 
       - name: Cache packages
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -247,6 +280,11 @@ jobs:
           name: packages-${{ github.run_id }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
           path: ./*.${{ matrix.package_extension }}
           retention-days: 7
+
+      - name: Remove GPG signing key
+        if: ${{ always() }}
+        shell: bash
+        run: rm -f key.gpg
 
   dockerize:
     name: dockerize ${{ matrix.distrib_codename }} ${{ matrix.arch }}
