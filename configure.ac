@@ -2,7 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([quanta-agent],[1.3.1],[support@quanta.io])
+# The version is read from .version, the single source of truth for it.
+# Re-run autoreconf after changing .version.
+m4_define([CXM_VERSION],
+  m4_esyscmd_s([sed -n 's/^VERSION=//p' .version | tr -d '\r']))
+m4_if(CXM_VERSION, [], [m4_fatal([could not read VERSION from .version])])
+AC_INIT([quanta-agent],[CXM_VERSION],[support@quanta.io])
 AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT
 
