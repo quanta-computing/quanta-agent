@@ -14,6 +14,9 @@ on:
       - labeled
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -157,10 +160,14 @@ jobs:
           fi
 
       - name: Import GPG signing key
+        if: ${{ matrix.package_extension == 'rpm' }}
         shell: bash
         env:
           RPM_GPG_SIGNING_KEY: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-        run: echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg
+        run: |
+          # create the private key file owner-only from the start, never world-readable
+          (umask 077 && echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg)
+          chmod 600 key.gpg
 
       - name: Build make and compile quanta agent libraries
         id: compile
@@ -225,9 +232,20 @@ jobs:
            export DEVEL_SUFFIX="dev"
           fi
 
-          export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
-          export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
-          export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
+          # nfpm only signs when rpm.signature.key_file is not empty, so it stays
+          # empty for deb packages and every rpm package must get a key
+          export RPM_SIGNING_KEY_FILE=""
+          export RPM_SIGNING_KEY_ID=""
+          if [ "$PACKAGE_EXTENSION" = "rpm" ]; then
+            # key.gpg is written by the import step, empty when the secret is
+            if [[ -z "$RPM_GPG_SIGNING_KEY_ID" || ! -s key.gpg ]]; then
+              echo "::error::RPM packages must be signed: RPM_GPG_SIGNING_KEY and RPM_GPG_SIGNING_KEY_ID must both be set"
+              exit 1
+            fi
+            export RPM_SIGNING_KEY_FILE="$(pwd)/key.gpg"
+            export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
+            export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
+          fi
 
           chmod +x packaging/scripts/*.sh
 
@@ -250,6 +268,11 @@ jobs:
           name: packages-${{ github.run_id }}-${{ matrix.distrib_name }}-${{ matrix.arch }}
           path: ./*.${{ matrix.package_extension }}
           retention-days: 7
+
+      - name: Remove GPG signing key
+        if: ${{ always() }}
+        shell: bash
+        run: rm -f key.gpg
 
   dockerize:
     name: dockerize ${{ matrix.distrib_codename }} ${{ matrix.arch }}
