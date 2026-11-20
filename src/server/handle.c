@@ -11,11 +11,22 @@
 #include "server.h"
 
 
+/* Accept and drop the pending connection so the listening socket stops being readable */
+static int monikor_server_reject_connection(monikor_server_t *server) {
+  int sock;
+
+  if ((sock = accept4(server->socket, NULL, NULL, SOCK_CLOEXEC)) == -1)
+    return -1;
+  monikor_log(LOG_WARNING, "Too many clients, rejecting connection on socket %d\n", sock);
+  close(sock);
+  return 1;
+}
+
 int monikor_server_handle_connection(monikor_server_t *server) {
   monikor_io_handler_t *handler;
 
   if (server->n_clients >= MONIKOR_SRV_MAX_CLIENTS)
-    return -1;
+    return monikor_server_reject_connection(server);
   for (size_t i = 0; i < MONIKOR_SRV_MAX_CLIENTS; i++) {
     if (server->clients[i].socket == MONIKOR_CLIENT_INACTIVE_SOCKET) {
       struct sockaddr_un addr;
@@ -35,7 +46,7 @@ int monikor_server_handle_connection(monikor_server_t *server) {
       return 0;
     }
   }
-  return 1;
+  return monikor_server_reject_connection(server);
 }
 
 int monikor_server_handle_client(monikor_server_handler_t *handler) {
