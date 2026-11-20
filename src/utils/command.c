@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "monikor.h"
 #include "utils.h"
@@ -63,8 +64,9 @@ static command_exec_t *start_command(const char *command, char *const argv[]) {
   command_exec_t *cmd = NULL;
   int pipefd[2];
 
-  if (pipe(pipefd) == -1
-  || !(cmd = malloc(sizeof(*cmd)))
+  if (pipe(pipefd) == -1)
+    return NULL;
+  if (!(cmd = malloc(sizeof(*cmd)))
   || !(cmd->output_handler = monikor_io_handler_new(pipefd[0], MONIKOR_IO_HANDLER_RD, &handle_command_output, (void *)cmd))) {
     goto err;
   }
@@ -85,8 +87,8 @@ static command_exec_t *start_command(const char *command, char *const argv[]) {
     || dup2(null_fd, STDIN_FILENO) == -1
     || dup2(null_fd, STDERR_FILENO) == -1
     || dup2(pipefd[1], STDOUT_FILENO) == -1
-    || execvp(command, argv) == -1)
-      exit(1);
+    || execv(command, argv) == -1)
+      _exit(MNK_COMMAND_EXEC_EXIT_CANNOT_EXEC);
   } else {
     close(pipefd[1]);
   }
@@ -94,6 +96,8 @@ static command_exec_t *start_command(const char *command, char *const argv[]) {
   return cmd;
 
 err:
+  close(pipefd[0]);
+  close(pipefd[1]);
   if (cmd)
     free(cmd->output_handler);
   free(cmd);
@@ -116,6 +120,13 @@ void (*callback)(command_exec_t *output), void *data) {
   return handler;
 
 err:
+  if (cmd) {
+    // child is not watched yet: kill and reap it here, and drop the pipe read end
+    kill(cmd->pid, SIGKILL);
+    waitpid(cmd->pid, NULL, 0);
+    close(cmd->output_handler->fd);
+    free(cmd->output_handler);
+  }
   free(cmd);
   free(handler);
   return NULL;
@@ -125,6 +136,9 @@ void monikor_command_free(monikor_process_handler_t *handler) {
   command_exec_t *cmd = (command_exec_t *)handler->data;
 
   if (cmd) {
+    // fd is still open when the command is torn down before its output EOF
+    if (cmd->output_handler && cmd->output_handler->fd != -1)
+      close(cmd->output_handler->fd);
     free(cmd->output_handler);
     free(cmd->output);
   }

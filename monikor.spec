@@ -1,14 +1,14 @@
 Name:	monikor
-Version: 1.3.0
+Version: 1.3.1
 Release: 1%{?dist}
 Summary: Quanta monitoring packages
 Distribution: Quanta
 Vendor: Quanta IO
 Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
-URL: http://www.quanta.io
+URL: https://www.centreon.com
 License: toto
-Source: monikor-1.3.0.tgz
+Source: monikor-1.3.1.tgz
 
 Buildroot	: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _unpackaged_files_terminate_build 0

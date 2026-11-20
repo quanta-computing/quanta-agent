@@ -87,7 +87,7 @@ typedef struct {
   } logger;
 
   struct {
-    int max_size;
+    size_t max_size;
   } cache;
 
   int poll_interval;

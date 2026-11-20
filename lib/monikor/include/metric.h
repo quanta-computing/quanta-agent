@@ -84,6 +84,8 @@ typedef struct {
 #define METRIC_LIST_HDR_COUNT_OFF (sizeof(uint8_t))
 #define METRIC_LIST_HDR_DATA_SIZE_OFF (sizeof(uint8_t) + sizeof(uint16_t))
 #define SERIALIZED_METRIC_LIST_HDR_SIZE (sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint64_t))
+// The list header stores the metric count as a uint16
+#define METRIC_LIST_MAX_COUNT UINT16_MAX
 
 
 // Metrics

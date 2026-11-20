@@ -54,7 +54,7 @@ int monikor_init_modules(monikor_t *mon);
 void monikor_cleanup(monikor_t *mon);
 void monikor_cleanup_modules(monikor_t *mon);
 int monikor_run(monikor_t *mon);
-void monikor_exit(monikor_t *mon);
+void monikor_exit(monikor_t *mon, int status);
 int monikor_reload(monikor_t *mon);
 int monikor_daemonize(monikor_t *mon);
 
@@ -88,6 +88,7 @@ void monikor_unregister_io_handler(monikor_t *mon, monikor_io_handler_t *handler
 void monikor_register_process(monikor_t *mon, monikor_process_handler_t *handler);
 void monikor_unregister_process(monikor_t *mon, monikor_process_handler_t *handler);
 int monikor_reap_process(monikor_t *mon, pid_t pid);
-void monikor_process_exited(monikor_t *mon, pid_t pid);
+void monikor_process_exited(monikor_t *mon, pid_t pid, int status);
+void monikor_reap_exited_children(monikor_t *mon);
 
 #endif /* end of include guard: MONIKOR_H_ */

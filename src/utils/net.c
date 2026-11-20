@@ -7,13 +7,17 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <netdb.h>
 
 #define MNK_NET_RD_SZ 4096
+#define MNK_NET_MAX_RESPONSE_SZ (1024 * 1024)
 
 typedef struct {
   char *send;
+  char *response;
+  size_t response_size;
   void (*callback)(char *, void *);
   void *data;
   struct addrinfo *ai;
@@ -23,13 +27,17 @@ typedef struct {
 
 static int monikor_net_gai(const char *host, const char *port, monikor_net_handler_data_t *handler_data) {
   struct addrinfo hints;
+  int err;
 
+  memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
-  if (getaddrinfo(host, port, &hints, &handler_data->ai)) {
-    freeaddrinfo(handler_data->ai);
+  handler_data->ai = NULL;
+  handler_data->ai_cur = NULL;
+  if ((err = getaddrinfo(host, port, &hints, &handler_data->ai))) {
+    monikor_log(LOG_ERR, "Cannot resolve %s port %s: %s\n", host, port, gai_strerror(err));
     return -1;
   }
   handler_data->ai_cur = handler_data->ai;
@@ -39,6 +47,7 @@ static int monikor_net_gai(const char *host, const char *port, monikor_net_handl
 static int monikor_net_connect(monikor_net_handler_data_t *handler_data) {
   int sock;
   int flags;
+  int saved_errno;
   struct addrinfo *ai = handler_data->ai_cur;
   char host[512];
   char port[512];
@@ -48,30 +57,49 @@ static int monikor_net_connect(monikor_net_handler_data_t *handler_data) {
   if ((sock = socket(ai->ai_family, ai->ai_socktype | SOCK_CLOEXEC, ai->ai_protocol)) == -1
   || (flags = fcntl(sock, F_GETFL, 0)) == -1 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1
   || (connect(sock, ai->ai_addr, ai->ai_addrlen) == -1 && errno != EINPROGRESS)) {
+    if (sock != -1) {
+      saved_errno = errno;
+      close(sock);
+      errno = saved_errno;
+    }
     return -1;
   }
   return sock;
 }
 
-static char *monikor_net_recv(int sock) {
-  char *response = NULL;
-  size_t response_size = 0;
-  int read_bytes;
+static int monikor_net_connect_any(monikor_net_handler_data_t *handler_data) {
+  int fd;
+
+  for (; handler_data->ai_cur; handler_data->ai_cur = handler_data->ai_cur->ai_next) {
+    if ((fd = monikor_net_connect(handler_data)) != -1)
+      return fd;
+  }
+  return -1;
+}
+
+// Returns 0 on EOF (response complete), 1 when the socket would block, -1 on error
+static int monikor_net_recv(int sock, monikor_net_handler_data_t *handler_data) {
+  char *response;
+  ssize_t read_bytes;
 
   do {
-    if (!(response = realloc(response, response_size + MNK_NET_RD_SZ + 1)))
-      goto err;
-    read_bytes = read(sock, response + response_size, MNK_NET_RD_SZ);
-    if (read_bytes == -1)
-      goto err;
-    response_size += read_bytes;
-    response[response_size] = 0;
-  } while (read_bytes == MNK_NET_RD_SZ);
-  return response;
-
-err:
-  free(response);
-  return NULL;
+    if (handler_data->response_size > MNK_NET_MAX_RESPONSE_SZ) {
+      errno = EFBIG;
+      return -1;
+    }
+    if (!(response = realloc(handler_data->response, handler_data->response_size + MNK_NET_RD_SZ + 1)))
+      return -1;
+    handler_data->response = response;
+    response[handler_data->response_size] = 0;
+    read_bytes = read(sock, response + handler_data->response_size, MNK_NET_RD_SZ);
+    if (read_bytes > 0) {
+      handler_data->response_size += read_bytes;
+      response[handler_data->response_size] = 0;
+    }
+  } while (read_bytes > 0 || (read_bytes == -1 && errno == EINTR));
+  if (read_bytes == 0)
+    return 0;
+  return errno == EAGAIN || errno == EWOULDBLOCK ? 1 : -1;
 }
 
 static void handle_io_read(monikor_io_handler_t *handler, uint8_t mode) {
@@ -79,9 +107,14 @@ static void handle_io_read(monikor_io_handler_t *handler, uint8_t mode) {
   char *received;
   void *data;
   void (*callback)(char *, void *);
+  int status;
 
   (void)mode;
-  received = monikor_net_recv(handler->fd);
+  if ((status = monikor_net_recv(handler->fd, handler_data)) == 1)
+    return;
+  if (status == -1)
+    monikor_log(LOG_ERR, "Cannot receive data: %s\n", strerror(errno));
+  received = handler_data->response;
   data = handler_data->data;
   callback = handler_data->callback;
   close(handler->fd);
@@ -91,14 +124,15 @@ static void handle_io_read(monikor_io_handler_t *handler, uint8_t mode) {
   freeaddrinfo(handler_data->ai);
   free(handler->data);
   handler->data = NULL;
-  if (received)
+  if (!status && received)
     callback(received, data);
   free(received);
 }
 
 static void handle_io_connect(monikor_io_handler_t *handler, uint8_t mode) {
   monikor_net_handler_data_t *handler_data = (monikor_net_handler_data_t *)handler->data;
-  int flags;
+  size_t send_len;
+  ssize_t written;
   int result;
   int fd;
   socklen_t result_len = sizeof(result);
@@ -106,21 +140,18 @@ static void handle_io_connect(monikor_io_handler_t *handler, uint8_t mode) {
   (void)mode;
   if (getsockopt(handler->fd, SOL_SOCKET, SO_ERROR, &result, &result_len) == -1 || result) {
     handler_data->ai_cur = handler_data->ai_cur->ai_next;
-    if (!handler_data->ai_cur
-    || (fd = monikor_net_connect(handler_data)) == -1) {
-      monikor_log(LOG_ERR, "Cannot connect: %s\n",
-        handler_data->ai_cur ? strerror(errno) : "No more addresses to try");
+    if ((fd = monikor_net_connect_any(handler_data)) == -1) {
+      monikor_log(LOG_ERR, "Cannot connect: No more addresses to try\n");
       goto err;
     }
     close(handler->fd);
     handler->fd = fd;
     return;
   }
-  if (((flags = fcntl(handler->fd, F_GETFL, 0)) == -1)
-  || fcntl(handler->fd, F_SETFL, flags & ~O_NONBLOCK) == -1
-  || (handler_data->send &&
-  write(handler->fd, handler_data->send, strlen((char *)handler_data->send)) == -1)) {
-    monikor_log(LOG_ERR, "Cannot send data: %s\n", strerror(errno));
+  if (handler_data->send && (send_len = strlen(handler_data->send))
+  && (written = write(handler->fd, handler_data->send, send_len)) != (ssize_t)send_len) {
+    monikor_log(LOG_ERR, "Cannot send data: %s\n",
+      written == -1 ? strerror(errno) : "short write");
     goto err;
   }
   handler->mode = MONIKOR_IO_HANDLER_RD;
@@ -148,7 +179,7 @@ void (*callback)(char *response, void *data), void *data) {
     free(handler_data);
     return NULL;
   }
-  if ((fd = monikor_net_connect(handler_data)) == -1) {
+  if ((fd = monikor_net_connect_any(handler_data)) == -1) {
     freeaddrinfo(handler_data->ai);
     free(handler_data);
     return NULL;
@@ -162,7 +193,22 @@ void (*callback)(char *response, void *data), void *data) {
     return NULL;
   }
   handler_data->send = send;
+  handler_data->response = NULL;
+  handler_data->response_size = 0;
   handler_data->callback = callback;
   handler_data->data = data;
   return handler;
+}
+
+void monikor_net_exchange_free(monikor_io_handler_t *handler) {
+  monikor_net_handler_data_t *handler_data = (monikor_net_handler_data_t *)handler->data;
+
+  if (handler->fd != -1)
+    close(handler->fd);
+  if (handler_data) {
+    free(handler_data->response);
+    freeaddrinfo(handler_data->ai);
+    free(handler_data);
+  }
+  free(handler);
 }

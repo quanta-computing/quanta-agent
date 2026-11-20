@@ -45,16 +45,18 @@ static inline int is_cached_metric(monikor_metric_t *metric, monikor_metric_t *c
 
 /* Push a delta metric to the metric store.
 ** If the metric already exists, it is then computable and a new metric is returned. The metric
-** already in place is replaced by the new one to allow further computation
+** already in place is replaced by the new one to allow further computation, even when no
+** delta can be computed (type change, clock stepped back): the store then keeps the metric
+** and returns -1 to signal that no delta was produced.
 */
 int monikor_metric_store_push_delta(monikor_metric_store_t *store, monikor_metric_t *metric) {
   for (monikor_metric_list_node_t *node = store->delta->first; node; node = node->next) {
     if (is_cached_metric(metric, node->metric)) {
       monikor_metric_t *new = monikor_metric_compute_delta(node->metric, metric);
-      if (!new)
-        return -1;
       monikor_metric_free(node->metric);
       node->metric = metric;
+      if (!new)
+        return -1;
       return monikor_metric_store_push(store, new);
     }
   }

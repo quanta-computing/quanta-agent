@@ -1,3 +1,24 @@
+monikor (1.3.1) quanta; urgency=medium
+
+  * Major bugfix of the Varnish module: since 1.3.0 most Varnish metrics were wrong (the
+    requests per second graph was reading the HTTP 400 counter, many values were truncated
+    or read from the wrong column, memory metrics could be missing). Every graph now
+    reports the real values on Varnish 4, 6 and 7. Counters a Varnish version does not
+    have (connections drop on Varnish 7) are no longer reported instead of being wrong.
+  * varnishstat is executed without a PATH lookup: /usr/bin/varnishstat by default, or the
+    absolute path set in varnishstat_path
+  * Disk module: per-disk metrics for NVMe, virtio (vd*), Xen (xvd*), software RAID (md*)
+    and sdaa+ disks; read/written bytes counted in the kernel's 512-byte sectors, which were
+    8x too high on 4K-sector disks
+  * Robustness fixes from a code audit: no crash on an unresolvable redis/memcached host,
+    an empty apache status page or cloud metadata answer, or a reload during a poll; no
+    hang on an unresponsive MySQL, redis or memcached server; a reload with a broken
+    configuration keeps the previous one and the log file; leak and counter overflow fixes
+  * Added a varnish parser test suite (make check) and tests/varnishstat-parse to check a
+    varnishstat capture
+
+ -- Matthieu ROSINSKI <support@quanta.io>  Thu, 05 Nov 2026 18:00:00 +0100
+
 monikor (1.3.0) quanta; urgency=low
 
   * Fixed time comparison in metric store
