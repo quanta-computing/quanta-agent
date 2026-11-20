@@ -218,6 +218,30 @@ START_TEST(test_monikor_metric_list_serialize) {
 }
 
 
+START_TEST(test_monikor_metric_list_serialize_max_count) {
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+  monikor_metric_list_t *l;
+  monikor_serialized_metric_list_hdr_t hdr;
+  void *data;
+  size_t size;
+
+  l = monikor_metric_list_new();
+  ck_assert_ptr_nonnull(l);
+  for (size_t i = 0; i < METRIC_LIST_MAX_COUNT; i++)
+    monikor_metric_list_push(l, monikor_metric_integer("m", &clock, i, 0));
+  ck_assert_int_eq(monikor_metric_list_serialize(l, &data, &size), 0);
+  monikor_metric_list_header_unserialize(data, &hdr);
+  ck_assert_uint_eq(hdr.count, METRIC_LIST_MAX_COUNT);
+  free(data);
+
+  monikor_metric_list_push(l, monikor_metric_integer("m", &clock, 0, 0));
+  ck_assert_int_ne(monikor_metric_list_serialize(l, &data, &size), 0);
+  ck_assert_ptr_null(data);
+  monikor_metric_list_free(l);
+}
+END_TEST
+
+
 START_TEST(test_monikor_metric_list_unserialize) {
   struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
   void *data = NULL;
@@ -297,6 +321,7 @@ Suite *libmonikor_metric_list_suite(void) {
 
   TCase *tc_metric_list_serialize = tcase_create("monikor_metric_list_serialize");
   tcase_add_test(tc_metric_list_serialize, test_monikor_metric_list_serialize);
+  tcase_add_test(tc_metric_list_serialize, test_monikor_metric_list_serialize_max_count);
   suite_add_tcase(s, tc_metric_list_serialize);
 
   TCase *tc_metric_list_unserialize = tcase_create("monikor_metric_list_unserialize");
