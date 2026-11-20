@@ -21,7 +21,7 @@ int find_index(char *str, char *name) {
   return n;
 }
 
-int get_index_value(char *str, int index)
+uint64_t get_index_value(char *str, int index)
 {
   int i = -1;
   int space = 0;
@@ -48,13 +48,17 @@ int poll_tcp_metrics(monikor_t *mon, struct timeval *clock)
 
   if (!(stats = monikor_read_file("/proc/net/snmp")))
     return 0;
-  stat = strstr(stats, "Tcp:");
-  value = strstr(stat + 1, "Tcp:");
-  if (!(end = strchr(stat, '\n')))
+  if (!(stat = strstr(stats, "Tcp:"))
+  || !(value = strstr(stat + 1, "Tcp:"))
+  || !(end = strchr(stat, '\n'))) {
+    free(stats);
     return 0;
+  }
   *end = '\0';
-  if (!(end = strchr(value, '\n')))
+  if (!(end = strchr(value, '\n'))) {
+    free(stats);
     return 0;
+  }
   *end = 0;
   n += monikor_metric_push(mon, monikor_metric_integer("network.tcp.active",
     clock, get_index_value(value, find_index(stat, "ActiveOpens")), MONIKOR_METRIC_TIMEDELTA));
