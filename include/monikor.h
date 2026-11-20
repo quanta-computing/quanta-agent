@@ -11,7 +11,11 @@
 typedef struct monikor_s monikor_t;
 #endif
 
-#define MONIKOR_VERSION "1.3.0"
+// PACKAGE_VERSION is defined by configure from the .version file
+#ifndef PACKAGE_VERSION
+# error "PACKAGE_VERSION is not defined, build through ./configure"
+#endif
+#define MONIKOR_VERSION PACKAGE_VERSION
 
 #include "server.h"
 #include "strl.h"
