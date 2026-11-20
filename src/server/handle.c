@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -49,22 +50,33 @@ int monikor_server_handle_client(monikor_server_handler_t *handler) {
   if (ret < (ssize_t)SERIALIZED_METRIC_LIST_HDR_SIZE)
     goto err;
   monikor_metric_list_header_unserialize((void *)buf, &handler->client->header);
+  if (handler->client->header.data_size > MONIKOR_SRV_MAX_DATA_SIZE) {
+    monikor_log(LOG_WARNING, "client announced %" PRIu64 " bytes of data, max is %d\n",
+      handler->client->header.data_size, MONIKOR_SRV_MAX_DATA_SIZE);
+    goto err;
+  }
   if (!(handler->client->data = malloc(handler->client->header.data_size))) {
-    monikor_log(LOG_ERR, "cannot allocate %zu bytes of memory\n", handler->client->header.data_size);
+    monikor_log(LOG_ERR, "cannot allocate %" PRIu64 " bytes of memory\n", handler->client->header.data_size);
     goto err;
   }
   rd = 0;
-  do {
+  while (rd < handler->client->header.data_size) {
     ret = read(handler->client->socket, handler->client->data + rd, handler->client->header.data_size - rd);
     if (ret == -1) {
       monikor_log(LOG_ERR, "read(2) error: %s\n", strerror(errno));
       goto err;
     }
+    if (ret == 0)
+      goto err;
     rd += ret;
-  } while (rd < handler->client->header.data_size);
+  }
   if (rd < handler->client->header.data_size)
     goto err;
-  monikor_metric_list_unserialize(handler->client->data, &handler->client->header, &metrics);
+  if (monikor_metric_list_unserialize(handler->client->data, &handler->client->header, &metrics)
+  != handler->client->header.count || !metrics) {
+    monikor_metric_list_free(metrics);
+    goto err;
+  }
   monikor_metric_store_lpush(handler->server->mon->metrics, metrics);
   monikor_metric_list_free(metrics);
   monikor_server_disconnect(handler);
