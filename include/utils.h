@@ -50,6 +50,7 @@ int monikor_http_get_with_headers(monikor_t *mon, const char *url, long timeout,
 
 monikor_io_handler_t *monikor_net_exchange(const char *host, const char *port, char *send,
 void (*callback)(char *response, void *data), void *data);
+void monikor_net_exchange_free(monikor_io_handler_t *handler);
 
 monikor_process_handler_t *monikor_command_exec(const char *command, char *const argv[],
   void (*callback)(command_exec_t *output), void *data);
