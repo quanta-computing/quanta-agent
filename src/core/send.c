@@ -112,7 +112,7 @@ int monikor_send_metrics(monikor_t *mon, monikor_metric_list_t *metrics) {
   struct curl_slist *headers = NULL;
 
   if (!mon->config->server.url
-  || !(data = malloc(sizeof(*data)))
+  || !(data = calloc(1, sizeof(*data)))
   || monikor_metric_list_serialize(metrics, &data->data, &data->data_size)
   || !(headers = set_http_headers(mon))
   || !(handler = monikor_curl_handler_new(&handle_server_response, data))) {

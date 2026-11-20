@@ -330,6 +330,34 @@ START_TEST(test_monikor_metric_compute_delta_err) {
   ck_assert_ptr_null(res);
   monikor_metric_free(a);
   monikor_metric_free(b);
+
+  // A timedelta over a negative or null interval cannot be computed
+  clock.tv_sec = 102;
+  clock.tv_usec = 21;
+  a = monikor_metric_integer("testmetric", &clock, 42, MONIKOR_METRIC_TIMEDELTA);
+  ck_assert_ptr_nonnull(a);
+  clock.tv_sec -= 60;
+  b = monikor_metric_integer("testmetric", &clock, 52, MONIKOR_METRIC_TIMEDELTA);
+  ck_assert_ptr_nonnull(b);
+  res = monikor_metric_compute_delta(a, b);
+  ck_assert_ptr_null(res);
+  b->clock = a->clock;
+  res = monikor_metric_compute_delta(a, b);
+  ck_assert_ptr_null(res);
+  monikor_metric_free(a);
+  monikor_metric_free(b);
+
+  clock.tv_sec = 102;
+  clock.tv_usec = 21;
+  a = monikor_metric_float("testmetric", &clock, 42.0, MONIKOR_METRIC_TIMEDELTA);
+  ck_assert_ptr_nonnull(a);
+  clock.tv_usec -= 1;
+  b = monikor_metric_float("testmetric", &clock, 52.0, MONIKOR_METRIC_TIMEDELTA);
+  ck_assert_ptr_nonnull(b);
+  res = monikor_metric_compute_delta(a, b);
+  ck_assert_ptr_null(res);
+  monikor_metric_free(a);
+  monikor_metric_free(b);
 }
 END_TEST
 

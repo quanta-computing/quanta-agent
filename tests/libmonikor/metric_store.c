@@ -132,6 +132,71 @@ START_TEST(test_monikor_metric_store_push_delta_ids) {
 }
 END_TEST
 
+START_TEST(test_monikor_metric_store_push_delta_err) {
+  monikor_metric_store_t *s;
+  monikor_metric_t *m;
+  struct timeval clock = { .tv_sec = 42, .tv_usec = 21 };
+  int ret;
+
+  s = monikor_metric_store_new();
+  ck_assert_ptr_nonnull(s);
+
+  // A metric whose delta cannot be computed replaces the cached one (no leak)
+  ret = monikor_metric_store_push(s, monikor_metric_integer("delta", &clock, 42, MONIKOR_METRIC_DELTA));
+  ck_assert_int_eq(ret, 0);
+  clock.tv_sec += 60;
+  ret = monikor_metric_store_push(s, monikor_metric_float("delta", &clock, 84.0, MONIKOR_METRIC_DELTA));
+  ck_assert_int_eq(ret, -1);
+  ck_assert_uint_eq(s->current->size, 0);
+  ck_assert_uint_eq(s->delta->size, 1);
+  m = s->delta->first->metric;
+  ck_assert_uint_eq(m->type, MONIKOR_FLOAT);
+  ck_assert_int_eq(m->clock.tv_sec, clock.tv_sec);
+
+  // The next sample computes against the replaced one
+  clock.tv_sec += 60;
+  ret = monikor_metric_store_push(s, monikor_metric_float("delta", &clock, 126.0, MONIKOR_METRIC_DELTA));
+  ck_assert_int_eq(ret, 0);
+  ck_assert_uint_eq(s->current->size, 1);
+  ck_assert_float_eq(s->current->first->metric->value._float, 42.0);
+  monikor_metric_store_flush_all(s);
+
+  // String metrics flagged as delta are never computable
+  m = monikor_metric_string("string", &clock, "a");
+  ck_assert_ptr_nonnull(m);
+  m->flags = MONIKOR_METRIC_DELTA;
+  ret = monikor_metric_store_push(s, m);
+  ck_assert_int_eq(ret, 0);
+  clock.tv_sec += 60;
+  m = monikor_metric_string("string", &clock, "b");
+  ck_assert_ptr_nonnull(m);
+  m->flags = MONIKOR_METRIC_DELTA;
+  ret = monikor_metric_store_push(s, m);
+  ck_assert_int_eq(ret, -1);
+  ck_assert_uint_eq(s->current->size, 0);
+  ck_assert_uint_eq(s->delta->size, 1);
+  ck_assert_ptr_eq(s->delta->first->metric, m);
+  monikor_metric_store_flush_all(s);
+
+  // A clock stepped back yields no timedelta and the cached sample is replaced
+  ret = monikor_metric_store_push(s, monikor_metric_integer("timedelta", &clock, 42, MONIKOR_METRIC_TIMEDELTA));
+  ck_assert_int_eq(ret, 0);
+  clock.tv_sec -= 60;
+  ret = monikor_metric_store_push(s, monikor_metric_integer("timedelta", &clock, 102, MONIKOR_METRIC_TIMEDELTA));
+  ck_assert_int_eq(ret, -1);
+  ck_assert_uint_eq(s->current->size, 0);
+  ck_assert_uint_eq(s->delta->size, 1);
+  ck_assert_int_eq(s->delta->first->metric->clock.tv_sec, clock.tv_sec);
+  clock.tv_sec += 60;
+  ret = monikor_metric_store_push(s, monikor_metric_integer("timedelta", &clock, 162, MONIKOR_METRIC_TIMEDELTA));
+  ck_assert_int_eq(ret, 0);
+  ck_assert_uint_eq(s->current->size, 1);
+  ck_assert_float_eq(s->current->first->metric->value._float, 1.0);
+
+  monikor_metric_store_free(s);
+}
+END_TEST
+
 
 START_TEST(test_monikor_metric_store_push_aggregate) {
   monikor_metric_store_t *s;
@@ -382,6 +447,7 @@ Suite *libmonikor_metric_store_suite(void) {
   tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push);
   tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push_delta);
   tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push_delta_ids);
+  tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push_delta_err);
   tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push_aggregate);
   tcase_add_test(tc_metric_store_push, test_monikor_metric_store_push_aggregate_ids);
   suite_add_tcase(s, tc_metric_store_push);
