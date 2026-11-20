@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 #include "monikor.h"
@@ -40,8 +42,18 @@ void *varnish_init(monikor_t *mon, monikor_config_dict_t *config) {
   mod->mon = mon;
   mod->cmd_handler = NULL;
   mod->varnishstat_path = monikor_config_dict_get_scalar(config, "varnish.varnishstat_path");
-  if (!mod->varnishstat_path)
+  if (!mod->varnishstat_path) {
     mod->varnishstat_path = MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH;
+  } else if (mod->varnishstat_path[0] != '/') {
+    // The command is executed without a PATH lookup: only an absolute path is accepted
+    monikor_log_mod(LOG_WARNING, MOD_NAME,
+      "varnishstat_path '%s' is not an absolute path, fallbacking to default (%s)\n",
+      mod->varnishstat_path, MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH);
+    mod->varnishstat_path = MONIKOR_VARNISH_DEFAULT_VARNISHSTAT_PATH;
+  }
+  if (access(mod->varnishstat_path, X_OK) == -1)
+    monikor_log_mod(LOG_WARNING, MOD_NAME, "varnishstat_path '%s' is not executable: %s\n",
+      mod->varnishstat_path, strerror(errno));
   mod->varnishstat_timeout_arg = varnish_init_timeout(mon, config);
   mod->instance = monikor_config_dict_get_scalar(config, "varnish.instance");
   if (mod->instance && strlen(mod->instance) >= MONIKOR_VARNISH_MAX_INSTANCE_LENGTH) {

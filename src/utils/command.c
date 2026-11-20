@@ -85,8 +85,8 @@ static command_exec_t *start_command(const char *command, char *const argv[]) {
     || dup2(null_fd, STDIN_FILENO) == -1
     || dup2(null_fd, STDERR_FILENO) == -1
     || dup2(pipefd[1], STDOUT_FILENO) == -1
-    || execvp(command, argv) == -1)
-      exit(1);
+    || execv(command, argv) == -1)
+      _exit(MNK_COMMAND_EXEC_EXIT_CANNOT_EXEC);
   } else {
     close(pipefd[1]);
   }
