@@ -8,8 +8,11 @@ int monikor_reload(monikor_t *mon) {
   monikor_config_t *config;
 
   monikor_log(LOG_DEBUG, "Reloading configuration and modules\n");
-  if (!(config = monikor_load_config(mon->config->config_path)))
-    return 1;
+  if (!(config = monikor_load_config(mon->config->config_path))) {
+    monikor_log(LOG_ERR, "Cannot reload configuration, keeping the current one\n");
+    mon->flags &= ~MONIKOR_FLAG_RELOAD;
+    return 0;
+  }
   monikor_cleanup_modules(mon);
   monikor_config_free(mon->config);
   mon->config = config;
