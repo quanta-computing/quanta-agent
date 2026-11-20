@@ -31,7 +31,7 @@ static void apache_fetch_metrics(http_response_t *status, CURLcode result) {
   struct timeval clock;
   int n = 0;
 
-  if (result != CURLE_OK || status->code != 200) {
+  if (result != CURLE_OK || status->code != 200 || !status->data) {
     free(status->data);
     free(status);
     return;
