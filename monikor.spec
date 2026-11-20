@@ -6,7 +6,7 @@ Distribution: Quanta
 Vendor: Quanta IO
 Packager: Matthieu ROSINSKI <support@quanta.io>
 Group: Applications/Internet
-URL: http://www.quanta.io
+URL: https://www.centreon.com
 License: toto
 Source: monikor-1.3.0.tgz
 
