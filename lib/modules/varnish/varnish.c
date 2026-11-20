@@ -57,7 +57,11 @@ void varnish_cleanup(monikor_t *mon, void *data) {
   varnish_module_t *mod = (varnish_module_t *)data;
 
   if (mod->cmd_handler) {
-    monikor_reap_process(mon, mod->cmd_handler->pid);
+    command_exec_t *cmd = (command_exec_t *)mod->cmd_handler->data;
+
+    // an exited varnishstat was already reaped: its pid may belong to another process now
+    if (!(cmd->state & MNK_COMMAND_EXEC_STATE_PROCESS_DONE))
+      monikor_reap_process(mon, mod->cmd_handler->pid);
     monikor_command_unregister_io_handlers(mon, mod->cmd_handler);
     monikor_command_free(mod->cmd_handler);
   }
